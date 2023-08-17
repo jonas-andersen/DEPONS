@@ -83,10 +83,6 @@ public class WestonFlux {
 		  // Compute propagation loss (in dB re 1m^2) 
 		  double PL = -10*Math.log10(F);
 
-		  if (PL < 0.0d) {
-			  PL = 0-0d;
-		  }
-
 		  return PL;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -111,7 +111,7 @@ public class InnerDanishWatersDispersal implements Dispersal {
 	public InnerDanishWatersDispersal(final Porpoise owner) {
 		this.owner = owner;
 
-		if (!isLandscapeHomogenous() && !isLandscapeKattegat()) {
+		if (!SimulationParameters.isLandscapeHomogenous() && !SimulationParameters.isLandscapeKattegat()) {
 			throw new RuntimeException(
 					"This dispersal behaviour only supports the Kattegat and Homogenous landscapes!");
 		}
@@ -564,7 +564,7 @@ public class InnerDanishWatersDispersal implements Dispersal {
 	}
 
 	private double[] getBlockValues() {
-		if (isLandscapeHomogenous()) {
+		if (SimulationParameters.isLandscapeHomogenous()) {
 			return BLOCK_VAL_HOMO;
 		} else {
 			// The same values are returned for all quarters. The cause is that update-block-values is only called during setup.
@@ -584,14 +584,6 @@ public class InnerDanishWatersDispersal implements Dispersal {
 				throw new RuntimeException("Unexpected quarter");
 			}
 		}
-	}
-
-	private boolean isLandscapeHomogenous() {
-		return "Homogenous".equals(SimulationParameters.getLandscape());
-	}
-
-	private boolean isLandscapeKattegat() {
-		return "Kattegat".equals(SimulationParameters.getLandscape());
 	}
 
 	private int getNavigationBlock(final GridPoint point) {

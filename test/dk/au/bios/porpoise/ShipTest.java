@@ -404,11 +404,6 @@ public class ShipTest extends AbstractSimulationBDDTest {
 	}
 
 	@Test
-	void vhfWeighted() {
-		assertThat(Ship.vhfWeighting()).isCloseTo(-1.803332d, within(0.00001));
-	}
-
-	@Test
 	void predictProbResponse() {
 		assertThat(Ship.predictProbResponse(93.73515d, 850.5039/1000, true)).isCloseTo(0.07154668d, within(0.00000001));
 		assertThat(Ship.predictProbResponse(93.73515d, 850.5039/1000, false)).isCloseTo(0.03185507d, within(0.00000001));

@@ -109,7 +109,7 @@ public class WestonFluxTest {
 
 	@Test
 	void rangeIndependentNegative() {
-		assertThat(WestonFlux.rangeIndependent(0.5d, 0.5d, FREQUENCY, 1700, 0.9860894d, 0.002053996d, 0.9860894d, 1.148068d)).isZero();
+		assertThat(WestonFlux.rangeIndependent(0.5d, 0.5d, FREQUENCY, 1700, 0.9860894d, 0.002053996d, 0.9860894d, 1.148068d)).isCloseTo(-3.2706393d, within(0.000005));
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class WestonFluxTest {
 
 	@Test
 	void calcNegative() {
-		assertThat(WestonFlux.calc(0.5d, 0.5d, 6.5d, 10.0, 34)).isZero();
+		assertThat(WestonFlux.calc(0.5d, 0.5d, 6.5d, 10.0, 34)).isCloseTo(-3.44005d, within(0.000005));
 	}
 
 }
