@@ -50,11 +50,11 @@ public class DownloadLandscapes {
 					"https://depons.eu/files/landscapes/v3.0/Homogeneous-1d1e4acb.zip", 109220,
 					"1d1e4acb453f200b009f9eabfa6774eb682bf353fb16f90912bcfaa5afcfbd7e"),
 			new LandscapeFile("Kattegat", "Kattegat.zip",
-					"https://depons.eu/files/landscapes/v3.0/Kattegat-51c36e01.zip", 43167404,
-					"51c36e012a134120c28e681fdbd0e6b552ba6e790994d3522de86f6b57319c84"),
+					"https://depons.eu/files/landscapes/v3.1/Kattegat-e72c2a11.zip", 46114169,
+					"e72c2a11df234be0f441f140f464e0992e84b7e1e2f852c6873f6f1eaa18a4d0"),
 			new LandscapeFile("NorthSea", "NorthSea.zip",
-					"https://depons.eu/files/landscapes/v3.0/NorthSea-c0ccbf8f.zip", 107786038,
-					"c0ccbf8f030bee311b8b83ecf70dd7c1cce604abcd32c49b5779f7d1bdd63ce0"));
+					"https://depons.eu/files/landscapes/v3.1/NorthSea-f04316fa.zip", 107804072,
+					"f04316fa8024780b8f6928f05ff849af0c20312307b6cc62b432e8d65aa541f0"));
 
 	public static void main(String[] args) throws Exception {
 		for (var landscape : LANDSCAPES) {

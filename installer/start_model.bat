@@ -22,4 +22,4 @@ REM Change to the project directory
 CD "DEPONS"
 
 REM Start the Model
-START javaw -Xmx3072M -XX:+IgnoreUnrecognizedVMOptions --add-modules=ALL-SYSTEM --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED  --add-exports=java.base/java.lang=ALL-UNNAMED  --add-exports=java.desktop/sun.awt=ALL-UNNAMED  --add-exports=java.desktop/sun.java2d=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED -cp "%CP%" repast.simphony.runtime.RepastMain "./DEPONS.rs"
+START javaw -Xmx3072M -XX:+IgnoreUnrecognizedVMOptions --add-modules=ALL-SYSTEM --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED  --add-exports=java.base/java.lang=ALL-UNNAMED  --add-exports=java.desktop/sun.awt=ALL-UNNAMED  --add-exports=java.desktop/sun.java2d=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-exports java.xml/com.sun.org.apache.xpath.internal=ALL-UNNAMED --add-exports java.xml/com.sun.org.apache.xpath.internal.objects=ALL-UNNAMED -cp "%CP%" repast.simphony.runtime.RepastMain "./DEPONS.rs"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2020-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -28,28 +28,20 @@
 package dk.au.bios.porpoise.landscape;
 
 import java.io.IOException;
-import java.util.List;
 
 public class SimpleDataFile extends AbstractDataFile {
 
 	private final double[][] data;
 
-	public SimpleDataFile(final String landscape, final String fileName, final List<CellDataSource> sources)
+	public SimpleDataFile(final String landscape, final String fileName, final CellDataSource source)
 			throws IOException {
 		super(landscape);
 
-		double[][] loadedData = null;
-		for (CellDataSource src : sources) {
-			if (src.hasData(fileName)) {
-				loadedData = src.getData(fileName);
-				break;
-			}
-		}
-
-		if (loadedData == null) {
+		if (source.hasData(fileName)) {
+			this.data = source.getData(fileName);
+		} else {
 			throw new IOException("No data loaded for file " + fileName + " in landscape " + landscape);
 		}
-		this.data = loadedData;
 	}
 
 	public double[][] getData() {

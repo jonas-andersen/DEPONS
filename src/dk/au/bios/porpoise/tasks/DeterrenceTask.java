@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -32,6 +32,7 @@ import dk.au.bios.porpoise.Hydrophone;
 import dk.au.bios.porpoise.Porpoise;
 import dk.au.bios.porpoise.SoundSource;
 import dk.au.bios.porpoise.Turbine;
+import dk.au.bios.porpoise.ships.ShipLoader;
 import repast.simphony.context.Context;
 import repast.simphony.engine.schedule.IAction;
 
@@ -55,6 +56,7 @@ public class DeterrenceTask implements IAction {
 		resetHydrophones();
 
 		Turbine.activateTurbines(context);
+		ShipLoader.loadNextFileIfNecessary(context);
 
 		for (final Agent a : this.context.getObjects(Turbine.class)) {
 			((Turbine) a).deterPorpoise();

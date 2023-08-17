@@ -104,7 +104,7 @@
 						defaultValue="0.07" 
 						isReadOnly="false" 
 		/>
-        <parameter name="RT" displayName="T - Minimum received sound level for deterrence [dB]" type="string" 
+        <parameter name="RT" displayName="RT - Minimum received sound level for deterrence [dB]" type="string" 
 						defaultValue="152.9" 
 						isReadOnly="false" 
 		/>
@@ -147,6 +147,10 @@
 		/>
         <parameter name="dmin_deter_ships" displayName="dmin_deter_ships - Minimum deterrence distance for ships [km]" type="string" 
 						defaultValue="0.1" 
+						isReadOnly="false" 
+		/>
+        <parameter name="Tships" displayName="Tships - min dB for ships to deter porpoises" type="string" 
+						defaultValue="70.0" 
 						isReadOnly="false" 
 		/>
         <parameter name="pship_int_day" displayName="pship_int_day - intercept of ship noise &amp; dist on prob deter during day [unitless]" type="string" 

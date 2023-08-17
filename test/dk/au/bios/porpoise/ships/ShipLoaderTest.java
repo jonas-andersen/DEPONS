@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2022-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -29,10 +29,13 @@ package dk.au.bios.porpoise.ships;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 
 import dk.au.bios.porpoise.AbstractSimulationBDDTest;
 import dk.au.bios.porpoise.Ship;
+import dk.au.bios.porpoise.landscape.LandscapeLoader;
 
 public class ShipLoaderTest extends AbstractSimulationBDDTest {
 
@@ -40,16 +43,30 @@ public class ShipLoaderTest extends AbstractSimulationBDDTest {
 	public void loadJsonFromKattegatZip() throws Exception {
 		aNewWorld(600, 1000);
 
-		ShipLoader shipLoader = new ShipLoader();
-		shipLoader.load(context, "Kattegat");
+		var landscapeLoader = new LandscapeLoader("Kattegat");
+		landscapeLoader.loadShips(context);
 
-		assertThat(context.getObjectsAsStream(Ship.class).count()).isEqualTo(637);
-		
-		Ship ship = shipStream().filter(s -> "111219502".equals(s.getName())).findAny().orElseThrow();
-		assertThat(ship.getName()).isEqualTo("111219502");
-		assertThat(ship.getType()).isEqualTo(VesselClass.GOVERNMENT_RESEARCH);
-		assertThat(ship.getRoute().getName()).isEqualTo("Route_111219502");
-		assertThat(ship.getRoute().getRoute()).hasSize(5);
+		assertThat(context.getObjectsAsStream(Ship.class).count()).isEqualTo(5148);
+
+		Ship ship = shipStream().filter(s -> "518100373-1".equals(s.getName())).findAny().orElseThrow();
+		assertThat(ship.getName()).isEqualTo("518100373-1");
+		assertThat(ship.getType()).isEqualTo(VesselClass.BULKER);
+		assertThat(ship.getRoute().getName()).isEqualTo("Route_518100373-1");
+		assertThat(ship.getRoute().getRoute()).hasSize(34);
+	}
+
+	@Test
+	void fileMatcher2() {
+		var shipsFilePattern = Pattern.compile("ships(\\d\\d\\d\\d)_(XX|\\d\\d)_(XX|\\d\\d)\\.json");
+		assertThat(shipsFilePattern.matcher("ships0000_XX_XX.json").matches()).isTrue();
+		assertThat(shipsFilePattern.matcher("ships0000_00_01.json").matches()).isTrue();
+	}
+
+	@Test
+	void fileMatcher() {
+		var shipsFilePattern = Pattern.compile("ships(\\d\\d\\d\\d)_(XX|\\d\\d)_(XX|\\d\\d)(_.*)?\\.json");
+		assertThat(shipsFilePattern.matcher("ships0000_00_00.json").matches()).isTrue();
+		assertThat(shipsFilePattern.matcher("ships0000_00_01_another.json").matches()).isTrue();
 	}
 
 }

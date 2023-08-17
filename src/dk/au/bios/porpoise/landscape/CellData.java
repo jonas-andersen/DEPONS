@@ -30,7 +30,6 @@ package dk.au.bios.porpoise.landscape;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 
 import dk.au.bios.porpoise.Agent;
@@ -59,17 +58,17 @@ public class CellData {
 	private final Optional<Suntimes> suntimes;
 	private final Pair[] foodProbAboveZeroCells;
 
-	public CellData(final String landscape, final List<CellDataSource> sources) throws IOException {
-		this.distanceToCoast = new SimpleDataFile(landscape, LandscapeLoader.DISTTOCOAST_FILE, sources);
-		this.depth = new SimpleDataFile(landscape, LandscapeLoader.BATHY_FILE, sources);
-		this.sediment = new SimpleDataFile(landscape, LandscapeLoader.SEDIMENT_FILE, sources);
-		this.foodProb = new SimpleDataFile(landscape, LandscapeLoader.PATCHES_FILE, sources);
-		this.entropy = new MonthlyDataFile(landscape, LandscapeLoader.PREY_FILE_PREFIX, sources);
-		this.salinityMaps = new MonthlyDataFile(landscape, LandscapeLoader.SALINITY_FILE_PREFIX, sources);
+	public CellData(final String landscape, final CellDataSource source) throws IOException {
+		this.distanceToCoast = new SimpleDataFile(landscape, LandscapeLoader.DISTTOCOAST_FILE, source);
+		this.depth = new SimpleDataFile(landscape, LandscapeLoader.BATHY_FILE, source);
+		this.sediment = new SimpleDataFile(landscape, LandscapeLoader.SEDIMENT_FILE, source);
+		this.foodProb = new SimpleDataFile(landscape, LandscapeLoader.PATCHES_FILE, source);
+		this.entropy = new MonthlyDataFile(landscape, LandscapeLoader.PREY_FILE_PREFIX, source);
+		this.salinityMaps = new MonthlyDataFile(landscape, LandscapeLoader.SALINITY_FILE_PREFIX, source);
 
 		this.foodValue = new double[this.foodProb.getData().length][this.foodProb.getData()[0].length];
 
-		final double[][] blockDouble = new SimpleDataFile(landscape, LandscapeLoader.BLOCKS_FILE, sources).getData();
+		final double[][] blockDouble = new SimpleDataFile(landscape, LandscapeLoader.BLOCKS_FILE, source).getData();
 		this.block = new int[blockDouble.length][blockDouble[0].length];
 
 		for (int i = 0; i < this.block.length; i++) {
@@ -90,12 +89,9 @@ public class CellData {
 		this.foodProbAboveZeroCells = patches.toArray(new Pair[patches.size()]);
 		
 		Suntimes suntimesIn = null;
-		for (CellDataSource src : sources) {
-			if (src.hasData(LandscapeLoader.SUNTIMES_FILE)) {
-				var suntimesRaw = src.getRawData(LandscapeLoader.SUNTIMES_FILE);
-				suntimesIn = new Suntimes(new ByteArrayInputStream(suntimesRaw));
-				break;
-			}
+		if (source.hasData(LandscapeLoader.SUNTIMES_FILE)) {
+			var suntimesRaw = source.getRawData(LandscapeLoader.SUNTIMES_FILE);
+			suntimesIn = new Suntimes(new ByteArrayInputStream(suntimesRaw));
 		}
 		suntimes = Optional.ofNullable(suntimesIn);
 	}

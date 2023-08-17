@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -72,7 +72,9 @@ public class BackgroundAgent extends Agent {
 	}
 
 	public void initialize() {
-		setPosition(new NdPoint(Globals.getWorldWidth() / 2, Globals.getWorldHeight() / 2));
+		var posX = (Globals.getWorldWidth() / 2) - 0.5;
+		var posY = (Globals.getWorldHeight() / 2) - 0.5;
+		setPosition(new NdPoint(posX, posY));
 	}
 
 	public int getPointRGB(final int x, final int y) {

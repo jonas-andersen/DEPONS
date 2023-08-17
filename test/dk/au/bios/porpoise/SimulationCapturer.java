@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2019 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -61,17 +61,17 @@ public class SimulationCapturer {
 
 	public static void captureKattegatDispOff() throws Exception {
 		capture(new File("testdata_Kattegat_DispOff_NoTurbines_1porp.txt"), params -> {
-			params.setValue("randomSeed", 1955022734);
+			params.setValue("randomSeed", 7540860);
 			params.setValue("landscape", "Kattegat");
 			params.setValue("turbines", "off");
 			params.setValue("dispersal", "off");
 			params.setValue("porpoiseCount", 1);
 		});
 	}
-	
+
 	public static void captureKattegatUndirected() throws Exception {
 		capture(new File("testdata_Kattegat_Undirected_NoTurbines_1porp.txt"), params -> {
-			params.setValue("randomSeed", 1955026704);
+			params.setValue("randomSeed", 7540860);
 			params.setValue("landscape", "Kattegat");
 			params.setValue("turbines", "off");
 			params.setValue("dispersal", "Undirected");
@@ -81,7 +81,7 @@ public class SimulationCapturer {
 	
 	public static void captureKattegatIDW() throws Exception {
 		capture(new File("testdata_Kattegat_InnerDanishWaters_NoTurbines_1porp.txt"), params -> {
-			params.setValue("randomSeed", 1955026704);
+			params.setValue("randomSeed", 7540860);
 			params.setValue("landscape", "Kattegat");
 			params.setValue("turbines", "off");
 			params.setValue("dispersal", "InnerDanishWaters");
@@ -188,7 +188,7 @@ public class SimulationCapturer {
 		context.getObjectsAsStream(Porpoise.class).forEach(p -> {
 			RunEnvironment.getInstance().getCurrentSchedule().schedule(p);
 		});
-		
+
 		//(0..86400).each {
 		IntStream.range(0, 90001).forEach(i -> {
 			RunEnvironment.getInstance().getCurrentSchedule().execute();

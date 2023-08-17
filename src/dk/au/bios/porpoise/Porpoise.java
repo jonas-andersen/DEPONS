@@ -61,6 +61,7 @@ import repast.simphony.space.grid.GridPoint;
 public class Porpoise extends Agent {
 
 	public static final AtomicLong PORPOISE_ID = new AtomicLong();
+	public static final double KATTEGAT_SALINITY = 34.069105813295d; // fixed value for salinity in Kattegat
 
 	private final Context<Agent> context;
 
@@ -333,8 +334,14 @@ public class Porpoise extends Agent {
 			final double presAngleBase = SimulationParameters.getCorrAngleBase() * this.prevAngle;
 			final double presAngleBathy = SimulationParameters.getCorrAngleBathy()
 					* Globals.getCellData().getDepth(presPosition);
-			final double presAngleSalinity = SimulationParameters.getCorrAngleSalinity()
-					* Globals.getCellData().getSalinity(presPosition);
+			double salinity;
+			if (SimulationParameters.isLandscapeKattegat()) {
+				salinity = KATTEGAT_SALINITY;
+			} else {
+				salinity = Globals.getCellData().getSalinity(presPosition);
+			}
+			final double presAngleSalinity = SimulationParameters.getCorrAngleSalinity() * salinity;
+
 
 			final double angleTmp = presAngleBase + ran;
 			// Autoreg can't be used for estimating parameter as estimated turns are changed if on shallow water.
@@ -410,8 +417,14 @@ public class Porpoise extends Agent {
 			final double presLogMovLength = SimulationParameters.getCorrLogmovLength() * this.prevLogMov;
 			final double presLogMovBathy = SimulationParameters.getCorrLogmovBathy()
 					* Globals.getCellData().getDepth(presPosition);
-			final double presLogMovSalinity = SimulationParameters.getCorrLogmovSalinity()
-					* Globals.getCellData().getSalinity(presPosition);
+
+			double salinity;
+			if (SimulationParameters.isLandscapeKattegat()) {
+				salinity = KATTEGAT_SALINITY;
+			} else {
+				salinity = Globals.getCellData().getSalinity(presPosition);
+			}
+			final double presLogMovSalinity = SimulationParameters.getCorrLogmovSalinity() * salinity;
 			this.presLogMov = presLogMovLength + presLogMovBathy + presLogMovSalinity + ran;
 
 			/*
@@ -1227,9 +1240,9 @@ public class Porpoise extends Agent {
 	
 	public void applyShipDeterrence() {
 		var deterrenceStrength = shipDeterrence.deterrenceStrength();
+		this.loudestShipSPL = shipDeterrence.getLoudestShipSPL();
+
 		if (deterrenceStrength > 0) {
-			this.loudestShipSPL = shipDeterrence.getLoudestShipSPL();
-	
 			if (this.deterStrength < deterrenceStrength) {
 				this.deterStrength = deterrenceStrength;
 				// vector pointing away from turbine
@@ -1238,9 +1251,6 @@ public class Porpoise extends Agent {
 	
 				this.deterTimeLeft = SimulationParameters.getDeterTime(); // how long to remain affected
 			}
-
-			// Porpoises nearby stop dispersing (which could force them to cross over disturbing agents very fast)
-			dispersalBehaviour.deactivate();
 		}
 	}
 

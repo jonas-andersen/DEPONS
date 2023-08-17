@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2020 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -27,8 +27,6 @@
 
 package dk.au.bios.porpoise.landscape;
 
-import java.util.Collections;
-
 /**
  * Unit tests for CellData.
  */
@@ -39,7 +37,7 @@ public final class CellDataTestData {
 	}
 
 	public static CellData getCellData() throws Exception {
-		final CellData cellData = new CellData("unittest", Collections.singletonList(new UnitTestCellDataSource()));
+		final CellData cellData = new CellData("unittest", new UnitTestCellDataSource());
 		return cellData;
 	}
 

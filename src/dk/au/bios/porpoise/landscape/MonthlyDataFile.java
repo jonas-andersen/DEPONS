@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2020-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -52,18 +52,15 @@ public class MonthlyDataFile extends AbstractDataFile {
 	private final Mode mode;
 	private double[][] data = null;
 
-	final List<CellDataSource> sources;
+	final CellDataSource source;
 	final private int startingYear;
 
-	public MonthlyDataFile(final String landscape, final String filePrefix, final List<CellDataSource> sources)
+	public MonthlyDataFile(final String landscape, final String filePrefix, final CellDataSource source)
 			throws IOException {
 		super(landscape);
 
-		if (sources == null || sources.size() < 1) {
-			throw new IOException("Need at least one data file source.");
-		}
-		this.sources = sources;
 		this.filePrefix = filePrefix;
+		this.source = source;
 		this.startingYear = determineStartingYear();
 		mode = determineMode(landscape, filePrefix);
 		verifyRequiredFiles(mode, filePrefix);
@@ -96,14 +93,9 @@ public class MonthlyDataFile extends AbstractDataFile {
 			System.out.printf("Loading %s data for %04d-%02d from file %s (mode: %s)%n", filePrefix, currentYear,
 					currentMonth, fileName, mode);
 
-			boolean loaded = false;
-			for (CellDataSource src : sources) {
-				if (src.hasData(fileName)) {
-					data = src.getData(fileName);
-					loaded = true;
-				}
-			}
-			if (!loaded) {
+			if (source.hasData(fileName)) {
+				data = source.getData(fileName);
+			} else {
 				throw new IOException(String.format("Could not load %s data for %04d-%02d from file %s (mode: %s)%n",
 						filePrefix, currentYear, +currentMonth, fileName, mode));
 			}
@@ -116,22 +108,16 @@ public class MonthlyDataFile extends AbstractDataFile {
 	}
 
 	private Mode determineMode(final String landscape, final String filePrefix) throws IOException {
-		for (CellDataSource src : sources) {
-			if (src.hasData(String.format("%s%04d_01" + FILE_EXT, filePrefix, startingYear))) {
-				for (CellDataSource src2 : sources) {
-					if (src2.hasData(String.format("%s%04d_01" + FILE_EXT, filePrefix, startingYear + 1))) {
-						return Mode.MONTHLY;
-					}
-				}
-				return Mode.MONTHLY_CYCLE;
-			} else if (src.hasData(String.format("%s%04d_XX" + FILE_EXT, filePrefix, startingYear))) {
-				for (CellDataSource src2 : sources) {
-					if (src2.hasData(String.format("%s%04d_XX" + FILE_EXT, filePrefix, startingYear + 1))) {
-						return Mode.ANNUALLY;
-					}
-				}
-				return Mode.SINGLE;
+		if (source.hasData(String.format("%s%04d_01" + FILE_EXT, filePrefix, startingYear))) {
+			if (source.hasData(String.format("%s%04d_01" + FILE_EXT, filePrefix, startingYear + 1))) {
+				return Mode.MONTHLY;
 			}
+			return Mode.MONTHLY_CYCLE;
+		} else if (source.hasData(String.format("%s%04d_XX" + FILE_EXT, filePrefix, startingYear))) {
+			if (source.hasData(String.format("%s%04d_XX" + FILE_EXT, filePrefix, startingYear + 1))) {
+				return Mode.ANNUALLY;
+			}
+			return Mode.SINGLE;
 		}
 
 		throw new IOException("Unable to determine mode for file " + filePrefix + " in landscape " + landscape);
@@ -142,21 +128,15 @@ public class MonthlyDataFile extends AbstractDataFile {
 		final String pattern = "^" + filePrefix + "(\\d{4})_(\\d{2}|XX)\\" + FILE_EXT + "$";
 		Pattern p = Pattern.compile(pattern);
 
-		for (CellDataSource src : sources) {
-			List<String> namesMatching = src.getNamesMatching(pattern);
+		List<String> namesMatching = source.getNamesMatching(pattern);
 
-			for (String f : namesMatching) {
-				Matcher m = p.matcher(f);
-				if (m.matches()) {
-					int year = Integer.valueOf(m.group(1));
-					if (year < startingYear) {
-						startingYear = year;
-					}
+		for (String f : namesMatching) {
+			Matcher m = p.matcher(f);
+			if (m.matches()) {
+				int year = Integer.valueOf(m.group(1));
+				if (year < startingYear) {
+					startingYear = year;
 				}
-			}
-
-			if (startingYear != Integer.MAX_VALUE) {
-				break;
 			}
 		}
 
@@ -212,14 +192,7 @@ public class MonthlyDataFile extends AbstractDataFile {
 
 		List<String> missingFiles = new ArrayList<>();
 		for (String file : filesToVerify) {
-			boolean found = false;
-			for (CellDataSource src : sources) {
-				if (src.hasData(file)) {
-					found = true;
-					continue;
-				}
-			}
-			if (!found) {
+			if (!source.hasData(file)) {
 				missingFiles.add(file);
 			}
 		}

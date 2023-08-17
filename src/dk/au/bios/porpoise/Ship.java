@@ -228,7 +228,7 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 						receivedLevelVHF = 0;
 					}
 
-					if (receivedLevelVHF > 0) {
+					if (receivedLevelVHF > SimulationParameters.getDeterShipsMinDB()) {
 						var theProbOfReacting = predictProbResponse(receivedLevelVHF, distToShip / 1000.0d, isDay);
 
 						double deterVxUnscaled = p.getPosition().getX() - position.getX();
@@ -258,7 +258,6 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 
 			final double distToShip = Globals.convertGridDistanceToUtm(endPos, hydrophone.getPosition());
 			final double receivedLevel = calculateReceivedLevelFor(sourceLevel, endPos, distToShip);
-
 			hydrophone.receiveSoundLevel(this, endPos, sourceLevel, receivedLevel);
 		}
 	}
@@ -305,6 +304,10 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 		}
 
 		final double soundTransmissionLoss = WestonFlux.calc(distToShip, depthAtShip, grainSize, temp, salinity);
+		
+		if (soundTransmissionLoss <= 0) {
+			return 0.0d;
+		}
 		
 		final double receivedLevel = sourceLevel - soundTransmissionLoss;
 		
