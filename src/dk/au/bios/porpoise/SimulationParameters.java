@@ -158,6 +158,11 @@ public final class SimulationParameters {
 	private static int deterTime = 5;
 
 	/**
+	 * In parameters.xml Tships
+	 */
+	private static double deterShipsMinDB = 70.0;
+
+	/**
 	 * Maximum energy content in a food patch. In parameters.xml: Umax
 	 */
 	private static double maxU = 1.0; // ; Maximum utility of a patch, set to 1 here
@@ -283,6 +288,7 @@ public final class SimulationParameters {
 		eLact = convertStringToDouble(params, "Elact");
 		eWarm = convertStringToDouble(params, "Ewarm");
 		deterTime = params.getInteger("tdeter");
+		deterShipsMinDB = convertStringToDouble(params, "Tships");
 		maxU = 1; // Hardcoded value - params.getDouble("Umax");
 		minDispDepth = convertStringToDouble(params, "wdisp");
 		minDepth = convertStringToDouble(params, "wmin");
@@ -362,6 +368,7 @@ public final class SimulationParameters {
 		eLact = 1.4;
 		eWarm = 1.3;
 		deterTime = 0;
+		deterShipsMinDB = 70.0d;
 		maxU = 1.0;
 		minDispDepth = 4.0;
 		minDepth = 1.0;
@@ -432,6 +439,7 @@ public final class SimulationParameters {
 		eLact = 1.4;
 		eWarm = 1.3;
 		deterTime = 5;
+		deterShipsMinDB = 0.0;
 		maxU = 1.0;
 		minDispDepth = 4.0;
 		minDepth = 1.0;
@@ -637,6 +645,10 @@ public final class SimulationParameters {
 		SimulationParameters.deterTime = deterTime;
 	}
 
+	public static double getDeterShipsMinDB() {
+		return deterShipsMinDB;
+	}
+	
 	public static double getMaxU() {
 		return maxU;
 	}
@@ -748,6 +760,14 @@ public final class SimulationParameters {
 	 */
 	public static void setQ1(final double newQ1) {
 		q1 = newQ1;
+	}
+
+	public static boolean isLandscapeHomogenous() {
+		return "Homogenous".equals(landscape);
+	}
+
+	public static boolean isLandscapeKattegat() {
+		return "Kattegat".equals(landscape);
 	}
 
 	/**

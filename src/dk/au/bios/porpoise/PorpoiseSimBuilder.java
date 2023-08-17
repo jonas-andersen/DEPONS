@@ -41,7 +41,6 @@ import dk.au.bios.porpoise.landscape.CellData;
 import dk.au.bios.porpoise.landscape.GridSpatialPartitioning;
 import dk.au.bios.porpoise.landscape.HydrophoneLoader;
 import dk.au.bios.porpoise.landscape.LandscapeLoader;
-import dk.au.bios.porpoise.ships.ShipLoader;
 import dk.au.bios.porpoise.tasks.AddTrackedPorpoisesTask;
 import dk.au.bios.porpoise.tasks.CaptureTestDataTask;
 import dk.au.bios.porpoise.tasks.DailyTask;
@@ -124,10 +123,11 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		} else {
 			landscape = SimulationParameters.getLandscape();
 		}
+		final LandscapeLoader dataLoader = new LandscapeLoader(landscape);
+
 		final CellData cellData;
 		try {
-			final LandscapeLoader dataLoader = new LandscapeLoader(landscape);
-			cellData = dataLoader.load();
+			cellData = dataLoader.loadCellData();
 			Globals.setCellData(cellData);
 		} catch (IOException e) {
 			var errorMsg = "Error loading landscape data";
@@ -161,9 +161,8 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		addTrackedPorpoises(context, space, grid);
 
 		if (SimulationParameters.isShipsEnabled()) {
-			ShipLoader loader = new ShipLoader();
 			try {
-				loader.load(context, landscape);
+				dataLoader.loadShips(context);
 			} catch (Exception e) {
 				var errorMsg = "Error loading ship data: " + e.getMessage();
 				if (RunEnvironment.getInstance().isBatch()) {

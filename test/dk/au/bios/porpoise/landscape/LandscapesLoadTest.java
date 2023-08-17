@@ -52,7 +52,7 @@ public class LandscapesLoadTest {
 		RunEnvironment.init(schedule, testRunner, params, false);
 
 		var loader = new LandscapeLoader(landscape);
-		var data = loader.load();
+		var data = loader.loadCellData();
 		
 		// verify bathy, sediment, disttocoast, prey, salinity
 		for (int x = 0; x < Globals.getWorldWidth(); x++) {

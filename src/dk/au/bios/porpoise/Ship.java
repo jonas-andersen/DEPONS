@@ -53,8 +53,6 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 	private static final int JOMOPANS_BAND = 12;
 	private static final double WATER_TEMP = 10.0d;
 
-	private static final double VHF_WEIGHTING = vhfWeighting();
-	
 	private JomopansEchoSPL splCalc = new JomopansEchoSPL();
 
 	private String name;
@@ -223,13 +221,12 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 						&& distToShip <= MAX_DETER_DIST
 						&& distToShip <= SimulationParameters.getDeterMaxDistance()) {
 					double receivedLevel = calculateReceivedLevelFor(sourceLevel, position, distToShip);
-					double receivedLevelVHF = receivedLevel + VHF_WEIGHTING;
-					if (receivedLevelVHF < 0) {
-						receivedLevelVHF = 0;
+					if (receivedLevel < 0) {
+						receivedLevel = 0;
 					}
 
-					if (receivedLevelVHF > 0) {
-						var theProbOfReacting = predictProbResponse(receivedLevelVHF, distToShip / 1000.0d, isDay);
+					if (receivedLevel > SimulationParameters.getDeterShipsMinDB()) {
+						var theProbOfReacting = predictProbResponse(receivedLevel, distToShip / 1000.0d, isDay);
 
 						double deterVxUnscaled = p.getPosition().getX() - position.getX();
 						double deterVyUnscaled = p.getPosition().getY() - position.getY();
@@ -238,13 +235,13 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 						double deterVxUnity = deterVxUnscaled / deterVLength;
 						double deterVyUnity = deterVyUnscaled / deterVLength;
 
-						var deterMagnitude = predictMag(receivedLevelVHF, distToShip / 1000.0d, isDay);
+						var deterMagnitude = predictMag(receivedLevel, distToShip / 1000.0d, isDay);
 
 						var reactingOrNot = Globals.getRandomSource().nextDouble() < theProbOfReacting ? 1 : 0;
 						var deterXStep = deterVxUnity * deterMagnitude * reactingOrNot;
 						var deterYStep = deterVyUnity * deterMagnitude * reactingOrNot;
 
-						p.deterShipStep(step, this, deterXStep, deterYStep, deterMagnitude, receivedLevelVHF);
+						p.deterShipStep(step, this, deterXStep, deterYStep, deterMagnitude, receivedLevel);
 					}
 				}
 				step++;
@@ -258,7 +255,6 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 
 			final double distToShip = Globals.convertGridDistanceToUtm(endPos, hydrophone.getPosition());
 			final double receivedLevel = calculateReceivedLevelFor(sourceLevel, endPos, distToShip);
-
 			hydrophone.receiveSoundLevel(this, endPos, sourceLevel, receivedLevel);
 		}
 	}
@@ -306,6 +302,10 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 
 		final double soundTransmissionLoss = WestonFlux.calc(distToShip, depthAtShip, grainSize, temp, salinity);
 		
+		if (soundTransmissionLoss <= 0) {
+			return 0.0d;
+		}
+		
 		final double receivedLevel = sourceLevel - soundTransmissionLoss;
 		
 		return receivedLevel;
@@ -315,18 +315,6 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 		return value <= -9999;
 	}
 
-	protected static double vhfWeighting() {
-		double f = WestonFlux.FREQUENCY;
-		double c = 1.36d;
-		double f1 = 12000.0d;
-		double f2 = 140000.0d;
-		double a = 1.8d;
-		double b = 2.0d;
-		double weighting = c + 10 * Math.log10(( Math.pow((f/f1),(2*a)) ) / (Math.pow((1+(f/f1)),(a)) * Math.pow((1+(f/f2)),(b))));
-
-		return weighting;
-	}
-	
 	protected double getSpeed() {
 		return this.route.getRoute().get(currentBuoyIdx).getSpeed();
 	}

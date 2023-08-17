@@ -32,11 +32,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
+import dk.au.bios.porpoise.Agent;
 import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.SimulationConstants;
+import dk.au.bios.porpoise.ships.ShipLoader;
+import repast.simphony.context.Context;
 
 /**
  * Loads the landscape data files and returns a CellData instance.
@@ -60,29 +61,37 @@ public class LandscapeLoader {
 	public static final String SUNTIMES_FILE = "suntimes.csv";
 
 	private final String landscape;
+	private CellDataSource source = null;
 
 	public LandscapeLoader(final String landscape) {
 		this.landscape = landscape;
+
+		Path directoryPath = Paths.get(DATA_PATH, landscape);
+		Path zipFilePath = Paths.get(DATA_PATH, landscape + FILE_EXT_ZIP);
+
+		if (Files.isDirectory(directoryPath)) {
+			System.out.println("Loading landscape files from " + directoryPath.toAbsolutePath().toString());
+			source = new DirectoryCellDataSource(directoryPath);
+		} else if (Files.exists(zipFilePath)) {
+			System.out.println("Loading landscape files from " + zipFilePath.toAbsolutePath().toString());
+			source = new ZipFileCellDataSource(zipFilePath);
+		} else {
+			throw new RuntimeException("Landscape " + landscape + " was not found");
+		}
+
+		initLandscape(source);
 	}
 
-	public CellData load() throws IOException {
-		List<CellDataSource> sources = new ArrayList<>(2);
-
-		Path basePath = Paths.get(DATA_PATH, landscape);
-		if (Files.isDirectory(basePath)) {
-			sources.add(new DirectoryCellDataSource(basePath));
-		}
-
-		Path zipFilePath = Paths.get(DATA_PATH, landscape + FILE_EXT_ZIP);
-		if (Files.exists(zipFilePath)) {
-			sources.add(new ZipFileCellDataSource(zipFilePath));
-		}
-
-		initLandscape(sources);
-		final CellData cellData = new CellData(landscape, sources);
+	public CellData loadCellData() throws IOException {
+		final CellData cellData = new CellData(landscape, source);
 		cellData.initializeFoodPatches();
 
 		return cellData;
+	}
+
+	public void loadShips(Context<Agent> context) throws IOException {
+		ShipLoader loader = new ShipLoader();
+		loader.load(context, source);
 	}
 
 	/**
@@ -93,25 +102,19 @@ public class LandscapeLoader {
 	 * @param landscapeDataPath The asc to load the landscape parameters from.
 	 * @throws Exception Thrown in the asc data cannot be read.
 	 */
-	private void initLandscape(final List<CellDataSource> sources) {
+	private void initLandscape(final CellDataSource source) {
 		try {
-			DataFileMetaData metadata = null;
-			for (CellDataSource src: sources) {
-				if (src.hasData(BATHY_FILE)) {
-					metadata = src.getMetaData(BATHY_FILE);
-					break;
-				}
-			}
+			if (source.hasData(BATHY_FILE)) {
+				DataFileMetaData metadata = source.getMetaData(BATHY_FILE);
 
-			if (metadata == null) {
+				if (metadata.getCellsize() != SimulationConstants.REQUIRED_CELL_SIZE) {
+					throw new IOException("Cell size != " + SimulationConstants.REQUIRED_CELL_SIZE + ", not supported");
+				}
+
+				Globals.setLandscapeMetadata(metadata);
+			} else {
 				throw new FileNotFoundException("Unable to load landscape " + landscape + " from " + BATHY_FILE);
 			}
-
-			if (metadata.getCellsize() != SimulationConstants.REQUIRED_CELL_SIZE) {
-				throw new IOException("Cell size != " + SimulationConstants.REQUIRED_CELL_SIZE + ", not supported");
-			}
-
-			Globals.setLandscapeMetadata(metadata);
 		} catch (final IOException e) {
 			throw new RuntimeException("Error loading " + BATHY_FILE + " during initialization.", e);
 		}

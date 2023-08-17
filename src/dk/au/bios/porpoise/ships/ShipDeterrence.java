@@ -36,22 +36,22 @@ public class ShipDeterrence {
 		public double deterX;
 		public double deterY;
 		public double mag;
-		public double receivedLevelVHF;
+		public double receivedLevel;
 	}
 
 	private Step[] deterSteps = new Step[30];
 
-	public void recordStep(int step, Ship ship, double deterX, double deterY, double mag, double receivedLevelVHF) {
+	public void recordStep(int step, Ship ship, double deterX, double deterY, double mag, double receivedLevel) {
 		var ds = new Step();
 		ds.ship = ship;
 		ds.deterX = deterX;
 		ds.deterY = deterY;
 		ds.mag = mag;
-		ds.receivedLevelVHF = receivedLevelVHF;
+		ds.receivedLevel = receivedLevel;
 
 		if (deterSteps[step] == null) {
 			deterSteps[step] = ds;
-		} else if (deterSteps[step].receivedLevelVHF < receivedLevelVHF) {
+		} else if (deterSteps[step].receivedLevel < receivedLevel) {
 			deterSteps[step] = ds;
 		}
 	}
@@ -102,8 +102,8 @@ public class ShipDeterrence {
 		double loudest = 0.0d;
 		for (Step ds : deterSteps) {
 			if (ds != null) {
-				if (ds.receivedLevelVHF > loudest) {
-					loudest = ds.receivedLevelVHF;
+				if (ds.receivedLevel > loudest) {
+					loudest = ds.receivedLevel;
 				}
 			}
 		}
