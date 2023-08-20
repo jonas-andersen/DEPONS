@@ -204,6 +204,25 @@ public class Porpoise extends Agent {
 	}
 
 	@ScheduledMethod(start = 0, interval = 1, priority = AgentPriority.PORP_MOVE)
+	public void tick() {
+		move();
+		
+		calcSwimSpeed();
+		patchZeroCheck();
+		// assimilate energy
+		energyIntake();
+		// TODO (netlogo):  set EA e-assim
+		
+		// then allocate it to:
+		maintenance();
+		thermoregulation();
+		locomotion();
+		reproduction();
+		growth();
+		storage();
+		updStateVariables();
+	}
+
 	public void move() {
 		if (Globals.getRandomReplaySource() != null) {
 			final DecimalFormat fmt = new DecimalFormat("0.###");
@@ -1680,6 +1699,68 @@ public class Porpoise extends Agent {
 
 	public boolean isWritePsmSteps() {
 		return writePsmSteps;
+	}
+
+	// New for energetics
+	private void calcSwimSpeed() {
+	}
+
+	private void patchZeroCheck() {
+	}
+	
+	private void energyIntake() {
+	}
+
+	// Maintenance
+	double B0 = 0.0; //initialize                                // basal metabolic rate normalization constant, unitless
+	double lgth;                       // Length in cm
+	double weight;                     // ; Weight in kg
+
+	private void maintenance() {
+
+		/*
+  ;;;;; COST CALCULATION ;;;;;
+  set m-BMR (B0 * (weight ^ 0.75) * 1800)                                                       ; EQN 26: Calculate BMR using the current weight and B0 value, convert from watts to BMR timestep-1 by multiplying by 1800 seconds
+
+  ;;;;; ALLOCATION ;;;;;
+  ifelse e-assim >= m-BMR                                                                       ; Check if the energy assimilated is sufficient to cover BMR
+    [ set e-assim e-assim - m-BMR ]                                                             ; If so reduce the available energy by the BMR cost
+    [ set e-storage e-storage + e-assim                                                         ; If e-assim is not sufficient to cover BMR then add e-assim to storage and
+      ifelse e-storage > m-BMR                                                                  ; Check if updated storage can cover BMR costs
+    [ set e-storage e-storage - m-BMR                                                           ; If so, mobilize stored energy to do so
+      set v-blub v-blub - (((m-BMR - e-assim)* DE-lip * perc-lip-blub) / (ED-lip * dens-blub )) ; Reduce the amount of blubber volume by the BMR loss
+    ]
+    [                                                                                           ; If not, die
+      set list-of-dead-age lput (floor age) list-of-dead-age
+      set list-of-dead-day lput (floor sim-day) list-of-dead-day
+
+      if (debug = 10) [ print word who " died of low body condition-Maintenance" ]
+      die
+    ]
+      set e-assim 0                                                                             ; Set e-assim to zero
+    ]
+		 * 
+		 */
+		double mBMR = (B0 * (Math.pow(weight, 0.75)) * 1800);
+		
+	}
+
+	private void thermoregulation() {
+	}
+
+	private void locomotion() {
+	}
+
+	private void reproduction() {
+	}
+
+	private void growth() {
+	}
+
+	private void storage() {
+	}
+
+	private void updStateVariables() {
 	}
 
 }
