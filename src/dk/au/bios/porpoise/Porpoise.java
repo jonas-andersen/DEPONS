@@ -37,6 +37,9 @@ import dk.au.bios.porpoise.behavior.DispersalFactory;
 import dk.au.bios.porpoise.behavior.PersistentSpatialMemory;
 import dk.au.bios.porpoise.behavior.RefMem;
 import dk.au.bios.porpoise.behavior.RefMemTurnCalculator;
+import dk.au.bios.porpoise.energetics.CaraEnergetics;
+import dk.au.bios.porpoise.energetics.OriginalEnergetics;
+import dk.au.bios.porpoise.energetics.PorpoiseEnergetics;
 import dk.au.bios.porpoise.ships.ShipDeterrence;
 import dk.au.bios.porpoise.tasks.YearlyTask;
 import dk.au.bios.porpoise.util.CircularBuffer;
@@ -64,25 +67,25 @@ public class Porpoise extends Agent {
 
 	private final Context<Agent> context;
 
-	private double energyConsumedDailyTemp; // The energy spent today by the porpoise - At the end of the day it becomes
-	// "energyConsumedDaily"
-	private double energyConsumedDaily; // The energy consumed yesterday by the porpoise
-	private double foodEatenDailyTemp; // The energy so far today.
-	private double foodEatenDaily; // The energy eaten yesterday by the porpoise
+//	private double energyConsumedDailyTemp; // The energy spent today by the porpoise - At the end of the day it becomes
+//	// "energyConsumedDaily"
+//	private double energyConsumedDaily; // The energy consumed yesterday by the porpoise
+//	private double foodEatenDailyTemp; // The energy so far today.
+//	private double foodEatenDaily; // The energy eaten yesterday by the porpoise
 
 	private double age; // Age in years (remember, 360 days per year)
 	private final double ageOfMaturity; // Age when becoming receptive, in years
-	private byte pregnancyStatus; // 0 (unable to mate, young/low energy); 1 (unable to mate, pregnant); 2 (ready to
+//	private byte pregnancyStatus; // 0 (unable to mate, young/low energy); 1 (unable to mate, pregnant); 2 (ready to
 	// mate)
 	private int matingDay; // Day of year. Most mating occurs in August (Lockyer 2003)
-	private int daysSinceMating; // Days since mating. -99 if not pregnant
-	private int daysSinceGivingBirth; // Days since giving birth. -99 if not with lactating calf
-	private boolean withLactCalf; // true/false, with lactating calf
-	private int calvesBorn = 0; // Counter for number of calves born
-	private int calvesWeaned = 0; // Counter for number of calves weaned (successfully to completion)
-	private double energyLevel; // Porpoises get energy by eating and loose energy by moving.
-	private double energyLevelSum; // Sum of energy levels. Reset to 0 every day
-	private final CircularBuffer<Double> energyLevelDaily; // List with average energy for last ten days. Latest days
+//	private int daysSinceMating; // Days since mating. -99 if not pregnant
+//	private int daysSinceGivingBirth; // Days since giving birth. -99 if not with lactating calf
+//	private boolean withLactCalf; // true/false, with lactating calf
+//	private int calvesBorn = 0; // Counter for number of calves born
+//	private int calvesWeaned = 0; // Counter for number of calves weaned (successfully to completion)
+//	private double energyLevel; // Porpoises get energy by eating and loose energy by moving.
+//	private double energyLevelSum; // Sum of energy levels. Reset to 0 every day
+//	private final CircularBuffer<Double> energyLevelDaily; // List with average energy for last ten days. Latest days
 	// first.
 	private int dispNumTicks; // The number of ticks the porp has been dispersing for.
 	private double prevAngle; // Last turning angle (not the heading!)
@@ -90,7 +93,7 @@ public class Porpoise extends Agent {
 	private double prevLogMov; // Previous Log10 (move length [measured in 100-m steps])
 	private double presLogMov; // Present Log10 (move length [measured in 100-m steps])
 	private boolean enoughWaterAhead; // Turn to avoid land if false
-	private CircularBuffer<NdPoint> posList; // Coordinates of previous positions -- one per 30 min
+	public CircularBuffer<NdPoint> posList; // Coordinates of previous positions -- one per 30 min
 	private final CircularBuffer<NdPoint> posListDaily; // Coordinates of previous 10 daily positions -- daily,
 	// corresponding
 	// to energy-level-daily
@@ -128,7 +131,7 @@ public class Porpoise extends Agent {
 	private boolean alive = true;
 
 	private final PersistentSpatialMemory psm; // Always enabled for now.
-	private PersistentSpatialMemory calfPsm = null; // If the porpoise is with calf, then this is the PSM it will use.
+//	private PersistentSpatialMemory calfPsm = null; // If the porpoise is with calf, then this is the PSM it will use.
 	private boolean trackVisitedCells = false;
 	private boolean writePsmSteps = false;
 
@@ -145,6 +148,15 @@ public class Porpoise extends Agent {
 	}
 
 	/**
+	 * Constructor for a newborn porpoised.
+	 *
+	 * @param parent
+	 */
+	public Porpoise(final Porpoise parent, double age) {
+		this(parent.context, age, parent.refMemTurnCalculator, parent.getCalfPersistentSpatialMemory());
+	}
+
+	/**
 	 * Constructor for a porpoise part of the initial population (not born during simulation)
 	 *
 	 * @param space
@@ -158,22 +170,6 @@ public class Porpoise extends Agent {
 	public Porpoise(final Context<Agent> context, final double age, final RefMemTurnCalculator refMemTurnCalculator) {
 		this(context, age, refMemTurnCalculator, new PersistentSpatialMemory(Globals.getWorldWidth(),
 				Globals.getWorldHeight(), PersistentSpatialMemory.generatedPreferredDistance()));
-
-		if (age > 0) {
-			// This is the model setup, there is a probability that the porpoise is with a lactating calf.
-			// Notice: The probability is not dependent on the age of the porpoise if it is above the age of 0 .
-
-			this.pregnancyStatus = 2;
-			// become pregnanat with prob. taken from Read & Hohn 1995
-			if (this.pregnancyStatus == 2
-					&& Globals.getRandomSource().nextPregnancyStatusConceive(0, 1) < SimulationParameters
-					.getConceiveProb()) {
-				this.pregnancyStatus = 1;
-				this.daysSinceMating = Globals.getRandomSource().getInitialDaysSinceMating();
-			} else {
-				this.pregnancyStatus = 0;
-			}
-		}
 	}
 
 	private Porpoise(final Context<Agent> context, final double age, final RefMemTurnCalculator refMemTurnCalculator,
@@ -185,10 +181,10 @@ public class Porpoise extends Agent {
 			this.posListDaily.add(new NdPoint(0, 0));
 		}
 
-		this.energyLevelDaily = new CircularBuffer<Double>(10);
-		for (int i = 0; i < 10; i++) {
-			this.energyLevelDaily.add(0.0);
-		}
+//		this.energyLevelDaily = new CircularBuffer<Double>(10);
+//		for (int i = 0; i < 10; i++) {
+//			this.energyLevelDaily.add(0.0);
+//		}
 
 		this.refMemTurnCalculator = refMemTurnCalculator;
 		this.context = context;
@@ -197,30 +193,20 @@ public class Porpoise extends Agent {
 
 		// Setup
 		this.ageOfMaturity = SimulationParameters.getMaturityAge(); // FIXME This is not really variable per instance
-		this.energyLevel = Globals.getRandomSource().nextEnergyNormal();
+//		this.energyLevel = Globals.getRandomSource().nextEnergyNormal();
 		this.prevLogMov = 0.8;
 		this.prevAngle = 10;
 		this.age = age;
+
+		this.energetics = PorpoiseEnergetics.createEnergeticsInitialPopulation(this);
 	}
+
+	private PorpoiseEnergetics energetics = new CaraEnergetics();
 
 	@ScheduledMethod(start = 0, interval = 1, priority = AgentPriority.PORP_MOVE)
 	public void tick() {
 		move();
-		
-		calcSwimSpeed();
-		patchZeroCheck();
-		// assimilate energy
-		energyIntake();
-		// TODO (netlogo):  set EA e-assim
-		
-		// then allocate it to:
-		maintenance();
-		thermoregulation();
-		locomotion();
-		reproduction();
-		growth();
-		storage();
-		updStateVariables();
+		energetics.doStuff();
 	}
 
 	public void move() {
@@ -231,11 +217,11 @@ public class Porpoise extends Agent {
 
 			final int tick = (int) SimulationTime.getTick();
 			System.out.println("pos#" + tick + "#" + fmt.format(p.getX()) + "#" + fmt.format(p.getY()) + "#E"
-					+ fmt.format(this.energyLevel) + "#H" + fmt.format(getHeading()) + "#D"
+					+ fmt.format(this.energetics.getEnergyLevel()) + "#H" + fmt.format(getHeading()) + "#D"
 					+ fmt.format(this.deterVt[0]) + ";" + fmt.format(this.deterVt[1]));
 			System.out.println("disp#" + tick + "#" + this.dispersalBehaviour.getDispersalType());
 			ReplayHelper.print("pos#" + tick + "#" + fmt.format(p.getX()) + "#" + fmt.format(p.getY()) + "#E"
-					+ fmt.format(this.energyLevel) + "#H" + fmt.format(getHeading()) + "#D"
+					+ fmt.format(this.energetics.getEnergyLevel()) + "#H" + fmt.format(getHeading()) + "#D"
 					+ fmt.format(this.deterVt[0]) + ";" + fmt.format(this.deterVt[1]));
 		}
 
@@ -708,92 +694,14 @@ public class Porpoise extends Agent {
 		}
 	}
 
-	/**
-	 * 1. Reduce food in the patch that the porp just has left. The amount eaten decreases linearly as the porp's energy
-	 * level increases from 10 to 20 (=max e) this does not affect the porpoise's perception of the quality of the area,
-	 * and therefore the movement is unaffected.
-	 *
-	 * 2. Adjust porpoise energy level based on amount of food found and time spent per half hour Increase food level in
-	 * cells with food-level > 0 AFTERWARDS in order to calc. stored-util-list correctly.
-	 */
 	private void updEnergeticStatus() {
-		double foodEaten = 0;
-		double fractOfFoodToEat = 0;
-
-		if (this.energyLevel < 20) {
-			fractOfFoodToEat = (20.0 - energyLevel) / 10.0;
-		}
-		if (fractOfFoodToEat > 0.99) {
-			fractOfFoodToEat = 0.99;
-		}
-
-		foodEaten += Globals.getCellData().eatFood(ndPointToGridPoint(this.posList.get(1)), fractOfFoodToEat);
-
-		this.foodEatenDailyTemp += foodEaten;
-		ReplayHelper.print("energy before eat food {0} eaten {1}", energyLevel, foodEaten);
-		psm.updateMemory(getPosition(), foodEaten);
-		if (calfPsm != null && this.getDispersalBehaviour().calfHasPSM()) {
-			calfPsm.updateMemory(getPosition(), foodEaten);
-		}
-		this.energyLevel += foodEaten;
-
-		// Scale e-use depending on season and lactation
-		double scalingFactor = 1;
-
-		// Animals have approximately 30% lower energy consumption when the water is cold, Nov-Mar, and approx.
-		// 15% lower energy consumption in Oct+Apr (Lockyer et al 2003. Monitoring growth and energy utilization
-		// of the harbour porpoise (Phocoena phocoena) in human care. Harbour porpoises in the North Atlantic
-		// 5:143-175.)
-		if (SimulationTime.getMonthOfYearWithOffset() == 4 || SimulationTime.getMonthOfYearWithOffset() == 10) {
-			scalingFactor = 1.15;
-		} else if (SimulationTime.getMonthOfYearWithOffset() > 4 && SimulationTime.getMonthOfYearWithOffset() < 10) {
-			scalingFactor = SimulationParameters.getEWarm();
-		}
-
-		// Food consumption increases approx 40% when lactating, there is apparently no effect of pregnancy. (Magnus
-		// Wahlberg <magnus@fjord-baelt.dk>, unpubl. data)
-		if (this.withLactCalf) {
-			scalingFactor *= SimulationParameters.getELact();
-		}
-
-		// Probability of dying increases with decreasing energy level
-		final double yearlySurvProb = 1 - (SimulationConstants.M_MORT_PROB_CONST * Math.exp(-this.energyLevel
-				* SimulationParameters.getXSurvivalProbConst()));
-		double stepSurvProb = 0;
-
-		if (this.energyLevel > 0) {
-			stepSurvProb = Math.exp(Math.log(yearlySurvProb) / (360 * 48));
-		}
-
-		final double ran = Globals.getRandomSource().nextEnergeticUpdate(0, 1);
-		ReplayHelper.print("porp-upd-energetic-status:{0}", ran);
-		if (ran > stepSurvProb) {
-			if (!this.withLactCalf || this.energyLevel <= 0) {
-				Globals.getListOfDeadAge().addLast((int) this.age);
-				Globals.getListOfDeadDay().addLast(SimulationTime.getDayOfSimulation());
-				die(CauseOfDeath.Starvation);
-			}
-			// Better abandoning calf than dying
-			if (this.withLactCalf) {
-				this.withLactCalf = false;
-				this.calfPsm = null;
-			}
-		}
-
-		final double consumed = (0.001 * scalingFactor * SimulationParameters.getEUsePer30Min() + (Math.pow(10,
-				this.prevLogMov) * 0.001 * scalingFactor * SimulationConstants.E_USE_PER_KM / 0.4));
-		ReplayHelper.print("energy before consume food {0} consumed  {1} prev-logmov {2} scaling-factor {3}"
-				+ " month {4} with-lact-calf {5}", energyLevel, consumed, prevLogMov, scalingFactor,
-				SimulationTime.getMonthOfYearWithOffset(), withLactCalf);
-		consumeEnergy(consumed);
-
-		this.energyLevelSum += this.energyLevel;
+		energetics.updEnergeticStatus();
 	}
 
 	@Override
 	public String toString() {
 		final DecimalFormat df = new DecimalFormat("#.00");
-		return "[" + df.format(getHeading()) + ":" + df.format(this.energyLevel) + "]";
+		return "[" + df.format(getHeading()) + ":" + df.format(this.energetics.getEnergyLevel()) + "]";
 	}
 
 	private void checkDepth() {
@@ -1041,7 +949,7 @@ public class Porpoise extends Agent {
 		return Math.cos(getHeadingInRads());
 	}
 
-	private void die(final CauseOfDeath cause) {
+	public void die(final CauseOfDeath cause) {
 		this.alive = false;
 		context.remove(this);
 		Globals.getMonthlyStats().addDeath(cause);
@@ -1077,25 +985,24 @@ public class Porpoise extends Agent {
 	public void performDailyStep() {
 		ReplayHelper.print("perform-daily-step");
 
-		this.foodEatenDaily = this.foodEatenDailyTemp;
-		this.foodEatenDailyTemp = 0;
+//		this.foodEatenDaily = this.foodEatenDailyTemp;
+//		this.foodEatenDailyTemp = 0;
 
-		this.energyConsumedDaily = this.energyConsumedDailyTemp;
-		this.energyConsumedDailyTemp = 0;
+//		this.energyConsumedDaily = this.energyConsumedDailyTemp;
+//		this.energyConsumedDailyTemp = 0;
 
 		this.age += 1.0 / 360; // TODO: We can avoid this if we record the born tick.
-
-		final double eMean = this.energyLevelSum / 48.0;
-		this.energyLevelDaily.add(Math.round(eMean * 1000.0) / 1000.0);
+		
+		this.energetics.dailyTask();
 
 		this.posListDaily.add(getPosition());
 
 		if (SimulationParameters.getModel() >= 3 && !DispersalFactory.isOff()) {
 			if (!this.dispersalBehaviour.isDispersing()) {
-				ReplayHelper.print("daily-step energy-level-daily:{0}", this.energyLevelDaily);
+				ReplayHelper.print("daily-step energy-level-daily:{0}", this.getEnergyLevelDaily());
 				boolean decreasingEnergy = true;
 				for (int i = 0; i < SimulationParameters.getTDisp(); i++) {
-					if (this.energyLevelDaily.get(i) >= this.energyLevelDaily.get(i + 1)) {
+					if (this.getEnergyLevelDaily().get(i) >= this.getEnergyLevelDaily().get(i + 1)) {
 						decreasingEnergy = false;
 						break;
 					}
@@ -1108,12 +1015,12 @@ public class Porpoise extends Agent {
 
 			// Energy level higher than any of the previous seven days, stop dispersing;
 			if (this.dispersalBehaviour.isDispersing()) {
-				double min = this.energyLevelDaily.get(1);
+				double min = this.getEnergyLevelDaily().get(1);
 				for (int i = 2; i < 8; i++) {
-					min = Math.min(min, this.energyLevelDaily.get(i));
+					min = Math.min(min, this.getEnergyLevelDaily().get(i));
 				}
 
-				if (this.energyLevelDaily.get(0) > min) {
+				if (this.getEnergyLevelDaily().get(0) > min) {
 					this.dispersalBehaviour.deactivate();
 
 					if (DebugLog.isEnabledFor(7) && (this.getId() == 0 || this.getId() == 1)) {
@@ -1122,8 +1029,6 @@ public class Porpoise extends Agent {
 				}
 			}
 		} // End model >= 3 tasks.
-
-		this.energyLevelSum = 0; // reset daily
 
 		if (SimulationParameters.getModel() >= 4 && SimulationConstants.MORTALITY_ENABLED) {
 			if (updMortality()) {
@@ -1157,81 +1062,7 @@ public class Porpoise extends Agent {
 	}
 
 	private void updPregnancyStatus() {
-		// 0 (unable to mate, young/low energy); 1 (unable to mate, pregnant); 2 (ready to mate)
-		// Become ready to mate:
-		if (this.pregnancyStatus == 0 && this.age >= this.ageOfMaturity) {
-			this.pregnancyStatus = 2;
-		}
-
-		// Mate:
-		if (this.pregnancyStatus == 2 && SimulationTime.getDayOfYear() == this.matingDay) {
-			// become pregnanat with prob. taken from Read & Hohn 1995
-			if (Globals.getRandomSource().nextPregnancyStatusConceive(0, 1) < SimulationParameters.getConceiveProb()) {
-				this.pregnancyStatus = 1;
-				if (DebugLog.isEnabledFor(9)) {
-					DebugLog.print9("{} pregnant", this.getId());
-				}
-				this.daysSinceMating = 0;
-			}
-		}
-
-		// Give birth:
-		// give birth. Gestation time = approx 10 mo (Lockyer 2003)
-		if (this.pregnancyStatus == 1 && this.daysSinceMating == SimulationParameters.getGestationTime()) {
-			this.pregnancyStatus = 2; // so it is ready to mate even though it has a very young calf
-			this.withLactCalf = true;
-			this.calvesBorn++;
-			double calfPsmPrefDistance;
-			if (this.getDispersalBehaviour().calfInheritsPsmDist()) {
-				calfPsmPrefDistance = this.getPersistentSpatialMemory().getPreferredDistance();
-			} else {
-				calfPsmPrefDistance = PersistentSpatialMemory.generatedPreferredDistance();
-			}
-			this.calfPsm = new PersistentSpatialMemory(Globals.getWorldWidth(), Globals.getWorldHeight(),
-					calfPsmPrefDistance);
-
-			this.daysSinceMating = -99;
-			this.daysSinceGivingBirth = 0;
-
-			if (DebugLog.isEnabledFor(9)) {
-				DebugLog.print9("{} with lact calf", this.getId());
-			}
-		}
-
-		// nursing for 8 months
-		if (this.withLactCalf && this.daysSinceGivingBirth == SimulationParameters.getNursingTime()) {
-			int nOffspr = 0;
-
-			if (Globals.getRandomSource().nextPregnancyStatusBoyGirl(0, 1) > 0.5) { // assuming 50 % males and no
-				// abortions
-				nOffspr = 1;
-			}
-
-			if (DebugLog.isEnabledFor(9)) {
-				DebugLog.print("{} hatching {}", this.getId(), nOffspr);
-			}
-
-			if (nOffspr > 0) {
-				final Porpoise calf = new Porpoise(this);
-				this.context.add(calf);
-				calf.setPosition(this.getPosition());
-				calf.moveAwayFromLand(); // Initializes the pos list. TODO: not nice to do here, should be done
-				// elsewhere
-				Globals.getMonthlyStats().addBirth();
-			}
-			this.withLactCalf = false;
-			this.calvesWeaned++;
-			this.calfPsm = null;
-			this.daysSinceGivingBirth = -99;
-		}
-
-		if (this.pregnancyStatus == 1) {
-			this.daysSinceMating++;
-		}
-
-		if (this.withLactCalf) {
-			this.daysSinceGivingBirth++;
-		}
+		this.energetics.updPregnancyStatus();
 	}
 
 	public int getMatingDay() {
@@ -1318,20 +1149,19 @@ public class Porpoise extends Agent {
 	}
 
 	public void consumeEnergy(final double energyAmount) {
-		this.energyLevel -= energyAmount;
-		this.energyConsumedDailyTemp += energyAmount;
+		this.energetics.consumeEnergy(energyAmount);
 	}
 
 	public double getEnergyLevel() {
-		return this.energyLevel;
+		return this.energetics.getEnergyLevel();
 	}
 
 	public double getEnergyLevelSum() {
-		return energyLevelSum;
+		return energetics.getEnergyLevelSum();
 	}
 	
 	public CircularBuffer<Double> getEnergyLevelDaily() {
-		return energyLevelDaily;
+		return energetics.getEnergyLevelDaily();
 	}
 
 	public double getSoundSourceDistance() {
@@ -1389,7 +1219,7 @@ public class Porpoise extends Agent {
 	}
 
 	public PersistentSpatialMemory getCalfPersistentSpatialMemory() {
-		return calfPsm;
+		return this.energetics.getCalfPersistentSpatialMemory();
 	}
 
 	public double getUtmX() {
@@ -1449,7 +1279,7 @@ public class Porpoise extends Agent {
 	}
 
 	public byte getPregnancyStatus() {
-		return pregnancyStatus;
+		return this.energetics.getPregnancyStatus();
 	}
 
 	/**
@@ -1526,27 +1356,23 @@ public class Porpoise extends Agent {
 	}
 
 	public int getLactatingCalf() {
-		if (this.withLactCalf) {
-			return 1;
-		} else {
-			return 0;
-		}
+		return this.energetics.getLactatingCalf();
 	}
 
 	public int getCalvesBorn() {
-		return this.calvesBorn;
+		return this.energetics.getCalvesBorn();
 	}
 
 	public int getCalvesWeaned() {
-		return this.calvesWeaned;
+		return this.energetics.getCalvesWeaned();
 	}
 
 	public double getEnergyConsumedDaily() {
-		return this.energyConsumedDaily;
+		return this.energetics.getEnergyConsumedDaily();
 	}
 
 	public double getFoodEaten() {
-		return this.foodEatenDaily;
+		return this.energetics.getFoodEaten();
 	}
 
 	public double getPrevLogMov() {
@@ -1688,6 +1514,10 @@ public class Porpoise extends Agent {
 
 		return sb.toString();
 	}
+	
+	public NdPoint getPositionFromPosList(int index) {
+		return this.posList.get(index);
+	}
 
 	public CircularBuffer<NdPoint> getPosListDaily() {
 		return posListDaily;
@@ -1701,66 +1531,12 @@ public class Porpoise extends Agent {
 		return writePsmSteps;
 	}
 
-	// New for energetics
-	private void calcSwimSpeed() {
+	public PorpoiseEnergetics getEnergetics() {
+		return this.energetics;
 	}
 
-	private void patchZeroCheck() {
-	}
-	
-	private void energyIntake() {
-	}
-
-	// Maintenance
-	double B0 = 0.0; //initialize                                // basal metabolic rate normalization constant, unitless
-	double lgth;                       // Length in cm
-	double weight;                     // ; Weight in kg
-
-	private void maintenance() {
-
-		/*
-  ;;;;; COST CALCULATION ;;;;;
-  set m-BMR (B0 * (weight ^ 0.75) * 1800)                                                       ; EQN 26: Calculate BMR using the current weight and B0 value, convert from watts to BMR timestep-1 by multiplying by 1800 seconds
-
-  ;;;;; ALLOCATION ;;;;;
-  ifelse e-assim >= m-BMR                                                                       ; Check if the energy assimilated is sufficient to cover BMR
-    [ set e-assim e-assim - m-BMR ]                                                             ; If so reduce the available energy by the BMR cost
-    [ set e-storage e-storage + e-assim                                                         ; If e-assim is not sufficient to cover BMR then add e-assim to storage and
-      ifelse e-storage > m-BMR                                                                  ; Check if updated storage can cover BMR costs
-    [ set e-storage e-storage - m-BMR                                                           ; If so, mobilize stored energy to do so
-      set v-blub v-blub - (((m-BMR - e-assim)* DE-lip * perc-lip-blub) / (ED-lip * dens-blub )) ; Reduce the amount of blubber volume by the BMR loss
-    ]
-    [                                                                                           ; If not, die
-      set list-of-dead-age lput (floor age) list-of-dead-age
-      set list-of-dead-day lput (floor sim-day) list-of-dead-day
-
-      if (debug = 10) [ print word who " died of low body condition-Maintenance" ]
-      die
-    ]
-      set e-assim 0                                                                             ; Set e-assim to zero
-    ]
-		 * 
-		 */
-		double mBMR = (B0 * (Math.pow(weight, 0.75)) * 1800);
-		
-	}
-
-	private void thermoregulation() {
-	}
-
-	private void locomotion() {
-	}
-
-	private void reproduction() {
-	}
-
-	private void growth() {
-	}
-
-	private void storage() {
-	}
-
-	private void updStateVariables() {
+	public Context<Agent> getContext() {
+		return context;
 	}
 
 }

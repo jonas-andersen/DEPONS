@@ -44,7 +44,7 @@ public class ShipLoaderTest extends AbstractSimulationBDDTest {
 		shipLoader.load(context, "Kattegat");
 
 		assertThat(context.getObjectsAsStream(Ship.class).count()).isEqualTo(637);
-		
+
 		Ship ship = shipStream().filter(s -> "111219502".equals(s.getName())).findAny().orElseThrow();
 		assertThat(ship.getName()).isEqualTo("111219502");
 		assertThat(ship.getType()).isEqualTo(VesselClass.GOVERNMENT_RESEARCH);

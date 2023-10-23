@@ -180,12 +180,21 @@ public class CellData {
 		return this.foodValue[x][y];
 	}
 
-	public synchronized double eatFood(final GridPoint point, final double eatFraction) {
+	public synchronized double eatFoodFraction(final GridPoint point, final double eatFraction) {
 		final double food = getFoodLevel(point.getX(), point.getY());
 
 		if (food > 0.0) {
 			final double eaten = food * eatFraction;
+			return eatFood(point, eaten);
+		} else {
+			return 0.0;
+		}
+	}
 
+	public synchronized double eatFood(final GridPoint point, final double eaten) {
+		final double food = getFoodLevel(point.getX(), point.getY());
+
+		if (food > 0.0) {
 			this.foodValue[point.getX()][point.getY()] -= eaten;
 
 			// The minimum food level has a strong impact on how fast food gets back
@@ -241,6 +250,20 @@ public class CellData {
 
 	public Optional<Suntimes> getSuntimes() {
 		return suntimes;
+	}
+
+	/*
+	 * Patches-own   kin-visc-w                   ; kinematic viscosity of water in m2 s-1
+	 */
+	public double getKinViscW(NdPoint point) {
+		return 0.1d; // FIXME IMPLEMENT!
+	}
+
+	/*
+	 * Patches-own density-w                    ; water density in kg m-3
+	 */
+	public double getDensityW(NdPoint point) {
+		return 0.1d; // FIXME IMPLEMENT!
 	}
 
 	/*
