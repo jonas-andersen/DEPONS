@@ -6,7 +6,7 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 		/>
 		<parameter name="porpoiseCount" displayName="porpoiseCount - Number of porpoises at start of simulation [unitless]" type="int" 
-						defaultValue="10000" 
+						defaultValue="200" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 		/>
@@ -16,7 +16,7 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 		/>
 		<parameter name="landscape" displayName="landscape - Simulation landscape to be used" type="string" 
-						defaultValue="NorthSea"
+						defaultValue="Kattegat"
 						values="'NorthSea' 'DanTysk' 'Gemini' 'Homogeneous' 'Kattegat' 'UserDefined'" 
 						isReadOnly="false" />
 		<parameter name="debug" displayName="debug - Code testing parameter [values 0-5]" type="int" 
@@ -32,7 +32,7 @@
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$BooleanConverter"/>
         <parameter name="dispersal" displayName="Large-scale movement type" type="string" 
-						defaultValue="PSM-Type2" 
+						defaultValue="InnerDanishWaters" 
 						values="'off' 'PSM-Type2' 'Undirected' 'InnerDanishWaters'" 
 						isReadOnly="false" />
         <parameter name="tdisp" displayName="tDisp - Days of declining energy before activating dispersal [days]" type="int" 

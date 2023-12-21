@@ -37,6 +37,8 @@ import dk.au.bios.porpoise.behavior.GeneratedRandomSource;
 import dk.au.bios.porpoise.behavior.RefMem;
 import dk.au.bios.porpoise.behavior.RefMemTurnCalculator;
 import dk.au.bios.porpoise.behavior.ReplayedRandomSource;
+import dk.au.bios.porpoise.energetics.PorpoiseInitializationBlubber;
+import dk.au.bios.porpoise.energetics.ThermoregulationLookupTable;
 import dk.au.bios.porpoise.landscape.CellData;
 import dk.au.bios.porpoise.landscape.GridSpatialPartitioning;
 import dk.au.bios.porpoise.landscape.HydrophoneLoader;
@@ -97,7 +99,13 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		if (Globals.getSimYears() != null) {
 			final int numSimSteps = (Globals.getSimYears() * 360 * 48) - 1;
 			RunEnvironment.getInstance().endAt(numSimSteps);
-		} 
+		}
+		
+		if (Globals.ENERGETICS_USE_NEW) {
+			Globals.caraSetupGlobalParameters();
+			PorpoiseInitializationBlubber.initialize();
+			ThermoregulationLookupTable.initialize();
+		}
 
 		PorpoiseTestDataCapturer.capture(params);
 

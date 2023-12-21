@@ -57,6 +57,7 @@ public class LandscapeLoader {
 	public static final String PATCHES_FILE = "patches" + FILE_EXT;
 	public static final String PREY_FILE_PREFIX = "prey";
 	public static final String SALINITY_FILE_PREFIX = "salinity";
+	public static final String TEMPERATURE_FILE_PREFIX = "temperature";
 	public static final String SUNTIMES_FILE = "suntimes.csv";
 
 	private final String landscape;

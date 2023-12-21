@@ -1,5 +1,6 @@
 package dk.au.bios.porpoise.energetics;
 
+import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.Porpoise;
 import dk.au.bios.porpoise.behavior.PersistentSpatialMemory;
 import dk.au.bios.porpoise.util.CircularBuffer;
@@ -28,11 +29,19 @@ public interface PorpoiseEnergetics {
 	byte getPregnancyStatus();
 	
 	static PorpoiseEnergetics createEnergetics(Porpoise porp) {
-		return new OriginalEnergetics(porp);
+		if (Globals.ENERGETICS_USE_NEW) {
+			return new CaraEnergetics(porp);
+		} else {
+			return new OriginalEnergetics(porp);
+		}
 	}
 
 	static PorpoiseEnergetics createEnergeticsInitialPopulation(Porpoise porp) {
-		return new OriginalEnergetics(porp, true);
+		if (Globals.ENERGETICS_USE_NEW) {
+			return new CaraEnergetics(porp, true);
+		} else {
+			return new OriginalEnergetics(porp, true);
+		}
 	}
 
 }

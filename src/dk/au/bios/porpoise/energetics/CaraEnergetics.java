@@ -139,16 +139,33 @@ public class CaraEnergetics implements PorpoiseEnergetics {
 		patchZeroCheck();
 		// assimilate energy
 		energyIntake();
-		// TODO (netlogo):  set EA e-assim
+		// (netlogo BUT NOT IN USE):  set EA e-assim
 		
+// FIXME	    ; for reimplementation check:
+//	        if time-step >= 1 and year = sc-year and remainder time-step 48 = 0 [ reimplementation-check ]
+
 		// then allocate it to:
-		maintenance();
-		thermoregulation();
-		locomotion();
-		reproduction();
-		growth();
-		storage();
-		updStateVariables();		
+		if (porp.isAlive()) {
+			maintenance();
+		}
+		if (porp.isAlive()) {
+			thermoregulation();
+		}
+		if (porp.isAlive()) {
+			locomotion();
+		}
+		if (porp.isAlive()) {
+			reproduction();
+		}
+		if (porp.isAlive()) {
+			growth();
+		}
+		if (porp.isAlive()) {
+			storage();
+		}
+		if (porp.isAlive()) {
+			updStateVariables();
+		}
 	}
 
 	@Override
@@ -175,11 +192,35 @@ public class CaraEnergetics implements PorpoiseEnergetics {
 		this.storageLevelDaily.add(Math.round(sMean * 1000.0) / 1000.0);
 	}
 
-	/**
-	 * Constructor for initial population
-	 * @param mothersEnergetics
-	 */
-	public CaraEnergetics() {
+	public CaraEnergetics(Porpoise porp) {
+		this(porp, false);
+	}
+
+	public CaraEnergetics(Porpoise porp, boolean initialPopulation) {
+		this.porp = porp;
+
+		if (initialPopulation) {
+			if (porp.getAge() > 0) {
+				// This is the model setup, there is a probability that the porpoise is with a lactating calf.
+				// Notice: The probability is not dependent on the age of the porpoise if it is above the age of 0 .
+
+				this.pregnancyStatus = 2;
+				// become pregnanat with prob. taken from Read & Hohn 1995
+				if (this.pregnancyStatus == 2
+						&& Globals.getRandomSource().nextPregnancyStatusConceive(0, 1) < SimulationParameters
+						.getConceiveProb()) {
+					this.pregnancyStatus = 1;
+//					this.daysSinceMating = Globals.getRandomSource().getInitialDaysSinceMating();
+					
+					// set mass-f random-normal 0.74 0.19  !!!
+					massF = RandomHelper.createNormal(0.74d, 0.19d).nextDouble();
+				} else {
+					this.pregnancyStatus = 0;
+				}
+			}
+		}
+		
+		porpsSetupParams();
 	}
 
 	/**
@@ -284,6 +325,8 @@ public class CaraEnergetics implements PorpoiseEnergetics {
 		    */
 		updBlubberDepths();
 	}
+	
+	
 
 	/**
 	 * FIXME This is not in the "simple" version, only in the full
@@ -541,6 +584,7 @@ end */
 		 * 
 		 */
 		mBMR = (B0 * (Math.pow(weight, 0.75)) * 1800.0d);
+//		System.out.println("e-storage: " + eStorage + ",  e-assim: " + eAssim + ",  m-BMR: " + mBMR);
 		if (eAssim >= mBMR) {
 			eAssim = eAssim - mBMR;
 		} else {
@@ -555,6 +599,7 @@ end */
 				if (DebugLog.isEnabledFor(10)) {
 					DebugLog.print(porp.getId() + " died of low body condition-Maintenance");
 				}
+				System.out.println("DIE");
 				porp.die(CauseOfDeath.Starvation); // FIXME Correct cause?
 			}
 			eAssim = 0;
@@ -602,7 +647,8 @@ to thermoregulation ;;; TO BE TOTALLY CHANGED
     ]
 end
 		 */
-		double eThermo = (new ThermoregulationLookupTable()).getValueInBin(B0, swimSpeed, 40, storageLevel);  // FIXME Values to use here
+		final double waterTemp = Globals.getCellData().getTemperature(porp.getPosition());
+		double eThermo = ThermoregulationLookupTable.getInstance().getValueInBin(waterTemp, swimSpeed, (int)weight, storageLevel);  // FIXME Values to use here  -- int cast is not good
 		if (eThermo >= 0.0d) {
 			this.mThermo = eThermo;
 		} else {
@@ -624,6 +670,7 @@ end
 				if (DebugLog.isEnabledFor(10)) {
 					DebugLog.print(porp.getId() + " died of low body condition-Frozen");
 				}
+				System.out.println("die thermo");
 				porp.die(CauseOfDeath.Starvation); // FIXME Correct cause?
 			}
 			eAssim = 0.0d;
@@ -799,16 +846,18 @@ to wean-calf
   ; run upd-blubber-depths to initialize blubber values
     upd-blubber-depths
  ] */
-/*  FIXME !!!! ENABLE THIS BLOCK AGAIN!!!!
-		PorpoiseEnergetics calfEnergetics = new CaraEnergetics(this);
+		CaraEnergetics calfEnergetics = new CaraEnergetics(this);
 		// FIXME Other DEPONS give-birth sets age to 0 (?)
-		final Porpoise calf = new Porpoise(this.porp, ageCalf, calfEnergetics);
+		final Porpoise calf = new Porpoise(this.porp, ageCalf);
+		calf.setEnergetics(calfEnergetics);
+		calfEnergetics.setPorp(calf);
+		calfEnergetics.porpsSetupParams(); // FIXME ADDED BY JONAS, Ok?
 		ContextUtils.getContext(this.porp).add(calf);
 		calf.setPosition(this.porp.getPosition()); // FIXME setxy random-xcor random-ycor??
 		calf.moveAwayFromLand(); // Initializes the pos list. TODO: not nice to do here, should be done
 		// elsewhere
 		Globals.getMonthlyStats().addBirth();
-*/
+
 	/*
   ; reset mother lactation variables
      set m-BMR-calf 0
@@ -843,6 +892,10 @@ end
 		weanScaleFact = 1.0d;
 		withLactCalf = false;
 		IRRecordCalf = 0.0d;
+	}
+
+	private void setPorp(Porpoise porp) {
+		this.porp = porp;
 	}
 
 	/*
@@ -1363,7 +1416,8 @@ to lactation
   ; Here pull value of e-thermo-calf (the initial calculation of heat balance; positive means heat loss, negative more heat is produced than needed) from the lookup table (ThermoregulationLookupTable.csv)
   ; Costs should be based on water temperature,	swim speed,	mass of the calf (mass-calf),	and storage level of the calf (storage-level-calf)
 */
-		double eThermoCalf = (new ThermoregulationLookupTable()).getValueInBin(B0, swimSpeed, (int)massCalf, storageLevel);  // FIXME Values to use here!!!
+		final double waterTemp = Globals.getCellData().getTemperature(porp.getPosition());
+		double eThermoCalf = ThermoregulationLookupTable.getInstance().getValueInBin(waterTemp, swimSpeed, (int)weight, storageLevel);  // FIXME Values to use here!!!
 /*
   ifelse e-therm-calf >= 0                                                                                                                                          ; If not, double check that the estimated metabolic cost of thermoregulation is greater than zero (positive clamp)
     [ set m-thermo-calf e-therm-calf ]                                                                                                                              ; If it is, set thermo costs to the estimated metabolic costs
@@ -1742,6 +1796,7 @@ end */
 
 	/*
 	 * STATUS: DevComplete, except fixmes
+	 * FIXME ACTUALLY CALL THIS!!!!!!
 	 */
 	public void updMortality() {
 /*
@@ -1824,6 +1879,219 @@ end
 			}
 		}
 	}
+	
+	/*
+	 * STATUS: DevComplete, check fixme
+	 */
+	private void porpsSetupParams() {
+/*
+to porps-setup-params
+
+ ; Submodel: MAINTENANCE
+  set B0 11.13 + random-float 0.04 - random-float 0.04               ; Maintenance normalization constant - calibrated
+
+  ; Submodel: THERMOREGULATION
+  set for-convec-scal-coef-list []                                   ; List setup to hold cone forced convection scaling coefficient values
+  set hC-low-lim-coef-list []                                        ; List setup to hold cone heat transfer lower limit values
+  set T-core random-normal 36.7 0.4                                  ; Core temperature - Blanchet, Wahlberg, and Acquarone 2008
+  set kB random-normal 0.10 0.01                                     ; Thermal conductivity of blood free blubber - Worthy and Edwards 1990
+
+  ; Submodel: LOCOMOTION
+   set lambda random-normal 0.25 0.016                               ; Ratio of active to passive drag - calibrated
+		
+  ; Submodel: REPRODUCTION
+  set m-preg 0                                                       ; Initialize pregnancy and lactation costs
+  set m-lact 0
+  set preg-chance 0                                                  ; Initialize pregnancy chance as 0
+*/
+		B0 = 11.13 + (Globals.getRandomSource().nextDouble() * 0.04d) - (Globals.getRandomSource().nextDouble() * 0.04d);
+		// FIXME Seems this is no longer in use?: for-convec-scal-coef-list
+		// FIXME Seems this is no longer in use?: hC-low-lim-coef-list
+		// FIXME Seems this is no longer in use?: T-core
+		// FIXME Seems this is no longer in use?: kB
+		
+		lambda = RandomHelper.createNormal(0.25, 0.016).nextDouble();
+
+		mPreg = 0.0d;
+		mLact = 0.0d;
+		pregChance = 0.0d;
+/*
+  ; Submodel: GROWTH
+  set struct-mass-perc-pro random-normal 0.2629 0.0086               ; Percent structural mass that is protein - Lockyer 1991 (sperm whale)
+  set struct-mass-perc-lip random-normal 0.0288 0.0114               ; Percent structural mass that is lipid - Lockyer 1991 (sperm whale)
+  set DE-lip 0.74 + random-float 0.16                                ; Deposition efficiency of lipid - Malavear 2002, Pullar & Webster 1977
+  set DE-pro 0.43 + random-float 0.13                                ; Deposition efficiency of protein - Malavear 2002, Pullar & Webster 1977
+  set ED-lean-mass ((struct-mass-perc-pro * ED-pro ) + (struct-mass-perc-lip * ED-lip))                                                 ; EQN 55: Lean mass energy density
+  set DE-lean-mass ((struct-mass-perc-pro * DE-pro ) + (struct-mass-perc-lip * DE-lip))/ (struct-mass-perc-pro + struct-mass-perc-lip)  ; EQN 56: Lean mass deposition efficiency
+  set m-str-k random-normal 1.16 0.33                                ; Mass growth constant for females from Galatius & Kinze unps. data fitted with a VB curve
+  set m-str-inf random-normal 46.68 3.86                             ; Mass asymptotic value for females from Galatius & Kinze unps. data fitted with a VB curve
+  set lgth-inf random-normal 158.12 4.68                             ; Length asymptotic value for females from Galatius & Kinze unps. data fitted with a gompertz curve
+  set lgth-0 random-normal 94.82 1.69                                ; Length initial value for females from Galatius & Kinze unps. data fitted with a gompertz curve
+  set lgth-k random-normal 0.41 0.06                                 ; Length k value from Galatius & Kinze unps. data fitted with a gompertz curve
+
+  ; Submodel: STORAGE
+  set perc-lip-blub random-normal 0.816 0.036                        ; Percent blubber that is lipid - Worthy and Edwards 1990
+*/
+		structMassPercPro = RandomHelper.createNormal(0.2629, 0.0086).nextDouble();
+		structMassPercLip = RandomHelper.createNormal(0.0288, 0.0114).nextDouble();
+		DELip = 0.74d + (Globals.getRandomSource().nextDouble() * 0.16d);
+		DEPro = 0.43d + (Globals.getRandomSource().nextDouble() * 0.13d);
+		EDLeanMass = ((structMassPercPro * Globals.EDPro ) + (structMassPercLip * Globals.EDLip));
+		DELeanMass = ((structMassPercPro * DEPro ) + (structMassPercLip * DELip)) / (structMassPercPro + structMassPercLip);
+		mStrK = RandomHelper.createNormal(1.16, 0.33).nextDouble();
+		mStrInf = RandomHelper.createNormal(46.68, 3.86).nextDouble();
+		lgthInf = RandomHelper.createNormal(158.12, 4.68).nextDouble();
+		lgth0 = RandomHelper.createNormal(94.82, 1.69).nextDouble();
+		lgthK = RandomHelper.createNormal(0.41, 0.06).nextDouble();
+		
+		percLipBlub = RandomHelper.createNormal(0.816, 0.036).nextDouble();
+
+/*
+  ; initialize morphometrics based on age - For all groups: 0, 1, 2, 3, 4, 5, 6, 7 & up
+  ifelse age = 0
+    [ let porp-init-0 csv:from-file "porpoise-initialization-files/PorpoiseInitializationBlubber_Zero.csv"  ; Import csv
+      let porp-init-matrix-0 matrix:from-row-list porp-init-0                                               ; Create matrix from csv
+      let n-porps-0 matrix:get-column porp-init-matrix-0 0                                                  ; Pull the first column as a list to get max row number
+      let n-0 (1 + (random (length n-porps-0 - 1)))                                                         ; Generate random row number
+      set lgth matrix:get porp-init-matrix-0 n-0 1                                                          ; Pull length from csv
+      set weight matrix:get porp-init-matrix-0 n-0 2                                                        ; Pull mass from csv
+      set v-blub (matrix:get porp-init-matrix-0 n-0 3) / dens-blub                                          ; Set volume of blubber as the blubber mass multiplied by the blubber density in cm3
+      set mass-struct (matrix:get porp-init-matrix-0 n-0 2) - (matrix:get porp-init-matrix-0 n-0 3)         ; Set structural mass as the difference between weight and blubber mass in kg
+  ]
+  [ ifelse age = 1                                                                                        ; 1 year old initilization
+    [ let porp-init-1 csv:from-file "porpoise-initialization-files/PorpoiseInitializationBlubber_One.csv"
+      let porp-init-matrix-1 matrix:from-row-list porp-init-1
+      let n-porps-1 matrix:get-column porp-init-matrix-1 0
+      let n-1 (1 + (random (length n-porps-1 - 1)))
+      set lgth matrix:get porp-init-matrix-1 n-1 1
+      set weight matrix:get porp-init-matrix-1 n-1 2
+      set v-blub (matrix:get porp-init-matrix-1 n-1 3) / dens-blub
+      set mass-struct (matrix:get porp-init-matrix-1 n-1 2) - (matrix:get porp-init-matrix-1 n-1 3)
+    ]
+
+    [ ifelse age = 2
+      [ let porp-init-2 csv:from-file "porpoise-initialization-files/PorpoiseInitializationBlubber_Two.csv"
+        let porp-init-matrix-2 matrix:from-row-list porp-init-2
+        let n-porps-2 matrix:get-column porp-init-matrix-2 0
+        let n-2 (1 + (random (length n-porps-2 - 1)))
+        set lgth matrix:get porp-init-matrix-2 n-2 1
+        set weight matrix:get porp-init-matrix-2 n-2 2
+        set v-blub (matrix:get porp-init-matrix-2 n-2 3) / dens-blub
+        set mass-struct (matrix:get porp-init-matrix-2 n-2 2) - (matrix:get porp-init-matrix-2 n-2 3)
+      ]
+
+      [ ifelse age = 3
+        [ let porp-init-3 csv:from-file "porpoise-initialization-files/PorpoiseInitializationBlubber_Three.csv"
+          let porp-init-matrix-3 matrix:from-row-list porp-init-3
+          let n-porps-3 matrix:get-column porp-init-matrix-3 0
+          let n-3 (1 + (random (length n-porps-3 - 1)))
+          set lgth matrix:get porp-init-matrix-3 n-3 1
+          set weight matrix:get porp-init-matrix-3 n-3 2
+          set v-blub (matrix:get porp-init-matrix-3 n-3 3) / dens-blub
+          set mass-struct (matrix:get porp-init-matrix-3 n-3 2) - (matrix:get porp-init-matrix-3 n-3 3)
+        ]
+
+        [ ifelse age = 4
+          [ let porp-init-4 csv:from-file "porpoise-initialization-files/PorpoiseInitializationBlubber_Four.csv"
+            let porp-init-matrix-4 matrix:from-row-list porp-init-4
+            let n-porps-4 matrix:get-column porp-init-matrix-4 0
+            let n-4 (1 + (random (length n-porps-4 - 1)))
+            set lgth matrix:get porp-init-matrix-4 n-4 1
+            set weight matrix:get porp-init-matrix-4 n-4 2
+            set v-blub (matrix:get porp-init-matrix-4 n-4 3) / dens-blub
+            set mass-struct (matrix:get porp-init-matrix-4 n-4 2) - (matrix:get porp-init-matrix-4 n-4 3)
+          ]
+
+          [ ifelse age = 5
+            [ let porp-init-5 csv:from-file "porpoise-initialization-files/PorpoiseInitializationBlubber_Five.csv"
+              let porp-init-matrix-5 matrix:from-row-list porp-init-5
+              let n-porps-5 matrix:get-column porp-init-matrix-5 0
+              let n-5 (1 + (random (length n-porps-5 - 1)))
+              set lgth matrix:get porp-init-matrix-5 n-5 1
+              set weight matrix:get porp-init-matrix-5 n-5 2
+              set v-blub (matrix:get porp-init-matrix-5 n-5 3) / dens-blub
+              set mass-struct (matrix:get porp-init-matrix-5 n-5 2) - (matrix:get porp-init-matrix-5 n-5 3)
+            ]
+
+            [ ifelse age = 6
+              [ let porp-init-6 csv:from-file "porpoise-initialization-files/PorpoiseInitializationBlubber_Six.csv"
+                let porp-init-matrix-6 matrix:from-row-list porp-init-6
+                let n-porps-6 matrix:get-column porp-init-matrix-6 0
+                let n-6 (1 + (random (length n-porps-6 - 1)))
+                set lgth matrix:get porp-init-matrix-6 n-6 1
+                set weight matrix:get porp-init-matrix-6 n-6 2
+                set v-blub (matrix:get porp-init-matrix-6 n-6 3) / dens-blub
+                set mass-struct (matrix:get porp-init-matrix-6 n-6 2) - (matrix:get porp-init-matrix-6 n-6 3)
+              ]
+
+
+              [ let porp-init-7u csv:from-file "porpoise-initialization-files/PorpoiseInitializationBlubber_Seven_up.csv"
+                let porp-init-matrix-7u matrix:from-row-list porp-init-7u
+                let n-porps-7u matrix:get-column porp-init-matrix-7u 0
+                let n-7u (1 + (random (length n-porps-7u - 1)))
+                set lgth matrix:get porp-init-matrix-7u n-7u 1
+                set weight matrix:get porp-init-matrix-7u n-7u 2
+                set v-blub (matrix:get porp-init-matrix-7u n-7u 3) / dens-blub
+                set mass-struct (matrix:get porp-init-matrix-7u n-7u 2) - (matrix:get porp-init-matrix-7u n-7u 3)
+              ]
+
+  ]]]]]]
+*/
+		// if-else cases for age is handled in PorpoiseInitializationBlubber
+		var initEntry = PorpoiseInitializationBlubber.getRandomEntry((int)this.porp.getAge()); // FIXME Comparing int to double, should there be some rounding or something?
+		lgth = initEntry.stndL;
+		weight = initEntry.mass;
+		vBlub = initEntry.blubberMass / Globals.densBlub;
+		massStruct = initEntry.mass - initEntry.blubberMass;
+
+/*
+  set age age + 0.5                                                                                                                  ; Increase age by 0.5 to account for Jan 1st start date
+  ifelse pregnancy-status != 1 [set surface-area 0.093 * weight ^ 0.57] [set surface-area 0.093 * (weight + (2 * mass-f)) ^ 0.57]    ; Calculate surface area - Worthy and Edwards 1990
+  set v-blub-calf 0                                                                                                                  ; Initialize calf blubber volume as 0
+  set v-blub-min (weight * 0.05) / dens-blub                                                                                         ; Minimum blubber as 5% of weight
+  set v-blub-Repro (weight * repro-min-SL / dens-blub)
+  set e-repo-min (v-blub-Repro - v-blub-min) * dens-blub * ED-lip                                                                    ; Calculate energy required for reproductive threshold
+  set SL-mean ((lgth * -0.3059) + 0.7066)* IR-temp-mod                                                                               ; Mean storage level percentages from McLellan et al. 2002 for mature, calf, and immature porpoises fit with a linear relationship to length and adjusted using temperature modifier
+  set v-blub-mean (weight * SL-mean / dens-blub)                                                                                     ; Converted to blubber volume
+  set v-blub-calf-idl (mass-calf * 0.375 / dens-blub)                                                                                ; Mean percent blubber for calves in McLellan et al. 2002
+  set e-storage (v-blub - v-blub-min) * dens-blub * ED-lip                                                                           ; Storage energy as the amount of energy stored in blubber over minimum threshold
+  set storage-level (weight - mass-struct) / weight                                                                                  ; Storage level calculation
+*/
+		// FIXME Set age!
+		if (pregnancyStatus != 1) {
+			surfaceArea = 0.093d * Math.pow(weight, 0.57d);
+		} else {
+			surfaceArea = 0.093d * Math.pow((weight + (2 * massF)), 0.57);
+		}
+		vBlubCalf = 0.0d;
+		vBlubMin = (weight * 0.05d) / Globals.densBlub;
+		vBlubRepro = (weight * Globals.reproMinSL / Globals.densBlub);
+		eRepoMin = (vBlubRepro - vBlubMin) * Globals.densBlub * Globals.EDLip;
+		SLMean = ((lgth * -0.3059) + 0.7066) * Globals.IRTempMod;
+		vBlubMean = (weight * SLMean / Globals.densBlub);
+		vBlubCalfIdl = (massCalf * 0.375 / Globals.densBlub);
+		eStorage = (vBlub - vBlubMin) * Globals.densBlub * Globals.EDLip;
+		storageLevel = (weight - massStruct) / weight;
+/*
+  ; initialize tracked values as zero
+  set daily-food 0
+  set food-intake-list []
+  set storage-level-sum 0
+  set storage-level-daily ( list 0 0 0 0 0 0 0 0 0 0 )
+  set IR-record 0
+  set IR-record-calf 0
+end
+ */
+		dailyFood = 0.0d;
+		foodIntakeList.clear();
+		storageLevelSum = 0.0d;
+		storageLevelDaily = new CircularBuffer<>(10);
+		for (int i = 0; i < 10; i++) {
+			this.storageLevelDaily.add(0.0);
+		}
+		IRRecord = 0.0d;
+		IRRecordCalf = 0.0d;
+	}
 
 	public double getEnergyLevelSum() {
 		return storageLevelSum;
@@ -1841,8 +2109,7 @@ end
 
 	@Override
 	public void updPregnancyStatus() {
-		// TODO Auto-generated method stub
-		
+		this.porpUpdPregnancyStatus();
 	}
 
 	@Override
@@ -1853,8 +2120,7 @@ end
 
 	@Override
 	public double getFoodEaten() {
-		// TODO Auto-generated method stub
-		return 0;
+		return foodIntakeList.stream().mapToDouble(Double::doubleValue).sum();
 	}
 
 	@Override
@@ -1865,36 +2131,41 @@ end
 
 	@Override
 	public double getEnergyLevel() {
-		// TODO Auto-generated method stub
-		return 0;
+		return storageLevel;
 	}
 
 	@Override
 	public int getCalvesBorn() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.calvesBorn;
 	}
 
 	@Override
 	public int getCalvesWeaned() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.calvesWeaned;
 	}
 
 	@Override
 	public PersistentSpatialMemory getCalfPersistentSpatialMemory() {
-		// TODO Auto-generated method stub
-		return null;
+		return calfPsm;
 	}
 
 	@Override
 	public int getLactatingCalf() {
-		// TODO Auto-generated method stub
-		return 0;
+		if (this.withLactCalf) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
 	public byte getPregnancyStatus() {
 		return pregnancyStatus;
 	}
+
+	private int calvesBorn = 0; // FIXME UPDATE // Counter for number of calves born
+	private int calvesWeaned = 0; // FIXME UPDATE // Counter for number of calves weaned (successfully to completion)
+
+	private PersistentSpatialMemory calfPsm = null; // If the porpoise is with calf, then this is the PSM it will use.
+
 }

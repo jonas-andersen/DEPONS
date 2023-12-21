@@ -20,6 +20,15 @@ public class ThermoregulationLookupTable {
 	private static final String CSV_SEPARATOR = ",";
 	private static final String EXPECTED_CSV_HEADER = "\"waterTemperature\",\"swimSpeed\",\"mass\",\"storageLevel\",\"meanThermo\",\"sdThermo\""; 
 
+	private static ThermoregulationLookupTable INSTANCE;
+	public static void initialize() {
+		INSTANCE = new ThermoregulationLookupTable();
+		INSTANCE.loadCsv();
+	}
+	public static ThermoregulationLookupTable getInstance() {
+		return INSTANCE;
+	}
+	
 	public void loadCsv() {
 //		var entries = new ArrayList<Entry>();
 		try (var fr = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("ThermoregulationLookupTable.csv")))) {
@@ -79,7 +88,8 @@ public class ThermoregulationLookupTable {
 	}
 
 	public double getValueInBin(double waterTemp, double swimSpeed, int mass, double storageLevel) {
-		return getEntryInBin(waterTemp, swimSpeed, mass, storageLevel).meanThermo;		
+		var entry = getEntryInBin(waterTemp, swimSpeed, mass, storageLevel);
+		return RandomHelper.createNormal(entry.meanThermo, entry.sdThermo).nextDouble();
 	}
 
 	public Entry getEntryInBin(double waterTemp, double swimSpeed, int mass, double storageLevel) {

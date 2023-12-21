@@ -45,6 +45,8 @@ import repast.simphony.space.grid.Grid;
  */
 public final class Globals {
 
+	public static final boolean ENERGETICS_USE_NEW = true;
+
 	private Globals() {
 		// Utility class, prevent instances.
 	}
@@ -235,7 +237,14 @@ to setup-global-parameters  ; setup global parameters
 
   ; Submodel: LOCOMOTION
    set prop-eff 0.81               ; Propeller efficiency - Fish 1993
+*/
+		Globals.IRCoef = 0.0004d;
+		Globals.satiationC = 10.0d;
+		Globals.AEFood = 0.82d;
+		Globals.IRToEA = 113750000d;
 
+		Globals.propEff = 0.81d;
+/*
   ; Submodel: REPRODUCTION
    set age-of-maturity 3.44        ; Age of maturity - Read (1990) and Caswell
    set max-mass-f 8                ; Max mass of fetus - Lockyer and Kinze 2003
@@ -248,7 +257,19 @@ to setup-global-parameters  ; setup global parameters
    set t-gest 300                  ; Gestation period - Lockyer et al., 2003
    set t-nurs 240                  ; Lactation period - Lockyer et al., 2003; Lockyer and Kinze, 2003
    set pregnancy-rate 0.67         ; Pregnancy rate - Sørensen & Kinze 1994
-
+*/
+		// FIXME ageOfMaturity
+		Globals.maxMassF = 8;
+		Globals.fGrowthC = 0.0066858d;
+		Globals.percentLipF = 0.285d;
+		Globals.percentProF = 0.139d;
+		Globals.lactEff = 0.84d;
+		Globals.reproMinSL = 0.10d;
+		Globals.calfIdlSL = 0.375d;
+		Globals.tGest = 300;
+		Globals.tNurs = 240;
+		Globals.pregnancyRate = 0.67d;
+/*
   ; Submodel: GROWTH
    set ED-lip 39.5 * 1000000       ; Lipid energy density - Brody 1968, Blaxter 1989, Worthy 1982
    set ED-pro 23.6 * 1000000       ; Protein energy density - Brody 1968
@@ -258,7 +279,15 @@ to setup-global-parameters  ; setup global parameters
 
   ; Submodel: LIFE HISTORY
    set x-surv-prob-const 13.5      ; Survival probability constanct - calibrated
+*/
+		Globals.EDLip = 39.5 * 1000000;
+		Globals.EDPro = 23.6 * 1000000;
 
+		Globals.densBlub = 0.00092d;
+
+		Globals.xSurvProbConst = 13.5d;
+
+/*
   ;;; Environmental parameters - Slider params from Nabe-Nielsen et al. 2014 not changed in this version of the model
   ; dispersal params:
   set min-disp-depth 4.0           ; in m
@@ -272,42 +301,27 @@ to setup-global-parameters  ; setup global parameters
 
 end
 		 */
-		Globals.IRCoef = 0.0004d;
-		Globals.satiationC = 10.0d;
-		Globals.AEFood = 0.82;
-		Globals.IRToEA = 113750000;
-		Globals.maxMassF = 8;
-		Globals.fGrowthC = 0.0066858d;
-		Globals.percentLipF = 0.285d;
-		Globals.percentProF = 0.139d;
-		Globals.reproMinSL = 0.10d;
-		Globals.calfIdlSL = 0.375d;
-		Globals.tGest = 300;
-		Globals.propEff = 0.81d;
 		Globals.meanDispDist = 1.6d;
-		Globals.densBlub = 0.00092d;
-		Globals.lactEff = 0.84d;
-		Globals.tNurs = 240;
-		Globals.pregnancyRate = 0.67d;
-		Globals.EDLip = 39.5 * 1000000;
-		Globals.EDPro = 23.6 * 1000000;
 		
-		Globals.xSurvProbConst = 13.5d;
-		
-		Globals.IRTempMod = 0.1d; // FIXME calculated in "to landsc-setup" SPECIAL NOTE - may need to be recalculated with rotating landscape files
+
+		/*
+		  let xxxxx ((1 / 6.3661) * mean-temp) * (180 / pi)
+		  let yyyyy (cos xxxxx)
+		  set IR-temp-mod ((1 / 5)* yyyyy + 1)
+		  */
+		var meanTemp = 18.0d;// 3.3878634476026197d; //14.0; // FIXME
+		var xxxxx = ((1.0d / 6.3661d) * meanTemp) * (180 / Math.PI);
+		var yyyyy = Math.cos(xxxxx);
+		Globals.IRTempMod = ((1.0d / 5.0d)* yyyyy + 1.0d); // FIXME calculated in "to landsc-setup" SPECIAL NOTE - may need to be recalculated with rotating landscape files
+		System.out.println("IRTempMod: " + Globals.IRTempMod);
 	}
 
 	// Cara Energetics
 	// FIXME Handle these properly (reset, etc)
-	public static double EDLip = 39.5 * 1000000;                  // energy density of lipid, J kg-1
-	public static double EDPro = 23.6 * 1000000;                  // energy density of protein, J kg-1
-	public static double densBlub = 0.00092d;               // density of lipid, kg cm-3
-	
 	public static double IRCoef = 0.0004d;
 	public static double satiationC = 10.0d;
 	public static double AEFood = 0.82;
 	public static double IRToEA = 113750000;
-	public static double meanDispDist = 1.6d;
 	public static double propEff = 0.81d;
 
 	public static int maxMassF = 8;
@@ -315,15 +329,23 @@ end
 	public static double percentLipF = 0.285d;
 	public static double percentProF = 0.139d;
 	public static double lactEff = 0.84d;
-	public static int tNurs = 240;
-	public static double pregnancyRate = 0.67d;
 	public static double reproMinSL = 0.10d;
 	public static double calfIdlSL = 0.375d;
 	public static int tGest = 300;
+	public static int tNurs = 240;
+	public static double pregnancyRate = 0.67d;
+
+
+	public static double EDLip = 39.5 * 1000000;                  // energy density of lipid, J kg-1
+	public static double EDPro = 23.6 * 1000000;                  // energy density of protein, J kg-1
+	public static double densBlub = 0.00092d;               // density of lipid, kg cm-3
+	public static double xSurvProbConst = 13.5d;
+
 	// n-calf-lost
 	public static int nCalfLost = 0; // FIXME Remember to reset
 
-	public static double xSurvProbConst = 13.5d;
+	public static double meanDispDist = 1.6d;
 	
 	public static double IRTempMod;             // seasonal modifier of intake rate and mean storage level based on water temperature
+
 }

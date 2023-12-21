@@ -156,6 +156,9 @@ public class Porpoise extends Agent {
 		this(parent.context, age, parent.refMemTurnCalculator, parent.getCalfPersistentSpatialMemory());
 	}
 
+	public void setEnergetics(PorpoiseEnergetics energetics) {
+		this.energetics = energetics;
+	}
 	/**
 	 * Constructor for a porpoise part of the initial population (not born during simulation)
 	 *
@@ -201,7 +204,7 @@ public class Porpoise extends Agent {
 		this.energetics = PorpoiseEnergetics.createEnergeticsInitialPopulation(this);
 	}
 
-	private PorpoiseEnergetics energetics = new CaraEnergetics();
+	private PorpoiseEnergetics energetics;
 
 	@ScheduledMethod(start = 0, interval = 1, priority = AgentPriority.PORP_MOVE)
 	public void tick() {
@@ -1220,6 +1223,10 @@ public class Porpoise extends Agent {
 
 	public PersistentSpatialMemory getCalfPersistentSpatialMemory() {
 		return this.energetics.getCalfPersistentSpatialMemory();
+	}
+
+	public PorpoiseEnergetics getCalfEnergetics() {
+		return PorpoiseEnergetics.createEnergetics(this);
 	}
 
 	public double getUtmX() {

@@ -55,6 +55,7 @@ public class CellData {
 
 	private final MonthlyDataFile entropy;
 	private final MonthlyDataFile salinityMaps;
+	private final MonthlyDataFile temperatureMaps;
 
 	private final Optional<Suntimes> suntimes;
 	private final Pair[] foodProbAboveZeroCells;
@@ -66,6 +67,7 @@ public class CellData {
 		this.foodProb = new SimpleDataFile(landscape, LandscapeLoader.PATCHES_FILE, sources);
 		this.entropy = new MonthlyDataFile(landscape, LandscapeLoader.PREY_FILE_PREFIX, sources);
 		this.salinityMaps = new MonthlyDataFile(landscape, LandscapeLoader.SALINITY_FILE_PREFIX, sources);
+		this.temperatureMaps = new MonthlyDataFile(landscape, LandscapeLoader.TEMPERATURE_FILE_PREFIX, sources);
 
 		this.foodValue = new double[this.foodProb.getData().length][this.foodProb.getData()[0].length];
 
@@ -159,7 +161,24 @@ public class CellData {
 	public double getSalinity(final NdPoint point) {
 		return getSalinity(Agent.ndPointToGridPoint(point));
 	}
-	
+
+	public double getTemperature(final int x, final int y) {
+		try {
+			final double temperatureValue = temperatureMaps.getData()[x][y];
+			return temperatureValue;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public double getTemperature(final GridPoint point) {
+		return getTemperature(point.getX(), point.getY());
+	}
+
+	public double getTemperature(final NdPoint point) {
+		return getTemperature(Agent.ndPointToGridPoint(point));
+	}
+
 	public int getBlock(final GridPoint point) {
 		return block[point.getX()][point.getY()];
 	}
