@@ -275,14 +275,14 @@ public class CellData {
 	 * Patches-own   kin-visc-w                   ; kinematic viscosity of water in m2 s-1
 	 */
 	public double getKinViscW(NdPoint point) {
-		return 0.1d; // FIXME IMPLEMENT!
+		return 0.00000174705439665595d; // FIXME IMPLEMENT!
 	}
 
 	/*
 	 * Patches-own density-w                    ; water density in kg m-3
 	 */
 	public double getDensityW(NdPoint point) {
-		return 0.1d; // FIXME IMPLEMENT!
+		return 1019.214877d; // FIXME IMPLEMENT!
 	}
 
 	/*

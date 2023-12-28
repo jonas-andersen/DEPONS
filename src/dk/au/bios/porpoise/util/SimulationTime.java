@@ -95,6 +95,10 @@ public final class SimulationTime {
 		return Globals.getCellData().getSuntimes().map(st -> st.isDaytime((int)getTick())).orElse(true); // default day time
 	}
 
+	public static boolean isBeginningOfDay() {
+		return (getTick() % 48) == 0;
+	}
+
 	public static boolean isBeginningOfWeek() {
 		return (getDayOfSimulation() % 7) == 0;
 	}

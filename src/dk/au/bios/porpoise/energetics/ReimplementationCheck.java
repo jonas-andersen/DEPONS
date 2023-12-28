@@ -1,49 +1,284 @@
 package dk.au.bios.porpoise.energetics;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import dk.au.bios.porpoise.Agent;
+import dk.au.bios.porpoise.Porpoise;
+import dk.au.bios.porpoise.util.SimulationTime;
+import repast.simphony.context.Context;
+
 public class ReimplementationCheck {
 
+	private final static int NUM_RECS = 25;
+	private final static int SC_YEAR = 10;
+
+	private final Check maintenanceCheck;
+	private final Check locomotionCheck;
+	private final Check pregnancyCostsCheck;
+	private final Check pregnancyMassesCheck;
+	private final Check lactationCostsCheck;
+	private final Check lactationMassesCheck;
+	private final Check growthCostsCheck;
+	private final Check growthMassesCheck;
+	private final Check storageLevelAgeCheck;
+	private final Check storageLevelMonthCheck;
+	private final Check intakeAgeCheck;
+	private final Check intakeMonthCheck;
+	private final Check intakeCalvesCheck;
+	private final Check totalEnergyExpenditureCheck;
+
+	public ReimplementationCheck() {
+		maintenanceCheck = new Check("maintenance", (p, e) -> {
+			if (e.weight <= 20.0d) return GroupingBin.BIN_1;
+			else if (e.weight <= 40.0d) return GroupingBin.BIN_2;
+			else if (e.weight <= 60.0d) return GroupingBin.BIN_3;
+			else return GroupingBin.BIN_4;
+		}, (p, e) -> {
+			return e.mBMR;
+		});
+
+		locomotionCheck = new Check("locomotion", (p, e) -> {
+			if (e.swimSpeed <= 0.5d) return GroupingBin.BIN_1;
+			else if (e.swimSpeed <= 1.0d) return GroupingBin.BIN_2;
+			else if (e.swimSpeed <= 1.5d) return GroupingBin.BIN_3;
+			else return GroupingBin.BIN_4;
+		}, (p, e) -> {
+			return e.mLoco;
+		});
+
+		MapToBin pregnancyBinMapping = (p, e) -> {
+			if (e.dsMating > 0 && e.dsMating <= 75) return GroupingBin.BIN_1;
+			else if (e.dsMating > 75 && e.dsMating <= 150) return GroupingBin.BIN_2;
+			else if (e.dsMating > 150 && e.dsMating <= 225) return GroupingBin.BIN_3;
+			else if (e.dsMating >= 225) return GroupingBin.BIN_4;  // FIXME Overlap
+			else return GroupingBin.BIN_IGNORE;
+		};
+		pregnancyCostsCheck = new Check("pregnancyCosts", pregnancyBinMapping, (p, e) -> {
+			return e.mPreg;
+		});
+		pregnancyMassesCheck = new Check("pregnancyMasses", pregnancyBinMapping, (p, e) -> {
+			return e.massF;
+		});
+
+		MapToBin lactationBinMapping = (p, e) -> {
+			if (e.dsgBirth > 0 && e.dsgBirth <= 60) return GroupingBin.BIN_1;
+			else if (e.dsgBirth > 60 && e.dsgBirth <= 120) return GroupingBin.BIN_2;
+			else if (e.dsgBirth > 120 && e.dsgBirth <= 180) return GroupingBin.BIN_3;
+			else if (e.dsgBirth >= 180) return GroupingBin.BIN_4;  // FIXME Overlap
+			else return GroupingBin.BIN_IGNORE;
+		};
+		lactationCostsCheck = new Check("lactationCosts", lactationBinMapping, (p, e) -> {
+			return e.mLact;
+		});
+		lactationMassesCheck = new Check("lactationMasses", lactationBinMapping, (p, e) -> {
+			return e.massCalf;
+		});
+
+		MapToBin growthBinMapping = (p, e) -> {
+			if (p.getAge() <= 3) return GroupingBin.BIN_1;
+			else if (p.getAge() <= 6) return GroupingBin.BIN_2;
+			else if (p.getAge() <= 9) return GroupingBin.BIN_3;
+			else if (p.getAge() >= 9) return GroupingBin.BIN_4;  // FIXME Overlap
+			else return GroupingBin.BIN_IGNORE;
+		};
+		growthCostsCheck = new Check("growthCosts", growthBinMapping, (p, e) -> {
+			return e.mGrowth;
+		});
+		growthMassesCheck = new Check("growthMasses", growthBinMapping, (p, e) -> {
+			return e.weight;
+		});
+
+		storageLevelAgeCheck = new Check("storageLevelAge", (p, e) -> {
+			if (p.getAge() <= 1) return GroupingBin.BIN_1;
+			else if (p.getAge() <= 2) return GroupingBin.BIN_2;
+			else if (p.getAge() <= 3) return GroupingBin.BIN_3;
+			else return GroupingBin.BIN_4;
+		}, (p, e) -> {
+			return e.storageLevel;
+		});
+
+		storageLevelMonthCheck = new Check("storageLevelMonth", (p, e) -> {
+			if (SimulationTime.getMonthOfYear() == 3) return GroupingBin.BIN_1; // FIXME CHECK IF MONTH mapping is correct
+			else if (SimulationTime.getMonthOfYear() == 6) return GroupingBin.BIN_2;
+			else if (SimulationTime.getMonthOfYear() == 9) return GroupingBin.BIN_3;
+			else if (SimulationTime.getMonthOfYear() == 12) return GroupingBin.BIN_4;
+			else return GroupingBin.BIN_IGNORE;
+		}, (p, e) -> {
+			return e.storageLevel;
+		});
+
+		intakeAgeCheck = new Check("intakeAge", (p, e) -> {
+			if (p.getAge() <= 3 && e.eAssim > 0) return GroupingBin.BIN_1;
+			else if (p.getAge() > 3 && p.getAge() <= 6 && e.eAssim > 0) return GroupingBin.BIN_2;
+			else if (p.getAge() > 6 && p.getAge() <= 9 && e.eAssim > 0) return GroupingBin.BIN_3;
+			else if (p.getAge() >= 9 && e.eAssim > 0) return GroupingBin.BIN_4;
+			else return GroupingBin.BIN_IGNORE;
+		}, (p, e) -> {
+			return e.eAssim;
+		});
+
+		intakeMonthCheck = new Check("intakeMonth", (p, e) -> {
+			if (SimulationTime.getMonthOfYear() == 3 && e.eAssim > 0) return GroupingBin.BIN_1;
+			else if (SimulationTime.getMonthOfYear() == 6 && e.eAssim > 0) return GroupingBin.BIN_2;
+			else if (SimulationTime.getMonthOfYear() == 9 && e.eAssim > 0) return GroupingBin.BIN_3;
+			else if (SimulationTime.getMonthOfYear() == 12 && e.eAssim > 0) return GroupingBin.BIN_4;
+			else return GroupingBin.BIN_IGNORE;
+		}, (p, e) -> {
+			return e.eAssim;
+		});
+
+		intakeCalvesCheck = new Check("intakeCalves", (p, e) -> {
+			if (e.dsgBirth >= 90 && e.dsgBirth <= 127 && e.eAssimCalf > 0) return GroupingBin.BIN_1;
+			else if (e.dsgBirth > 127 && e.dsgBirth <= 164 && e.eAssimCalf > 0) return GroupingBin.BIN_2;
+			else if (e.dsgBirth > 164 && e.dsgBirth <= 201 && e.eAssimCalf > 0) return GroupingBin.BIN_3;
+			else if (e.dsgBirth >= 201 && e.eAssimCalf > 0) return GroupingBin.BIN_4;
+			else return GroupingBin.BIN_IGNORE;
+		}, (p, e) -> {
+			return e.eAssimCalf;
+		});
+
+		totalEnergyExpenditureCheck = new Check("totalEnergyExpenditure", (p, e) -> {
+			if (p.getAge() <= 3) return GroupingBin.BIN_1;
+			else if (p.getAge() <= 6) return GroupingBin.BIN_2;
+			else if (p.getAge() <= 9) return GroupingBin.BIN_3;
+			else if (p.getAge() >= 9) return GroupingBin.BIN_4;
+			else return GroupingBin.BIN_IGNORE;
+		}, (p, e) -> {
+			return e.mTot;
+		});
+	}
+
+	private static ReimplementationCheck INSTANCE;
 	
-	void produce() {
+	public static ReimplementationCheck getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new ReimplementationCheck(); // FIXME Handle re-initializtion
+		}
+		return INSTANCE;
+	}
+	
+	public static void reset() {
+		INSTANCE = null;
+	}
+
+	public boolean shouldProduce() {
+		if (SimulationTime.getTick() >= 1.0d && SimulationTime.getYearOfSimulation() == SC_YEAR && SimulationTime.isBeginningOfDay()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public void produce(Context<Agent> context) {
+		maintenanceCheck.run(context);
+		locomotionCheck.run(context);
+		pregnancyCostsCheck.run(context);
+		pregnancyMassesCheck.run(context);
+		lactationCostsCheck.run(context);
+		lactationMassesCheck.run(context);
+		growthCostsCheck.run(context);
+		growthMassesCheck.run(context);
+		storageLevelAgeCheck.run(context);
+		storageLevelMonthCheck.run(context);
+		intakeAgeCheck.run(context);
+		intakeMonthCheck.run(context);
+		intakeCalvesCheck.run(context);
+		totalEnergyExpenditureCheck.run(context);
+	}
+
+	private enum GroupingBin { BIN_1, BIN_2, BIN_3, BIN_4, BIN_IGNORE };
+	
+	@FunctionalInterface
+	private interface MapToBin {
+		GroupingBin map(Porpoise porp, CaraEnergetics energetics);
+	}
+	
+	@FunctionalInterface
+	private interface MapToValue {
+		Double map(Porpoise porp, CaraEnergetics energetics);
+	}
+	
+	private static class Check {
+		private List<Double> binMeans = null;
+		private List<Double> bin1 = new ArrayList<>();
+		private List<Double> bin2 = new ArrayList<>();
+		private List<Double> bin3 = new ArrayList<>();
+		private List<Double> bin4 = new ArrayList<>();
+		private final String name;
+		private final MapToBin binMapping;
+		private final MapToValue valueMapping;
+
+		
+		private Check(String name, MapToBin binMapping, MapToValue valueMapping) {
+			this.name = name;
+			this.binMapping = binMapping;
+			this.valueMapping = valueMapping;
+		}
+
+		void run(Context<Agent> context) {
+			if (binMeans == null) {
+				var allPorps = context.getRandomObjectsAsStream(Porpoise.class, Long.MAX_VALUE);
+				var grouped = allPorps.map(Porpoise.class::cast).collect(Collectors.groupingBy(p -> {
+					var porp = (Porpoise) p;
+					var energetics = (CaraEnergetics) porp.getEnergetics();
+					return binMapping.map(porp, energetics);
+				}));
+				if (bin1.size() < NUM_RECS) {
+					var bin = grouped.get(GroupingBin.BIN_1);
+					if (bin != null) {
+						var porp = (Porpoise) bin.get(0);
+						var energetics = (CaraEnergetics) porp.getEnergetics();
+						bin1.add(valueMapping.map(porp, energetics));
+					}
+				}
+				if (bin2.size() < NUM_RECS) {
+					var bin = grouped.get(GroupingBin.BIN_2);
+					if (bin != null) {
+						var porp = (Porpoise) bin.get(0);
+						var energetics = (CaraEnergetics) porp.getEnergetics();
+						bin2.add(valueMapping.map(porp, energetics));
+					}
+				}
+				if (bin3.size() < NUM_RECS) {
+					var bin = grouped.get(GroupingBin.BIN_3);
+					if (bin != null) {
+						var porp = (Porpoise) bin.get(0);
+						var energetics = (CaraEnergetics) porp.getEnergetics();
+						bin3.add(valueMapping.map(porp, energetics));
+					}
+				}
+				if (bin4.size() < NUM_RECS) {
+					var bin = grouped.get(GroupingBin.BIN_4);
+					if (bin != null) {
+						var porp = (Porpoise) bin.get(0);
+						var energetics = (CaraEnergetics) porp.getEnergetics();
+						bin4.add(valueMapping.map(porp, energetics));
+					}
+				}
+				
+				// FIXME Remove hack for maintenance
+				if ((bin1.size() >= NUM_RECS || "maintenance".equals(name) ) && bin2.size() >= NUM_RECS && bin3.size() >= NUM_RECS && bin4.size() >= NUM_RECS) {
+					binMeans = List.of(
+							bin1.stream().mapToDouble(Double::doubleValue).average().getAsDouble(),
+							bin2.stream().mapToDouble(Double::doubleValue).average().getAsDouble(),
+							bin3.stream().mapToDouble(Double::doubleValue).average().getAsDouble(),
+							bin4.stream().mapToDouble(Double::doubleValue).average().getAsDouble());
+					bin1.clear();
+					bin2.clear();
+					bin3.clear();
+					bin4.clear();
+
+					System.err.println("RE-CHECK_" + name + ": " + binMeans);
+				}
+				
+			}
+		}
+	}
+
+
 /*
-to reimplementation-check ; This needs to be called in the go procedure after energy intake
-
-  ; number of values to gather for each output
-  let n-recs 25
-
-  ;;; Maintenance
-  if maintenance-check = 0 [
-    if length m-c-1 < n-recs [ if any? porps with [weight <= 20] [ ask one-of porps with [weight <= 20] [ set m-c-1 lput m-BMR m-c-1 ]]]
-    if length m-c-2 < n-recs [ if any? porps with [weight > 20 and weight <= 40] [ ask one-of porps with [weight > 20 and weight <= 40] [ set m-c-2 lput m-BMR m-c-2 ]]]
-    if length m-c-3 < n-recs [ if any? porps with [weight > 40 and weight <= 60] [ ask one-of porps with [weight > 40 and weight <= 60] [ set m-c-3 lput m-BMR m-c-3 ]]]
-    if length m-c-4 < n-recs [ if any? porps with [weight >= 60] [ ask one-of porps with [weight >= 60] [ set m-c-4 lput m-BMR m-c-4 ]]]
-
-    if length m-c-1 >= n-recs and length m-c-2 >= n-recs and length m-c-3 >= n-recs and length m-c-4 >= n-recs [
-      set maintenance-check (list mean m-c-1 mean m-c-2 mean m-c-3 mean m-c-4)
-      set m-c-1 "✓"
-      set m-c-2 "✓"
-      set m-c-3 "✓"
-      set m-c-4 "✓"
-    ]
-  ]
-
-  ;;; thermoregulation - should just follow lookup table values
-
-  ;;; Locomotion
-  if locomotion-check = 0 [
-    if length l-c-1 < n-recs [ if any? porps with [swim-speed <= 0.5] [ ask one-of porps with [swim-speed <= 0.5] [ set l-c-1 lput m-loco l-c-1 ]]]
-    if length l-c-2 < n-recs [ if any? porps with [swim-speed > 0.5 and swim-speed <= 1.0] [ ask one-of porps with [swim-speed > 0.5 and swim-speed <= 1.0] [ set l-c-2 lput m-loco l-c-2 ]]]
-    if length l-c-3 < n-recs [ if any? porps with [swim-speed > 1.0 and swim-speed <= 1.5] [ ask one-of porps with [swim-speed > 1.0 and swim-speed <= 1.5] [ set l-c-3 lput m-loco l-c-3 ]]]
-    if length l-c-4 < n-recs [ if any? porps with [swim-speed >= 1.5] [ ask one-of porps with [swim-speed >= 1.5] [ set l-c-4 lput m-loco l-c-4 ]]]
-
-    if length l-c-1 >= n-recs and length l-c-2 >= n-recs and length l-c-3 >= n-recs and length l-c-4 >= n-recs [
-      set locomotion-check (list mean l-c-1 mean l-c-2 mean l-c-3 mean l-c-4)
-      set l-c-1 "✓"
-      set l-c-2 "✓"
-      set l-c-3 "✓"
-      set l-c-4 "✓"
-    ]
-  ]
-
 
   ;;; pregnancy
   ; PregnancyCosts
@@ -247,6 +482,5 @@ to reimplementation-check ; This needs to be called in the go procedure after en
 
 end
  */
-	}
-	
+
 }

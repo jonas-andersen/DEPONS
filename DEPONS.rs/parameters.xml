@@ -52,10 +52,10 @@
 						defaultValue="20.0" 
 						isReadOnly="false"/>
         <parameter name="rS" displayName="rS - Satiation memory decay rate [unitless]" type="string" 
-						defaultValue="0.04" 
+						defaultValue="0.2" 
 						isReadOnly="false"/>
         <parameter name="rR" displayName="rR - Reference memory decay rate [unitless]" type="string" 
-						defaultValue="0.04" 
+						defaultValue="0.1" 
 						isReadOnly="false"/>
         <parameter name="rU" displayName="rU - Food replenishment rate" type="string" 
 						defaultValue="0.1" 
@@ -113,7 +113,7 @@
 						isReadOnly="false" 
 		/>
         <parameter name="ddisp" displayName="ddisp - Dispersal distance per time step [km]" type="string" 
-						defaultValue="1.05" 
+						defaultValue="1.6" 
 						isReadOnly="false" 
 		/>
         <parameter name="dmax_mov" displayName="dmax_mov - max movement distance" type="string" 

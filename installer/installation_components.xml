@@ -9,7 +9,7 @@
 
     <info>
       <appname>DEPONS</appname>
-	  <appversion>4.0a2</appversion>
+	  <appversion>4.0a3</appversion>
       <summarylogfilepath>$INSTALL_PATH/installinfo/Summary.htm</summarylogfilepath>
     </info>
     

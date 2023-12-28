@@ -38,6 +38,7 @@ import dk.au.bios.porpoise.behavior.RefMem;
 import dk.au.bios.porpoise.behavior.RefMemTurnCalculator;
 import dk.au.bios.porpoise.behavior.ReplayedRandomSource;
 import dk.au.bios.porpoise.energetics.PorpoiseInitializationBlubber;
+import dk.au.bios.porpoise.energetics.ReimplementationCheck;
 import dk.au.bios.porpoise.energetics.ThermoregulationLookupTable;
 import dk.au.bios.porpoise.landscape.CellData;
 import dk.au.bios.porpoise.landscape.GridSpatialPartitioning;
@@ -102,6 +103,7 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		}
 		
 		if (Globals.ENERGETICS_USE_NEW) {
+			ReimplementationCheck.reset();
 			Globals.caraSetupGlobalParameters();
 			PorpoiseInitializationBlubber.initialize();
 			ThermoregulationLookupTable.initialize();

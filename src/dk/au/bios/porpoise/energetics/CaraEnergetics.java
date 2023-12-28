@@ -33,8 +33,8 @@ public class CaraEnergetics implements PorpoiseEnergetics {
 	double storageLevelSum;     // Sum of energy levels. Reset to 0 every day
 	CircularBuffer<Double> storageLevelDaily;   // List with average energy for last ten days. Latest days first.
 
-	double ageDays;             // age in days
-	double swimSpeed;           // swimming speed in m s-1
+//	double ageDays;             // age in days
+	public double swimSpeed;           // swimming speed in m s-1
 	double eStorage;            // mobilizable energy available in storage in J
 	double eRepoMin;            // minimum storage energy needed for reproduction in J
 	double massStruct;          // structural mass (non-blubber) in kg
@@ -136,13 +136,17 @@ public class CaraEnergetics implements PorpoiseEnergetics {
 	
 	public void doStuff() {
 		calcSwimSpeed();
-		patchZeroCheck();
 		// assimilate energy
 		energyIntake();
 		// (netlogo BUT NOT IN USE):  set EA e-assim
 		
 // FIXME	    ; for reimplementation check:
 //	        if time-step >= 1 and year = sc-year and remainder time-step 48 = 0 [ reimplementation-check ]
+
+		// FIXME SHOULD THIS REALLY RUN FOR EACH PORPOISE??
+		if (ReimplementationCheck.getInstance().shouldProduce()) {
+			ReimplementationCheck.getInstance().produce(this.porp.getContext());
+		}
 
 		// then allocate it to:
 		if (porp.isAlive()) {
@@ -184,7 +188,7 @@ public class CaraEnergetics implements PorpoiseEnergetics {
 */
 		if (SimulationTime.isBeginningOfWeek()) {
 			var foodIntakeSum = foodIntakeList.stream().mapToDouble(Double::doubleValue).sum();
-			dailyFood = (foodIntakeSum / 7) * Globals.IRToEA;
+			dailyFood = (foodIntakeSum / 7.0d) * Globals.IRToEA;
 			foodIntakeList.clear();
 		}
 		
@@ -355,14 +359,14 @@ to calc-swim-speed ; calculates swimming speed for use in the thermoregulation a
 end
 		 */
 		if (!porp.getDispersalBehaviour().isDispersing()) {
-			double swimSpeedPresMov = (Math.pow(10,  porp.getPresLogMov()) * 100.0d) / 1800.0d;
+			double swimSpeedPresMov = (Math.pow(10.0d,  porp.getPresLogMov()) * 100.0d) / 1800.0d;
 			double swimSpeedPresLogTrans = Math.log(swimSpeedPresMov * 100.0d);
 			this.swimSpeed = swimSpeedPresLogTrans * 0.346d;
 			if (this.swimSpeed <= 0.01d) {
 				this.swimSpeed = 0.01d;
 			}
 		} else {
-			swimSpeed = (Globals.meanDispDist * 1000.0d * (1.0d / (30 * 60)));
+			swimSpeed = (Globals.meanDispDist * 1000.0d * (1.0d / (30.0d * 60.0d)));
 		}
 	}
 
@@ -402,7 +406,7 @@ to energy-intake
 		double pregIRSup = (mPreg / (Globals.AEFood * Globals.IRToEA));
 		double lactIRSup = (mLactReal /(Globals.AEFood * Globals.IRToEA));
 		double IRStructMassCalf = 0.0d;
-		if (withLactCalf && weanScaleFact < 1) {
+		if (withLactCalf && weanScaleFact < 1) {  // FIXME Integer correct?
 			IRStructMassCalf = (((Globals.IRCoef * Math.pow(massStructCalf, 0.75)) * (1.00 - weanScaleFact)) * Globals.IRTempMod);
 		}
 		double IRTimestep = IRStructMass + pregIRSup + lactIRSup;
@@ -416,7 +420,7 @@ to energy-intake
 		double foodAvailable = Globals.getCellData().getFoodLevel(ndPointToGridPoint(this.porp.posList.get(1)));  // Original states that it should be item 0 but uses item 1!
 
 		if (DebugLog.isEnabledFor(11)) {
-			if (foodAvailable < 0) {
+			if (foodAvailable < 0.0d) {
 				DebugLog.print("WARNING: Food-level of " + ndPointToGridPoint(this.porp.posList.get(1)) + " < 0");
 			}
 		}
@@ -478,14 +482,14 @@ to energy-intake
 		}
 		double maxSL = (lgth * -0.39635d) + 1.02347d;
 		double overMeanSL = (storageLevel - SLMean) / (maxSL - SLMean);
-		if (overMeanSL > 0) {
-			overMeanSL = 1;
+		if (overMeanSL > 0.0d) {
+			overMeanSL = 1.0d;
 		}
-		double IRSLMod = 1;
-		if (overMeanSL > 0) {
-			double FC = (-1 * Globals.satiationC);
+		double IRSLMod = 1.0d;
+		if (overMeanSL > 0.0d) {
+			double FC = (-1.0d * Globals.satiationC);
 			IRSLMod = Math.exp(overMeanSL * FC);
-			if (IRSLMod < 0) {
+			if (IRSLMod < 0.0d) {
 				IRSLMod = 0.0d;
 			}
 			IRReal = IRReal * IRSLMod;
@@ -516,7 +520,7 @@ to energy-intake
   set e-assim (IR-real * IR-to-EA * AE-food )                       ; EQN 22: Assimilate food of patch using the ingestion rate, the calibrated IR-real to EA conversion factor, and the assimilation efficiency of food
   set e-assim-calf (IR-real-calf * IR-to-EA * AE-food )             ; EQN 24: Calves assimilate food of patch using the ingestion rate, the calibrated IR-real to EA conversion factor, and the assimilation efficiency of food
 */
-		double foodEaten = 0;
+		double foodEaten = 0.0d;
 		if (withLactCalf == false || weanScaleFact == 1) {
 			foodEaten = IRReal;
 		} else {
@@ -525,6 +529,11 @@ to energy-intake
 		
 		foodIntakeList.add(IRReal);
 		Globals.getCellData().eatFood(ndPointToGridPoint(this.porp.posList.get(1)), foodEaten);
+
+		this.porp.getPersistentSpatialMemory().updateMemory(this.porp.getPosition(), IRReal);
+		if (calfPsm != null && this.porp.getDispersalBehaviour().calfHasPSM()) {
+			calfPsm.updateMemory(this.porp.getPosition(), IRRealCalf);
+		}
 
 		eAssim = (IRReal * Globals.IRToEA * Globals.AEFood);
 		eAssimCalf = (IRRealCalf * Globals.IRToEA * Globals.AEFood);
@@ -583,7 +592,7 @@ end */
     ]
 		 * 
 		 */
-		mBMR = (B0 * (Math.pow(weight, 0.75)) * 1800.0d);
+		mBMR = (B0 * (Math.pow(weight, 0.75d)) * 1800.0d);
 //		System.out.println("e-storage: " + eStorage + ",  e-assim: " + eAssim + ",  m-BMR: " + mBMR);
 		if (eAssim >= mBMR) {
 			eAssim = eAssim - mBMR;
@@ -602,7 +611,7 @@ end */
 				System.out.println("DIE");
 				porp.die(CauseOfDeath.Starvation); // FIXME Correct cause?
 			}
-			eAssim = 0;
+			eAssim = 0.0d;
 		}
 	}
 
@@ -648,7 +657,7 @@ to thermoregulation ;;; TO BE TOTALLY CHANGED
 end
 		 */
 		final double waterTemp = Globals.getCellData().getTemperature(porp.getPosition());
-		double eThermo = ThermoregulationLookupTable.getInstance().getValueInBin(waterTemp, swimSpeed, (int)weight, storageLevel);  // FIXME Values to use here  -- int cast is not good
+		double eThermo = ThermoregulationLookupTable.getInstance().getValueInBin(waterTemp, swimSpeed, (int) Math.round(weight), storageLevel);  // FIXME Values to use here  -- int cast is not good
 		if (eThermo >= 0.0d) {
 			this.mThermo = eThermo;
 		} else {
@@ -699,16 +708,16 @@ to locomotion
   set m-loco m-loco * 1800                                                                                      ; Convert from watts to cost per timestep-1 by multiplying by 1800 seconds
   set m-loco-ineff-pts (1 - aero-eff) * m-loco                                                                  ; EQN 27: Save the waste heat generated this step to use in the thermo calculations next step
 */
-		double aeroEff = 0.13478d + 0.441d * (Math.pow((swimSpeed / 4.2), 3)) - 0.422 * (Math.pow((swimSpeed / 4.2), 6));
+		double aeroEff = 0.13478d + 0.441d * (Math.pow((swimSpeed / 4.2), 3.0d)) - 0.422 * (Math.pow((swimSpeed / 4.2), 6.0d));
 		double Re = (lgth * swimSpeed) / Globals.getCellData().getKinViscW(porp.getPosition());
 		Re = Math.log10(Re);
 		
 		double dragCoef = (-0.113188d * Re + -1.535837d);
-		dragCoef = Math.pow(10, dragCoef);
+		dragCoef = Math.pow(10.0d, dragCoef);
 		
-		mLoco = (lambda * Globals.getCellData().getDensityW(porp.getPosition()) * surfaceArea * dragCoef * (Math.pow(swimSpeed, 3))) / (2 * aeroEff * Globals.propEff);
+		mLoco = (lambda * Globals.getCellData().getDensityW(porp.getPosition()) * surfaceArea * dragCoef * (Math.pow(swimSpeed, 3.0d))) / (2.0d * aeroEff * Globals.propEff);
 		mLoco = mLoco * 1800.0d;
-		mLocoIneffPts = (1 - aeroEff) * mLoco;
+		mLocoIneffPts = (1.0d - aeroEff) * mLoco;
 		
 /*
   ;;;;; ALLOCATION ;;;;;
@@ -920,10 +929,10 @@ to growth
         if m-growth < 0 [set m-growth 0]                                                                       ; Negative clamp
 */
 			eAssimGrow = eAssim / 2.0d;
-			maxGrow = (mStrK / 17280) * ((Math.pow(Math.pow(mStrInf, (1 / 3)) * massStruct, (2 / 3))) - massStruct);
+			maxGrow = (mStrK / 17280.0d) * ((Math.pow(Math.pow(mStrInf, (1.0d / 3.0d)) * massStruct, (2.0d / 3.0d))) - massStruct);
 			
-			mGrowth = (maxGrow * (EDLeanMass + EDLeanMass * (1 - DELeanMass)));
-			if (mGrowth < 0) {
+			mGrowth = (maxGrow * (EDLeanMass + EDLeanMass * (1.0d - DELeanMass)));
+			if (mGrowth < 0.0d) {
 				mGrowth = 0.0d;
 			}
 /*
@@ -984,7 +993,7 @@ to growth
 
  end
   */
-		double lgthT = ( (lgthInf * Math.exp(Math.log(lgth0 / lgthInf) * Math.exp((- lgthK)* this.porp.getAge()))) / 100 );
+		double lgthT = ( (lgthInf * Math.exp(Math.log(lgth0 / lgthInf) * Math.exp((- lgthK)* this.porp.getAge()))) / 100.0d );
 		if (lgthT > lgth) {
 			lgth = lgthT;
 		}
@@ -1012,14 +1021,14 @@ to storage
 
 end
  */
-		if (eAssim >= 0) {
+		if (eAssim >= 0.0d) {
 			double addBlub = ((eAssim * DELip * percLipBlub) / (Globals.EDLip * Globals.densBlub ));
 			vBlub = vBlub + addBlub;
-			eAssim = 0;
+			eAssim = 0.0d;
 		}
 		// FIXME This should probably be moved to DailyTasks
-		if (SimulationTime.getTick() % 48 == 0) {
-			storageLevelSum = 0;
+		if (SimulationTime.isBeginningOfDay()) {
+			storageLevelSum = 0.0d;
 			updBlubberDepths();
 		}
 	}
@@ -1064,14 +1073,14 @@ end
 		storageLevelSum = storageLevelSum + storageLevel;
 		
 		if (pregnancyStatus != 1) {
-			surfaceArea = 0.093d * Math.pow(weight, 0.57);
+			surfaceArea = 0.093d * Math.pow(weight, 0.57d);
 		} else {
-			surfaceArea = 0.093d * Math.pow((weight + (2 * massF)), 0.57);
+			surfaceArea = 0.093d * Math.pow((weight + (2.0d * massF)), 0.57d);
 		}
 		
-		SLMean = ((lgth * -0.3059) + 0.7066) * Globals.IRTempMod;
+		SLMean = ((lgth * -0.3059d) + 0.7066d) * Globals.IRTempMod;
 		vBlubMean = (weight * SLMean / Globals.densBlub);
-		vBlubMin = (weight * 0.05) / Globals.densBlub;
+		vBlubMin = (weight * 0.05d) / Globals.densBlub;
 		vBlubRepro = (weight * Globals.reproMinSL / Globals.densBlub);
 		
 		eStorage = (vBlub - vBlubMin) * Globals.densBlub * Globals.EDLip;
@@ -1262,8 +1271,8 @@ to pregnancy
     stop
   ]
 */
-		if (massF <= 0) {
-			mPreg = 0;
+		if (massF <= 0.0d) {
+			mPreg = 0.0d;
 			return;
 		}
 /*
@@ -1341,15 +1350,24 @@ end
  */
 		massCalf = massF;
 		massF = 0;
-		vBlubCalf = (massCalf * 0.375) / Globals.densBlub;
+		vBlubCalf = (massCalf * 0.375d) / Globals.densBlub;
 		massStructCalf = massCalf * (1.0d - 0.375d);
 		pregnancyStatus = 2;
-		mPreg = 0;
-		eHeatGest = 0;
-		mGrowthF = 0;
-		IRRecordCalf = 0;
+		mPreg = 0.0d;
+		eHeatGest = 0.0d;
+		mGrowthF = 0.0d;
+		IRRecordCalf = 0.0d;
 		withLactCalf = true;
 		
+		double calfPsmPrefDistance;
+		if (this.porp.getDispersalBehaviour().calfInheritsPsmDist()) {
+			calfPsmPrefDistance = this.porp.getPersistentSpatialMemory().getPreferredDistance();
+		} else {
+			calfPsmPrefDistance = PersistentSpatialMemory.generatedPreferredDistance();
+		}
+		this.calfPsm = new PersistentSpatialMemory(Globals.getWorldWidth(), Globals.getWorldHeight(),
+				calfPsmPrefDistance);
+
 		if (Globals.getRandomSource().nextPregnancyStatusBoyGirl(0, 1) > 0.5) { 
 			sexCalf = "female";
 		} else {
@@ -1357,7 +1375,7 @@ end
 		}
 		dsMating = -99;
 		dsgBirth = 0;
-		pregChance = 0;
+		pregChance = 0.0d;
 		
 		if (DebugLog.isEnabledFor(9)) {
 			DebugLog.print9("{} with lact calf", this.porp.getId());
@@ -1376,7 +1394,7 @@ to lactation
     stop
     ]
 */
-		if (massCalf <= 0) {
+		if (massCalf <= 0.0d) {
 			resetLactationVars();
 			return;
 		}
@@ -1403,12 +1421,12 @@ to lactation
 			final double lgthInfF = 116.3d;
 			final double lgth0F = 89.2d;
 			final double lgthKF = 3.3d;
-			lgthCalf = ((lgthInfF * Math.exp(Math.log(lgth0F / lgthInfF) * Math.exp((-1 * lgthKF) * (dsgBirth / 360.0d)) )) / 100.0d);
+			lgthCalf = ((lgthInfF * Math.exp(Math.log(lgth0F / lgthInfF) * Math.exp((-1.0d * lgthKF) * (dsgBirth / 360.0d)) )) / 100.0d);
 		} else {
 			final double lgthInfM = 112.9d;
 			final double lgth0M = 68.1d;
 			final double lgthKM = 6.2d;
-			lgthCalf = ((lgthInfM * Math.exp(Math.log(lgth0M / lgthInfM) * Math.exp ((-1 * lgthKM) * (dsgBirth / 360.0d))))/ 100.0d);
+			lgthCalf = ((lgthInfM * Math.exp(Math.log(lgth0M / lgthInfM) * Math.exp ((-1.0d * lgthKM) * (dsgBirth / 360.0d))))/ 100.0d);
 		}
 /*
   ;;;; calf thermoregulatory costs - EQN 49 ;;;;
@@ -1443,7 +1461,7 @@ to lactation
 		} else {
 			maxGrowCalf = 0.0d;
 		}
-		mGrowthCalf = (maxGrowCalf * (EDLeanMass + EDLeanMass * (1 - DELeanMass)));  // FIXME Indentation is a bit special here, check if correct in original
+		mGrowthCalf = (maxGrowCalf * (EDLeanMass + EDLeanMass * (1.0d - DELeanMass)));  // FIXME Indentation is a bit special here, check if correct in original
 /*
   ;;;; calf blubber requirement costs - EQN 51 ;;;;
   ifelse v-blub-calf <  v-blub-calf-idl                                                                                                                             ; Check that calves blubber stores are sufficient
@@ -1469,7 +1487,7 @@ to lactation
 		if (eCalf >= 337080.2d) {
 			double m = ((mBMRCalf + mThermoCalf + mGrowthCalf) / Globals.lactEff);
 			mBlubCalf = (337080.2d - m) * Globals.lactEff;
-			if (mBlubCalf < 0) {
+			if (mBlubCalf < 0.0d) {
 				mBlubCalf = 0.0d;
 			}
 		}
@@ -1525,7 +1543,7 @@ to lactation
 			vitalCosts = (mBMRCalf + mThermoCalf)/ Globals.lactEff;
 		}
 		
-		if (vitalCosts > 337080.2) {
+		if (vitalCosts > 337080.2d) {
 			resetLactationVars();
 			return;
 		}
@@ -1568,7 +1586,7 @@ to lactation
 					massStructCalf = massStructCalf + (maxGrowCalf * weanScaleFact);
 					vBlubCalf = vBlubCalf + (((mBlubCalf * weanScaleFact)* DELip * percLipBlub) / (Globals.EDLip * Globals.densBlub ));
 					mLactReal = mLact;
-					eAssim = 0;
+					eAssim = 0.0d;
 				} else {
 /*
           [ set m-lact-real e-assim                                                                                                     ; Only using e-assim to cover costs so realized cost = e-assim
@@ -1674,7 +1692,7 @@ to calf-feed
   ; Calves over 3 mo also ingest food in patches to meet their metabolic needs
   let wean-scale-fact-calf (1.00 - wean-scale-fact) ; calf's portion of calf costs to cover
 */
-		double weanScaleFactCalf = (1.00 - weanScaleFact);
+		double weanScaleFactCalf = (1.00d - weanScaleFact);
 /*
   ; Calf feeds and covers costs
   ifelse e-assim-calf >= (e-calf * wean-scale-fact-calf)                                                                                 ; Check if enough energy is available to cover total costs
@@ -1699,7 +1717,7 @@ to calf-feed
 			eAssimCalf = eAssimCalf - (eCalf * weanScaleFactCalf);
 			massStructCalf = massStructCalf + (maxGrowCalf * weanScaleFactCalf);
 			vBlubCalf = vBlubCalf + (((mBlubCalf * weanScaleFactCalf)* DELip * percLipBlub) / (Globals.EDLip * Globals.densBlub ));
-			if (eAssimCalf > 0) {
+			if (eAssimCalf > 0.0d) {
 				if ((vBlubCalf + ((eAssimCalf * DELip ) * DELip * percLipBlub) / (Globals.EDLip * Globals.densBlub )) < (massCalf * 0.436d / Globals.densBlub)) {
 					vBlubCalf = vBlubCalf + ((eAssimCalf * DELip * percLipBlub) / (Globals.EDLip * Globals.densBlub ));
 					eAssimCalf = 0.0d;
@@ -1785,7 +1803,7 @@ to calf-feed
   ]
 end */
 		double storageLevelCalf = 0.0d;
-		if (massCalf > 0) {
+		if (massCalf > 0.0d) {
 			storageLevelCalf = (vBlubCalf * Globals.densBlub) / massCalf;
 		}
 		
@@ -1809,7 +1827,7 @@ to porp-upd-mortality
   if yearly-surv-prob < 0 [set yearly-surv-prob 0]
 */
 		double mMortProbConst = Math.pow(10, (2.176e-02 * Globals.xSurvProbConst + -3.875e-04));
-		double yearlySurvProb = (1 - (mMortProbConst * Math.exp(- storageLevel * Globals.xSurvProbConst) ));
+		double yearlySurvProb = (1.0d - (mMortProbConst * Math.exp(- storageLevel * Globals.xSurvProbConst) ));
 		if (yearlySurvProb < 0) {
 			yearlySurvProb = 0.0d;
 		}
@@ -1819,9 +1837,9 @@ to porp-upd-mortality
   [ set step-surv-prob exp( ln(yearly-surv-prob) / (360) )]                                  ; EQN 64
   [ set step-surv-prob 0]
 */
-		double stepSurvProb = 0;
-		if (storageLevel > 0.05d && yearlySurvProb > 0) {
-			stepSurvProb = Math.exp(Math.log(yearlySurvProb) / (360));
+		double stepSurvProb = 0.0d;
+		if (storageLevel > 0.05d && yearlySurvProb > 0.0d) {
+			stepSurvProb = Math.exp(Math.log(yearlySurvProb) / (360.0d));
 		} else {
 			stepSurvProb = 0.0d;
 		}
@@ -1836,7 +1854,7 @@ to porp-upd-mortality
 */
 		final double ran = Globals.getRandomSource().nextMortality(0, 1);
 		if (ran >= stepSurvProb) {
-			if (!withLactCalf || storageLevel <= 0) {
+			if (!withLactCalf || storageLevel <= 0.0d) {
 				Globals.getListOfDeadAge().addLast((int) this.porp.getAge());
 				Globals.getListOfDeadDay().addLast(SimulationTime.getDayOfSimulation());
 				if (DebugLog.isEnabledFor(10)) {
@@ -1863,12 +1881,12 @@ end
  */
 		if (withLactCalf) {
 			double storageLevelCalf = ((massCalf - massStructCalf) / massCalf);
-			double yearlySurvProbCalf = (1 - (mMortProbConst * Math.exp(- storageLevelCalf * Globals.xSurvProbConst) ));  // FIXME Is this '-' at start ok? One other occurence earlier
-			if (yearlySurvProbCalf < 0) {
+			double yearlySurvProbCalf = (1.0d - (mMortProbConst * Math.exp(- storageLevelCalf * Globals.xSurvProbConst) ));  // FIXME Is this '-' at start ok? One other occurence earlier
+			if (yearlySurvProbCalf < 0.0d) {
 				yearlySurvProbCalf = 0.0d;
 			}
 			double stepSurvProbCalf = 0.0d;
-			if (storageLevelCalf > 0.05d && yearlySurvProbCalf > 0) {
+			if (storageLevelCalf > 0.05d && yearlySurvProbCalf > 0.0d) {
 				stepSurvProbCalf = Math.exp( Math.log(yearlySurvProbCalf) / 360.0d );
 			} else {
 				stepSurvProbCalf = 0.0d;
@@ -1910,7 +1928,7 @@ to porps-setup-params
 		// FIXME Seems this is no longer in use?: T-core
 		// FIXME Seems this is no longer in use?: kB
 		
-		lambda = RandomHelper.createNormal(0.25, 0.016).nextDouble();
+		lambda = RandomHelper.createNormal(0.25d, 0.016d).nextDouble();
 
 		mPreg = 0.0d;
 		mLact = 0.0d;
@@ -1932,19 +1950,19 @@ to porps-setup-params
   ; Submodel: STORAGE
   set perc-lip-blub random-normal 0.816 0.036                        ; Percent blubber that is lipid - Worthy and Edwards 1990
 */
-		structMassPercPro = RandomHelper.createNormal(0.2629, 0.0086).nextDouble();
-		structMassPercLip = RandomHelper.createNormal(0.0288, 0.0114).nextDouble();
+		structMassPercPro = RandomHelper.createNormal(0.2629d, 0.0086d).nextDouble();
+		structMassPercLip = RandomHelper.createNormal(0.0288d, 0.0114d).nextDouble();
 		DELip = 0.74d + (Globals.getRandomSource().nextDouble() * 0.16d);
 		DEPro = 0.43d + (Globals.getRandomSource().nextDouble() * 0.13d);
 		EDLeanMass = ((structMassPercPro * Globals.EDPro ) + (structMassPercLip * Globals.EDLip));
 		DELeanMass = ((structMassPercPro * DEPro ) + (structMassPercLip * DELip)) / (structMassPercPro + structMassPercLip);
-		mStrK = RandomHelper.createNormal(1.16, 0.33).nextDouble();
-		mStrInf = RandomHelper.createNormal(46.68, 3.86).nextDouble();
-		lgthInf = RandomHelper.createNormal(158.12, 4.68).nextDouble();
-		lgth0 = RandomHelper.createNormal(94.82, 1.69).nextDouble();
-		lgthK = RandomHelper.createNormal(0.41, 0.06).nextDouble();
+		mStrK = RandomHelper.createNormal(1.16d, 0.33d).nextDouble();
+		mStrInf = RandomHelper.createNormal(46.68d, 3.86d).nextDouble();
+		lgthInf = RandomHelper.createNormal(158.12d, 4.68d).nextDouble();
+		lgth0 = RandomHelper.createNormal(94.82d, 1.69d).nextDouble();
+		lgthK = RandomHelper.createNormal(0.41d, 0.06d).nextDouble();
 		
-		percLipBlub = RandomHelper.createNormal(0.816, 0.036).nextDouble();
+		percLipBlub = RandomHelper.createNormal(0.816d, 0.036d).nextDouble();
 
 /*
   ; initialize morphometrics based on age - For all groups: 0, 1, 2, 3, 4, 5, 6, 7 & up
@@ -2061,15 +2079,15 @@ to porps-setup-params
 		if (pregnancyStatus != 1) {
 			surfaceArea = 0.093d * Math.pow(weight, 0.57d);
 		} else {
-			surfaceArea = 0.093d * Math.pow((weight + (2 * massF)), 0.57);
+			surfaceArea = 0.093d * Math.pow((weight + (2.0d * massF)), 0.57d);
 		}
 		vBlubCalf = 0.0d;
 		vBlubMin = (weight * 0.05d) / Globals.densBlub;
 		vBlubRepro = (weight * Globals.reproMinSL / Globals.densBlub);
 		eRepoMin = (vBlubRepro - vBlubMin) * Globals.densBlub * Globals.EDLip;
-		SLMean = ((lgth * -0.3059) + 0.7066) * Globals.IRTempMod;
+		SLMean = ((lgth * -0.3059d) + 0.7066d) * Globals.IRTempMod;
 		vBlubMean = (weight * SLMean / Globals.densBlub);
-		vBlubCalfIdl = (massCalf * 0.375 / Globals.densBlub);
+		vBlubCalfIdl = (massCalf * 0.375d / Globals.densBlub);
 		eStorage = (vBlub - vBlubMin) * Globals.densBlub * Globals.EDLip;
 		storageLevel = (weight - massStruct) / weight;
 /*
@@ -2087,7 +2105,7 @@ end
 		storageLevelSum = 0.0d;
 		storageLevelDaily = new CircularBuffer<>(10);
 		for (int i = 0; i < 10; i++) {
-			this.storageLevelDaily.add(0.0);
+			this.storageLevelDaily.add(0.0d);
 		}
 		IRRecord = 0.0d;
 		IRRecordCalf = 0.0d;
