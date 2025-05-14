@@ -27,30 +27,51 @@
 
 package dk.au.bios.porpoise.landscape;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.io.IOException;
+import java.util.ArrayList;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+public class CellDataChecker {
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+	public static boolean check(CellDataSource source) throws IOException {
+		var bathyData = source.getData(LandscapeLoader.BATHY_FILE);
+		
+		var preyFileNames = source.getNamesMatching(RollingDateFile.getPatternForFile(LandscapeLoader.PREY_FILE_PREFIX, LandscapeLoader.FILE_EXT_ASC));
+		var salinityFileNames = source.getNamesMatching(RollingDateFile.getPatternForFile(LandscapeLoader.SALINITY_FILE_PREFIX, LandscapeLoader.FILE_EXT_ASC));
 
-public class LandscapesLoadTest {
+		var filesToCheck = new ArrayList<String>(4 + preyFileNames.size() + salinityFileNames.size());
+		filesToCheck.add(LandscapeLoader.BLOCKS_FILE);
+		filesToCheck.add(LandscapeLoader.DISTTOCOAST_FILE);
+		filesToCheck.add(LandscapeLoader.PATCHES_FILE);
+		filesToCheck.add(LandscapeLoader.SEDIMENT_FILE);
+		filesToCheck.addAll(preyFileNames);
+		filesToCheck.addAll(salinityFileNames);
 
-	@ParameterizedTest
-	@ValueSource(strings = { "Kattegat", "NorthSea", "DanTysk", "Gemini", "Homogeneous", "UserDefined" })
-	void loadLandscape(String landscape) throws Exception {
-		var landscapeDir = Paths.get("data").resolve(landscape);
-		if (Files.isDirectory(landscapeDir)) {
-			var dirSource = new DirectoryCellDataSource(landscapeDir);
-			assertThat(CellDataChecker.check(dirSource)).isTrue();
+		boolean allFilesValid = true;
+		for (String sourceFile : filesToCheck) {
+			System.out.println("Checking " + sourceFile);
+			var fileData = source.getData(sourceFile);
+			if (!checkData(sourceFile, bathyData, fileData)) {
+				System.err.println("Error in file: " + sourceFile);
+				allFilesValid = false;
+			}
+		}
+
+		return allFilesValid;
+	}
+	
+	private static boolean checkData(String file, double[][] bathyData, double[][] fileData) {
+		// verify fileData against bathyData
+		for (int x = 0; x < bathyData.length; x++) {
+			for (int y = 0; y < bathyData[x].length; y++) {
+				if (bathyData[x][y] != -9999) {
+					if (fileData[x][y] == -9999) {
+						return false;
+					}
+				}
+			}
 		}
 		
-		var zipFile = Paths.get("data").resolve(landscape + LandscapeLoader.FILE_EXT_ZIP);
-		if (Files.isRegularFile(zipFile)) {
-			var zipSource = new ZipFileCellDataSource(zipFile);
-			assertThat(CellDataChecker.check(zipSource)).isTrue();
-		}
+		return true;
 	}
 
 }

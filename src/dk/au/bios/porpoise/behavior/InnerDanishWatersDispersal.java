@@ -85,7 +85,7 @@ public class InnerDanishWatersDispersal implements Dispersal {
 	private static int[][] NAV_BLOCKS;
 	static {
 		try (InputStream in = InnerDanishWatersDispersal.class.getResourceAsStream("InnerDanishWatersDispersalNavigationBlocks.asc")) {
-			double[][] navBlocksDouble = ASCUtil.loadDoubleAscFile(600, 1000, in, false);
+			double[][] navBlocksDouble = ASCUtil.loadDoubleAscFile(in);
 			int[][] navBlocks = new int[navBlocksDouble.length][navBlocksDouble[0].length];
 
 			for (int i = 0; i < navBlocks.length; i++) {

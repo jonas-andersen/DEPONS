@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -69,7 +69,7 @@ class DispersalPSMType2Test {
 
 	@BeforeAll
 	public static void setupSpec() {
-		Globals.setLandscapeMetadata(new DataFileMetaData(100, 100, 529473, 5972242, 400, null));
+		Globals.setLandscapeMetadata(new DataFileMetaData(100, 100, 529473, 5972242, 400, -9999.0, null));
 		DispersalFactory.setType("PSM-Type2");
 		random = mock(RandomSource.class);
 		Globals.setRandomSource(random);

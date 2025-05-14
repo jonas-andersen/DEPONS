@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -35,16 +35,18 @@ public class DataFileMetaData {
 	private final int nrows;
 	private final double xllcorner;
 	private final double yllcorner;
-	private final int cellsize;
+	private final double cellsize;
+	private final double noDataValue;
 	private final CoordinateReferenceSystem crs;
 
-	public DataFileMetaData(final int ncols, final int nrows, final double xllcorner, final double yllcorner, final int cellsize, final CoordinateReferenceSystem crs) {
+	public DataFileMetaData(int ncols, int nrows, double xllcorner, double yllcorner, double cellsize, double noDataValue, CoordinateReferenceSystem crs) {
 		super();
 		this.ncols = ncols;
 		this.nrows = nrows;
 		this.xllcorner = xllcorner;
 		this.yllcorner = yllcorner;
 		this.cellsize = cellsize;
+		this.noDataValue = noDataValue;
 		this.crs = crs;
 	}
 
@@ -64,8 +66,12 @@ public class DataFileMetaData {
 		return yllcorner;
 	}
 
-	public int getCellsize() {
+	public double getCellsize() {
 		return cellsize;
+	}
+	
+	public double getNoDataValue() {
+		return noDataValue;
 	}
 
 	public CoordinateReferenceSystem getCoordinateReferenceSystem() {

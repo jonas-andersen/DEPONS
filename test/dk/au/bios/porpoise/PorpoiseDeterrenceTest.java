@@ -66,7 +66,7 @@ public class PorpoiseDeterrenceTest {
 
 	@BeforeEach
 	public void setup() throws Exception {
-		Globals.setLandscapeMetadata(new DataFileMetaData(100, 100, 529473, 5972242, 400 , null));
+		Globals.setLandscapeMetadata(new DataFileMetaData(100, 100, 529473, 5972242, 400, -9999.0, null));
 
 		// Repast initialization
 		this.schedule = new Schedule();

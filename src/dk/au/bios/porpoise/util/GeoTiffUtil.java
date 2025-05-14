@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -44,11 +44,11 @@ import it.geosolutions.jaiext.range.NoDataContainer;
 
 public class GeoTiffUtil {
 
-	public static double[][] loadGeotif(final int width, final int height, final InputStream in,
-			final boolean replaceNoDataWithNull) throws IOException {
-
+	public static double[][] loadGeotif(InputStream in) throws IOException {
 		GeoTiffReader reader = new GeoTiffReader(in);
 		GridCoverage2D coverage = (GridCoverage2D) reader.read(null);
+
+		var metadata = loadMetaData(coverage);
 
 		CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
 		if (!Globals.getCoordinateReferenceSystem().equals(crs)) {
@@ -57,24 +57,14 @@ public class GeoTiffUtil {
 					+ crs.getName().getCode());
 		}
 
-		NoDataContainer ndc = CoverageUtilities.getNoDataProperty(coverage);
-		
-		System.err.printf("dims: %d%n", coverage.getNumSampleDimensions());
-		
-		double[] noDataValues = coverage.getSampleDimension(0).getNoDataValues();
-		if (noDataValues.length != 1) {
-			throw new RuntimeException("Invalid no-data-value in data file.");
-		}
-		double noDataValue = noDataValues[0];
-		System.err.printf("nodata: %f%n", noDataValue);
-		System.err.printf("ndc.value: %f%n", ndc.getAsSingleValue());
-		
 		RenderedImage image = coverage.getRenderedImage();
 		Object prop = image.getProperty(NoDataContainer.GC_NODATA);
 		System.err.println("ndc.class: " + prop.getClass());
-//		NoDataContainer ndci = (NoDataContainer) prop;
-//		System.err.println("ndc: " + ndci.getAsSingleValue());
 		Raster raster = image.getData();
+
+		int width = metadata.getNcols();
+		int height = metadata.getNrows();
+		double noDataValue = metadata.getNoDataValue();
 
 		double[] data = new double[width * height];
 		raster.getSamples(raster.getMinX(), raster.getMinY(), raster.getWidth(), raster.getHeight(), 0, data);
@@ -83,14 +73,8 @@ public class GeoTiffUtil {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				double val = data[(y * width) + x];
-				if (ndc.getAsSingleValue() == val) {
-//					System.err.println("Setting no-data value");
+				if (noDataValue == val) {
 					val = -9999.0; // aligned with ASC datafiles
-//				} else if (ndc.getAsRange().contains(val)) {
-//					System.err.println("Setting no-data value");
-//					val = -9999.0; // aligned with ASC datafiles
-//				} else if (val < -330000000000000000000000000000000000000f) {
-//					System.err.printf("suspecious value: %f%n", val);
 				}
 				tifdata[x][height - (y + 1)] = val;
 			}
@@ -100,13 +84,34 @@ public class GeoTiffUtil {
 
 		return tifdata;
 	}
+	
+	private static double extractNoDataValue(GridCoverage2D coverage) {
+		NoDataContainer ndc = CoverageUtilities.getNoDataProperty(coverage);
+		
+		System.err.printf("dims: %d%n", coverage.getNumSampleDimensions());
+		
+		double[] noDataValues = coverage.getSampleDimension(0).getNoDataValues();
+		if (noDataValues.length != 1) {
+			throw new RuntimeException("Invalid no-data-value in data file.");
+		}
+		System.err.printf("nodata: %f%n", noDataValues[0]);
+		System.err.printf("ndc.value: %f%n", ndc.getAsSingleValue());
+
+		// return noDataValues[0];
+		return ndc.getAsSingleValue();
+	}
 
 	public static DataFileMetaData loadMetaData(InputStream in) throws IOException {
 		GeoTiffReader reader = new GeoTiffReader(in);
 		GridCoverage2D coverage = (GridCoverage2D) reader.read(null);
+		return loadMetaData(coverage);
+	}
+
+	private static DataFileMetaData loadMetaData(GridCoverage2D coverage) throws IOException {
 		Raster raster = coverage.getRenderedImage().getData();
 		Envelope envelope = coverage.getEnvelope();
 		CoordinateReferenceSystem crs = coverage.getCoordinateReferenceSystem2D();
+		double noDataValue = extractNoDataValue(coverage);
 
 		int ncols = raster.getWidth();
 		int nrows = raster.getHeight();
@@ -124,8 +129,7 @@ public class GeoTiffUtil {
 
 		int cellsize = (int) Math.round(cellWidth);
 
-		return new DataFileMetaData(ncols, nrows, xllcorner, yllcorner, cellsize, crs);
-
+		return new DataFileMetaData(ncols, nrows, xllcorner, yllcorner, cellsize, noDataValue, crs);
 	}
 
 }

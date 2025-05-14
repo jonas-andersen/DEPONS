@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2019 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -28,167 +28,74 @@
 package dk.au.bios.porpoise.util;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import dk.au.bios.porpoise.landscape.DataFileMetaData;
 
 /**
- * Utility class to load data froo ASCII (text) files.
+ * Utility class to load data from ASCII (text) files.
  */
 public final class ASCUtil {
+
+	private static final String METADATA_NCOLS = "NCOLS"; 
+	private static final String METADATA_NROWS = "NROWS";
+	private static final String METADATA_XLLCORNER = "XLLCORNER";
+	private static final String METADATA_YLLCORNER = "YLLCORNER";
+	private static final String METADATA_CELLSIZE = "CELLSIZE";
+	private static final String METADATA_NODATA = "NODATA_VALUE";
 
 	private ASCUtil() {
 		// Utility class, prevent instances.
 	}
 
-	public static boolean[][] loadBooleanAscFile(final int width, final int height, final InputStream in)
-			throws IOException {
-		// File f = new File(file);
-		// if (f.exists()) {
-		final Boolean[][] data = new Boolean[width][height];
-		loadData(data, in, new BooleanParser(), false);
+	public static double[][] loadDoubleAscFile(InputStream in) throws IOException {
+		try (final BufferedReader reader = new BufferedReader(new InputStreamReader(in, Charset.defaultCharset()))) {
+			var metadata = loadMetaData(reader);
 
-		final boolean[][] boolVal = new boolean[width][height];
-		for (int x = 0; x < data.length; x++) {
-			for (int y = 0; y < data[x].length; y++) {
-				boolVal[x][y] = data[x][y];
+			double[][] data = new double[metadata.getNcols()][metadata.getNrows()];
+			int y = 0;
+			String line;
+			while ((line = reader.readLine()) != null) {
+				final String[] points = line.split(" ");
+				for (int x = 0; x < points.length; x++) {
+					data[x][data[x].length - y - 1] = Double.parseDouble(points[x]);
+				}
+				y++;
 			}
+			return data;
 		}
-
-		return boolVal;
-		// } else {
-		// return null;
-		// }
-	}
-
-	public static double[][] loadDoubleAscFile(final int width, final int height, final InputStream in,
-			final boolean replaceNoDataWithNull) throws IOException {
-		final Double[][] data = new Double[width][height];
-		loadData(data, in, new DoubleParser(), replaceNoDataWithNull);
-
-		final double[][] primitive = new double[width][height];
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				primitive[x][y] = data[x][y];
-			}
-		}
-
-		return primitive;
 	}
 
 	public static DataFileMetaData loadMetaData(InputStream in) throws IOException {
-		byte[] allBytes = readAllBytes(in);
-		String rawData = new String(allBytes, StandardCharsets.US_ASCII);
-
-		try (BufferedReader reader = new BufferedReader(new StringReader(rawData))) {
-			int ncols = optionToInteger(reader.readLine().trim());
-			int nrows = optionToInteger(reader.readLine().trim());
-			double xllcorner = optionToDouble(reader.readLine().trim());
-			double yllcorner = optionToDouble(reader.readLine().trim());
-			int cellsize = optionToInteger(reader.readLine().trim());
-
-			return new DataFileMetaData(ncols, nrows, xllcorner, yllcorner, cellsize, null); // Unknown CRS in ASC files
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.US_ASCII))) {
+			return loadMetaData(reader);
 		}
 	}
 
-	private static byte[] readAllBytes(InputStream in) throws IOException {
-		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-		byte[] readBuf = new byte[8 * 1024];
-		int actRead = -1;
-		do {
-			actRead = in.read(readBuf);
-			if (actRead > 0) {
-				bOut.write(readBuf, 0, actRead);
-			}
-		} while (actRead > -1);
-
-		return bOut.toByteArray();
-	}
-
-	private static int optionToInteger(final String s) {
-		final String value = s.substring(s.lastIndexOf(" ") + 1);
-		return Integer.parseInt(value);
-	}
-
-	private static double optionToDouble(final String s) {
-		final String value = s.substring(s.lastIndexOf(" ") + 1);
-		return Double.parseDouble(value);
-	}
-
-
-	private static <T> void loadData(final T[][] array, final InputStream in, final StringParser<T> parser,
-			final boolean replaceNoDataWithNull) throws IOException {
-		// FileReader freader = new FileReader(file);
-		// BufferedReader reader = new BufferedReader(freader);
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(in, Charset.defaultCharset()));
-
-		String noDataValue = null;
-
-		for (int i = 0; i < 6; i++) {
-			final String line = reader.readLine();
-
-			if (line.startsWith("NODATA_value")) {
-				noDataValue = line.substring("NODATA_value".length()).trim();
-			}
+	private static DataFileMetaData loadMetaData(BufferedReader reader) throws IOException {
+		try {
+			int ncols = Integer.parseInt(extractFieldValue(METADATA_NCOLS, reader.readLine()));
+			int nrows = Integer.parseInt(extractFieldValue(METADATA_NROWS, reader.readLine()));
+			double xllcorner = Double.parseDouble(extractFieldValue(METADATA_XLLCORNER, reader.readLine()));
+			double yllcorner = Double.parseDouble(extractFieldValue(METADATA_YLLCORNER, reader.readLine()));
+			double cellsize = Double.parseDouble(extractFieldValue(METADATA_CELLSIZE, reader.readLine()));
+			double noDataValue = Double.parseDouble(extractFieldValue(METADATA_NODATA, reader.readLine()));
+	
+			return new DataFileMetaData(ncols, nrows, xllcorner, yllcorner, cellsize, noDataValue, null); // Unknown CRS in ASC files
+		} catch (NumberFormatException e) {
+			throw new IOException("Invalid metadata", e);
 		}
-
-		int y = 0;
-		String line;
-		while ((line = reader.readLine()) != null) {
-			final String[] points = line.split(" ");
-			for (int x = 0; x < points.length; x++) {
-				if (replaceNoDataWithNull && points[x].trim().equals(noDataValue)) {
-					array[x][array[x].length - y - 1] = parser.getNullValue();
-				} else {
-					array[x][array[x].length - y - 1] = parser.parse(points[x]);
-				}
-			}
-			y++;
-		}
-
-		reader.close();
-		// freader.close();
 	}
 
-	private interface StringParser<T> {
-		T parse(String s);
-
-		T getNullValue();
+	private static String extractFieldValue(String fieldName, String line) throws IOException {
+		if (!line.toUpperCase().startsWith(fieldName)) {
+			throw new IOException("Invalid metadata in file");
+		}
+		String value = line.substring(fieldName.length() + 1).trim();
+		return value;
 	}
-
-	private static class BooleanParser implements StringParser<Boolean> {
-
-		@Override
-		public Boolean parse(final String s) {
-			return !s.trim().equals("1");
-		}
-
-		@Override
-		public Boolean getNullValue() {
-			return false;
-		}
-
-	}
-
-	private static class DoubleParser implements StringParser<Double> {
-
-		@Override
-		public Double parse(final String s) {
-			return Double.parseDouble(s);
-		}
-
-		@Override
-		public Double getNullValue() {
-			return Double.NaN;
-		}
-
-	}
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -49,6 +49,10 @@ public final class SimulationTime {
 		return ((int) (getTick() / 48)) % 360;
 	}
 
+	public static int getDayOfMonth() {
+		return ((int) (getTick() / 48)) % 30;
+	}
+
 	public static int getYearOfSimulation() {
 		return (int) (getTick() / (360 * 48));
 	}
@@ -93,6 +97,10 @@ public final class SimulationTime {
 
 	public static boolean isDaytime() {
 		return Globals.getCellData().getSuntimes().map(st -> st.isDaytime((int)getTick())).orElse(true); // default day time
+	}
+
+	public static int convertToTick(int year, int month, int day) {
+		return (year * 48 * 360) + ((month - 1) * 48 * 30) + (day * 48);
 	}
 
 }

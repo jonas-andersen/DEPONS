@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -52,8 +52,8 @@ public class CellData {
 	private final SimpleDataFile foodProb;
 	private final double[][] foodValue;
 
-	private final MonthlyDataFile entropy;
-	private final MonthlyDataFile salinityMaps;
+	private final RollingDateDataFile entropy;
+	private final RollingDateDataFile salinityMaps;
 
 	private final Optional<Suntimes> suntimes;
 	private final Pair[] foodProbAboveZeroCells;
@@ -63,8 +63,8 @@ public class CellData {
 		this.depth = new SimpleDataFile(landscape, LandscapeLoader.BATHY_FILE, source);
 		this.sediment = new SimpleDataFile(landscape, LandscapeLoader.SEDIMENT_FILE, source);
 		this.foodProb = new SimpleDataFile(landscape, LandscapeLoader.PATCHES_FILE, source);
-		this.entropy = new MonthlyDataFile(landscape, LandscapeLoader.PREY_FILE_PREFIX, source);
-		this.salinityMaps = new MonthlyDataFile(landscape, LandscapeLoader.SALINITY_FILE_PREFIX, source);
+		this.entropy = new RollingDateDataFile(landscape, LandscapeLoader.PREY_FILE_PREFIX, source);
+		this.salinityMaps = new RollingDateDataFile(landscape, LandscapeLoader.SALINITY_FILE_PREFIX, source);
 
 		this.foodValue = new double[this.foodProb.getData().length][this.foodProb.getData()[0].length];
 
