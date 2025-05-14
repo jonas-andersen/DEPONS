@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -103,14 +103,14 @@ public class PorpoiseDeterrenceTest {
 		context.add(turb);
 		turb.setPosition(new NdPoint(5.0, 5.0));
 
-		assertThat(p.getDeterStrength()).isEqualTo(0.0);
+		assertThat(p.getDeterTurbineStrength()).isEqualTo(0.0);
 
 		p.deter(64, turb);
-		assertThat(p.getDeterStrength()).isEqualTo(64);
+		assertThat(p.getDeterTurbineStrength()).isEqualTo(64);
 
 		DoubleStream.of(32.0, 16.0, 8.0, 4.0, 2.0, 1.0, 0.5, 0.25, 0.125).forEach(v -> {
 			p.updateDeterence();
-			assertThat(p.getDeterStrength()).isEqualTo(v);
+			assertThat(p.getDeterTurbineStrength()).isEqualTo(v);
 		});
 	}
 
@@ -127,14 +127,14 @@ public class PorpoiseDeterrenceTest {
 		context.add(turb);
 		turb.setPosition(new NdPoint(5.0, 5.0));
 
-		assertThat(p.getDeterStrength()).isEqualTo(0.0);
+		assertThat(p.getDeterTurbineStrength()).isEqualTo(0.0);
 
 		p.deter(64, turb);
-		assertThat(p.getDeterStrength()).isEqualTo(64);
+		assertThat(p.getDeterTurbineStrength()).isEqualTo(64);
 
 		DoubleStream.of(48.0, 36.0, 27.0, 20.25, 15.1875, 11.390625, 8.54296875, 6.4072265625).forEach(v -> {
 			p.updateDeterence();
-			assertThat(p.getDeterStrength()).isEqualByComparingTo(v);
+			assertThat(p.getDeterTurbineStrength()).isEqualByComparingTo(v);
 		});
 	}
 
@@ -152,35 +152,35 @@ public class PorpoiseDeterrenceTest {
 		context.add(turb);
 		turb.setPosition(new NdPoint(5.0, 5.0));
 
-		assertThat(p.getDeterStrength()).isEqualTo(0.0);
+		assertThat(p.getDeterTurbineStrength()).isEqualTo(0.0);
 
 		p.deter(64, turb);
-		assertThat(p.getDeterStrength()).isEqualTo(64);
+		assertThat(p.getDeterTurbineStrength()).isEqualTo(64);
 
 		DoubleStream.of(32.0, 16.0, 8.0, 4.0, 2.0, 0.0).forEach(v -> {
 			p.updateDeterence();
-			assertThat(p.getDeterStrength()).isEqualTo(v);
+			assertThat(p.getDeterTurbineStrength()).isEqualTo(v);
 		});
 
 		SimulationParameters.setDeterTime(2);
 		p.deter(64, turb);
 
-		assertThat(p.getDeterStrength()).isEqualTo(64);
+		assertThat(p.getDeterTurbineStrength()).isEqualTo(64);
 
 		DoubleStream.of(32.0, 16.0, 0.0).forEach(v -> {
 			p.updateDeterence();
-			assertThat(p.getDeterStrength()).isEqualTo(v);
+			assertThat(p.getDeterTurbineStrength()).isEqualTo(v);
 		});
 
 		// Deter time = 7
 		SimulationParameters.setDeterTime(7);
 		p.deter(64, turb);
 
-		assertThat(p.getDeterStrength()).isEqualTo(64);
+		assertThat(p.getDeterTurbineStrength()).isEqualTo(64);
 
 		DoubleStream.of(32.0, 16.0, 8.0, 4.0, 2.0, 1.0, 0.5, 0.0).forEach(v -> {
 			p.updateDeterence();
-			assertThat(p.getDeterStrength()).isEqualTo(v);
+			assertThat(p.getDeterTurbineStrength()).isEqualTo(v);
 		});
 	}
 

@@ -73,11 +73,19 @@
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
     <entry>
-      <string>DeterStrength</string>
+      <string>DeterTurbineStrength</string>
       <repast.simphony.data2.engine.MethodDataSourceDefinition>
-        <id>DeterStrength</id>
+        <id>DeterTurbineStrength</id>
         <className>dk.au.bios.porpoise.RandomPorpoiseReportProxy</className>
-        <methodName>getDeterStrength</methodName>
+        <methodName>getDeterTurbineStrength</methodName>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>DeterShipStrength</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>DeterShipStrength</id>
+        <className>dk.au.bios.porpoise.RandomPorpoiseReportProxy</className>
+        <methodName>getDeterShipStrength</methodName>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
     <entry>

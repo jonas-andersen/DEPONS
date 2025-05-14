@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2019 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -78,7 +78,8 @@ public class PorpoiseStyle extends DefaultStyleOGL2D {
 			return Color.BLACK;
 		}
 
-		if (p.getDeterStrength() > 0.0) {
+		double deterStrength = Math.max(p.getDeterTurbineStrength(), p.getDeterShipStrength());
+		if (deterStrength > 0.0) {
 			return Color.MAGENTA;
 		}
 		if (p.getDispersalMode() > 0) {

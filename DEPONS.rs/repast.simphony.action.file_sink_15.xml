@@ -9,7 +9,8 @@
     <string>UtmX</string>
     <string>UtmY</string>
     <string>EnergyLevel</string>
-    <string>DeterStrength</string>
+    <string>DeterTurbineStrength</string>
+    <string>DeterShipStrength</string>
     <string>LoudestShipSPL</string>
     <string>DispersalMode</string>
     <string>PSMActive</string>

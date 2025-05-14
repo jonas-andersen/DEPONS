@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2022-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -218,8 +218,8 @@ public class ShipTest extends AbstractSimulationBDDTest {
 		for (int i = 0; i < expectedDeterrence.size(); i++) {
 			schedule.execute();
 			var deterrence = expectedDeterrence.get(i);
-			assertThat(porpoise.getDeterStrength()).withFailMessage("unexpected deterrence at tick " + SimulationTime.getTick()
-					+ " expectedDeterrence.idx: " + i + ". Expected: " + deterrence + ". Actual: " + porpoise.getDeterStrength())
+			assertThat(porpoise.getDeterShipStrength()).withFailMessage("unexpected deterrence at tick " + SimulationTime.getTick()
+					+ " expectedDeterrence.idx: " + i + ". Expected: " + deterrence + ". Actual: " + porpoise.getDeterShipStrength())
 					.isCloseTo(deterrence, within(0.0001d));
 
 			var expectedHeading = expectedHeadings.get(i);
@@ -274,8 +274,8 @@ public class ShipTest extends AbstractSimulationBDDTest {
 		for (int i = 0; i < expectedDeterrence.size(); i++) {
 			schedule.execute();
 			var deterrence = expectedDeterrence.get(i);
-			assertThat(porpoise.getDeterStrength()).withFailMessage("unexpected deterrence at tick " + SimulationTime.getTick()
-					+ " expectedDeterrence.idx: " + i + ". Expected: " + deterrence + ". Actual: " + porpoise.getDeterStrength())
+			assertThat(porpoise.getDeterShipStrength()).withFailMessage("unexpected deterrence at tick " + SimulationTime.getTick()
+					+ " expectedDeterrence.idx: " + i + ". Expected: " + deterrence + ". Actual: " + porpoise.getDeterShipStrength())
 					.isCloseTo(deterrence, within(0.0001d));
 
 			var expectedHeading = expectedHeadings.get(i);
