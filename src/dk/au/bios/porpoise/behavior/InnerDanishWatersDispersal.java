@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -111,9 +111,9 @@ public class InnerDanishWatersDispersal implements Dispersal {
 	public InnerDanishWatersDispersal(final Porpoise owner) {
 		this.owner = owner;
 
-		if (!SimulationParameters.isLandscapeHomogenous() && !SimulationParameters.isLandscapeKattegat()) {
+		if (!SimulationParameters.isLandscapeHomogeneous() && !SimulationParameters.isLandscapeKattegat()) {
 			throw new RuntimeException(
-					"This dispersal behaviour only supports the Kattegat and Homogenous landscapes!");
+					"This dispersal behaviour only supports the Kattegat and Homogeneous landscapes!");
 		}
 	}
 
@@ -564,7 +564,7 @@ public class InnerDanishWatersDispersal implements Dispersal {
 	}
 
 	private double[] getBlockValues() {
-		if (SimulationParameters.isLandscapeHomogenous()) {
+		if (SimulationParameters.isLandscapeHomogeneous()) {
 			return BLOCK_VAL_HOMO;
 		} else {
 			// The same values are returned for all quarters. The cause is that update-block-values is only called during setup.
