@@ -87,7 +87,7 @@ public class ShipStyleTest extends AbstractSimulationBDDTest {
 
 		schedule.execute();
 		assertThat(ship.getPosition()).isEqualTo(new NdPoint(55.0, 50.0));
-		assertThat(shipStyle.getColor(ship).getAlpha()).isEqualTo(255);
+		assertThat(shipStyle.getColor(ship).getAlpha()).isEqualTo(102);
 
 		schedule.execute();
 		assertThat(ship.getPosition()).isEqualTo(new NdPoint(55.0, 50.0));

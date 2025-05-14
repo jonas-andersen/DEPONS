@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -315,8 +315,15 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 		return value <= -9999;
 	}
 
-	protected double getSpeed() {
+	public double getSpeed() {
+		if (currentBuoyIdx < 0 || currentBuoyIdx >= route.getRoute().size()) {
+			return 0.0d;
+		}
 		return this.route.getRoute().get(currentBuoyIdx).getSpeed();
+	}
+
+	public boolean isPaused() {
+		return ticksStillPaused > 0;
 	}
 
 	@Override
