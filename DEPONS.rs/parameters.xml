@@ -6,7 +6,7 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 		/>
 		<parameter name="porpoiseCount" displayName="porpoiseCount - Number of porpoises at start of simulation [unitless]" type="int" 
-						defaultValue="10000" 
+						defaultValue="200" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 		/>
@@ -16,7 +16,7 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 		/>
 		<parameter name="landscape" displayName="landscape - Simulation landscape to be used" type="string" 
-						defaultValue="NorthSea"
+						defaultValue="Kattegat"
 						values="'NorthSea' 'DanTysk' 'Gemini' 'Homogeneous' 'Kattegat' 'UserDefined'" 
 						isReadOnly="false" />
 		<parameter name="debug" displayName="debug - Code testing parameter [values 0-5]" type="int" 
@@ -32,7 +32,7 @@
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$BooleanConverter"/>
         <parameter name="dispersal" displayName="Large-scale movement type" type="string" 
-						defaultValue="PSM-Type2" 
+						defaultValue="InnerDanishWaters" 
 						values="'off' 'PSM-Type2' 'Undirected' 'InnerDanishWaters'" 
 						isReadOnly="false" />
         <parameter name="tdisp" displayName="tDisp - Days of declining energy before activating dispersal [days]" type="int" 
@@ -52,10 +52,10 @@
 						defaultValue="20.0" 
 						isReadOnly="false"/>
         <parameter name="rS" displayName="rS - Satiation memory decay rate [unitless]" type="string" 
-						defaultValue="0.04" 
+						defaultValue="0.25" 
 						isReadOnly="false"/>
         <parameter name="rR" displayName="rR - Reference memory decay rate [unitless]" type="string" 
-						defaultValue="0.04" 
+						defaultValue="0.1" 
 						isReadOnly="false"/>
         <parameter name="rU" displayName="rU - Food replenishment rate" type="string" 
 						defaultValue="0.1" 
@@ -113,7 +113,7 @@
 						isReadOnly="false" 
 		/>
         <parameter name="ddisp" displayName="ddisp - Dispersal distance per time step [km]" type="string" 
-						defaultValue="1.05" 
+						defaultValue="1.5" 
 						isReadOnly="false" 
 		/>
         <parameter name="dmax_mov" displayName="dmax_mov - max movement distance" type="string" 
@@ -150,7 +150,7 @@
 						isReadOnly="false" 
 		/>
         <parameter name="Tships" displayName="Tships - min dB for ships to deter porpoises" type="string" 
-						defaultValue="70.0" 
+						defaultValue="80.0" 
 						isReadOnly="false" 
 		/>
         <parameter name="pship_int_day" displayName="pship_int_day - intercept of ship noise &amp; dist on prob deter during day [unitless]" type="string" 
@@ -218,11 +218,11 @@
 						isReadOnly="false" 
 		/>
         <parameter name="alpha_hat" displayName="alpha_hat - Absorption coefficient for sound" type="string" 
-						defaultValue="0.0" 
+						defaultValue="0.00027" 
 						isReadOnly="false" 
 		/>
         <parameter name="beta_hat" displayName="beta_hat - Spreading loss factor for sound" type="string" 
-						defaultValue="20.0" 
+						defaultValue="14.72" 
 						isReadOnly="false" 
 		/>
 		<parameter name="tgest" displayName="tgest - Gestation time [days]" type="int" 
