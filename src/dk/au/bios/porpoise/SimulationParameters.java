@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -41,7 +41,8 @@ public final class SimulationParameters {
 		// Utility class, prevent instances.
 	}
 
-	public static final String LANDSCAPE_HOMOGENOUS_NAME = "Homogeneous";
+	public static final String LANDSCAPE_HOMOGENEOUS_NAME = "Homogeneous";
+	public static final String LANDSCAPE_KATTEGAT_NAME = "Kattegat";
 
 	private static String landscape;
 	private static String turbines;
@@ -219,7 +220,7 @@ public final class SimulationParameters {
 
 	private static LogisticDecreaseSSLogis psmLogisticDecreaseFunction;
 
-	private static boolean homogenous = true;
+	private static boolean homogeneous = true;
 	private static boolean wrapBorderHomo = true;
 
 	private static int model = 1; // model seems to be a global variable in NETLOGO
@@ -327,7 +328,7 @@ public final class SimulationParameters {
 		}
 
 		final String landscape = (String) params.getValue("landscape");
-		homogenous = landscape.equals(LANDSCAPE_HOMOGENOUS_NAME);
+		homogeneous = landscape.equals(LANDSCAPE_HOMOGENEOUS_NAME);
 		wrapBorderHomo = params.getBoolean("wrapBorderHomo");
 
 		model = 4; // Hardcoded value - (Integer)params.getValue("model");
@@ -385,7 +386,7 @@ public final class SimulationParameters {
 		rS = 0.04;
 		rR = 0.04;
 		psmLogisticDecreaseFunction = null;
-		homogenous = true;
+		homogeneous = true;
 		wrapBorderHomo = true;
 		model = 4;
 		tDisp = 3;
@@ -456,7 +457,7 @@ public final class SimulationParameters {
 		rS = 0.04;
 		rR = 0.04;
 		psmLogisticDecreaseFunction = null;
-		homogenous = true;
+		homogeneous = true;
 		wrapBorderHomo = true;
 		model = 1;
 		tDisp = 3;
@@ -717,8 +718,8 @@ public final class SimulationParameters {
 		return psmLogisticDecreaseFunction;
 	}
 
-	public static boolean isHomogenous() {
-		return homogenous;
+	public static boolean isHomogeneous() {
+		return homogeneous;
 	}
 
 	public static boolean isWrapBorderHomo() {
@@ -762,12 +763,12 @@ public final class SimulationParameters {
 		q1 = newQ1;
 	}
 
-	public static boolean isLandscapeHomogenous() {
-		return "Homogenous".equals(landscape);
+	public static boolean isLandscapeHomogeneous() {
+		return LANDSCAPE_HOMOGENEOUS_NAME.equals(landscape);
 	}
 
 	public static boolean isLandscapeKattegat() {
-		return "Kattegat".equals(landscape);
+		return LANDSCAPE_KATTEGAT_NAME.equals(landscape);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -47,7 +47,7 @@ public class Agent {
 
 	private final long id;
 
-	private double heading = Globals.getRandomReplaySource() != null ? SimulationParameters.isHomogenous() ? 134 : 134
+	private double heading = Globals.getRandomReplaySource() != null ? SimulationParameters.isHomogeneous() ? 134 : 134
 			: Globals.getRandomSource() != null ? Globals.getRandomSource().randomInt(0, 360) : 0.0d; // 260 is the initial value in NetLogo replays random scenario.
 
 	protected Agent(final long id) {

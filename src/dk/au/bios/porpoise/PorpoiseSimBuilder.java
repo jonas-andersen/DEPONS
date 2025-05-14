@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -118,8 +118,8 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 
 		Globals.setCellData(null); // This releases the previous CellData allowing it to be garbage collected
 		final String landscape;
-		if (SimulationParameters.isHomogenous()) {
-			landscape = SimulationParameters.LANDSCAPE_HOMOGENOUS_NAME;
+		if (SimulationParameters.isHomogeneous()) {
+			landscape = SimulationParameters.LANDSCAPE_HOMOGENEOUS_NAME;
 		} else {
 			landscape = SimulationParameters.getLandscape();
 		}
@@ -212,7 +212,7 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 	}
 
 	private ContinuousSpace<Agent> buildSpace(final Context<Agent> context) {
-		final boolean wrapBorder = SimulationParameters.isHomogenous() && SimulationParameters.isWrapBorderHomo();
+		final boolean wrapBorder = SimulationParameters.isHomogeneous() && SimulationParameters.isWrapBorderHomo();
 		PointTranslator pointTranslator;
 		if (wrapBorder) {
 			pointTranslator = new repast.simphony.space.continuous.WrapAroundBorders();

@@ -1489,7 +1489,7 @@ public class Porpoise extends Agent {
 	 */
 	@Override
 	public void forward(final double distance) {
-		if (SimulationParameters.isHomogenous() || SimulationParameters.getModel() < 5) {
+		if (SimulationParameters.isHomogeneous() || SimulationParameters.getModel() < 5) {
 			super.forward(distance);
 			return;
 		}
