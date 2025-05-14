@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -43,6 +43,7 @@ import dk.au.bios.porpoise.Agent;
 import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.SimulationConstants;
 import dk.au.bios.porpoise.landscape.CellDataSource;
+import dk.au.bios.porpoise.ui.ShipStyleColorMap;
 import dk.au.bios.porpoise.util.SimulationTime;
 import repast.simphony.context.Context;
 
@@ -158,6 +159,7 @@ public class ShipLoader {
 			context.add(agent);
 			agent.initialize();
 		}
+		ShipStyleColorMap.initialize(shipsData.getShips());
 	}
 
 	private static void verifyRoute(dk.au.bios.porpoise.Ship agent) {

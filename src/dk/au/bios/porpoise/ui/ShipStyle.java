@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -30,7 +30,6 @@ package dk.au.bios.porpoise.ui;
 import java.awt.Color;
 import java.awt.geom.GeneralPath;
 
-import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.Ship;
 import repast.simphony.visualizationOGL2D.DefaultStyleOGL2D;
 import saf.v3d.ShapeFactory2D;
@@ -42,9 +41,6 @@ import saf.v3d.scene.VSpatial;
  */
 public class ShipStyle extends DefaultStyleOGL2D {
 
-	private static final Color COLOR_VISIBLE = Color.GREEN;
-	private static final Color COLOR_HIDDEN = new Color(30,250,30, 0);
-	
 	@Override
 	public void init(final ShapeFactory2D factory) {
 		super.init(factory);
@@ -75,11 +71,7 @@ public class ShipStyle extends DefaultStyleOGL2D {
 	public Color getColor(final Object object) {
 		if (object instanceof Ship) {
 			var ship = (Ship) object;
-			if (shouldBeHidden(ship)) {
-				return COLOR_HIDDEN;
-			} else {
-				return COLOR_VISIBLE;
-			}
+			return ShipStyleColorMap.getColorForShip(ship);
 		} else {
 			return Color.BLACK;
 		}
@@ -97,20 +89,6 @@ public class ShipStyle extends DefaultStyleOGL2D {
 	@Override
 	public float getScale(final Object object) {
 		return 10;
-	}
-
-	private boolean shouldBeHidden(Ship ship) {
-		var pos = ship.getPosition();
-		final double lowerTolerance = -0.5 + (1.0 / (400.0 / 50.0));
-		if (pos.getX() < lowerTolerance || pos.getY() < lowerTolerance) {
-			return true;
-		}
-		final double upperTolerance = 0.5 + (1.0 / (400.0 / 50.0));
-		if ((Globals.getWorldWidth() - pos.getX()) < upperTolerance || (Globals.getWorldHeight() - pos.getY()) < upperTolerance) {
-			return true;
-		}
-
-		return false;
 	}
 
 }
