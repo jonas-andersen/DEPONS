@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2022-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -57,7 +57,7 @@ class GridSpatialPartitioningTest {
 		DispersalFactory.setType("off");
 		var random = mock(RandomSource.class);
 		Globals.setRandomSource(random);
-		Globals.setLandscapeMetadata(new DataFileMetaData(width, height, xllcorner, yllcorner, 400 , null));
+		Globals.setLandscapeMetadata(new DataFileMetaData(width, height, xllcorner, yllcorner, 400, -9999.0, null));
 
 		context = new DefaultContext<Agent>();
 		var factory = ContinuousSpaceFactoryFinder.createContinuousSpaceFactory(null);

@@ -31,8 +31,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -43,108 +41,47 @@ import dk.au.bios.porpoise.Agent;
 import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.SimulationConstants;
 import dk.au.bios.porpoise.landscape.CellDataSource;
+import dk.au.bios.porpoise.landscape.RollingDateFile;
 import dk.au.bios.porpoise.ui.ShipStyleColorMap;
-import dk.au.bios.porpoise.util.SimulationTime;
 import repast.simphony.context.Context;
 
 public class ShipLoader {
 
-	private static final String SHIPS_FILE_REGEX = "ships(\\d\\d\\d\\d)_(XX|\\d\\d)_(XX|\\d\\d)(_.*)?\\.json";
-	private static final Pattern SHIPS_FILE_PATTERN = Pattern.compile(SHIPS_FILE_REGEX);
+	private static ShipLoader INSTANCE;
+	
+	private static final String SHIPS_FILE_PREFIX = "ships";
+	private static final String SHIPS_FILE_EXTENSION = ".json";
+	private final CellDataSource source;
+	private final RollingDateFile rollingDateFile;
 
-	private static List<RollingFile> creationList;
-	private static CellDataSource source;
-
-	public void load(final Context<Agent> context, final CellDataSource source) throws IOException {
-		ShipLoader.creationList = null;
-		ShipLoader.source = source;
-
-		// rolling file
-		var shipFiles = source.getNamesMatching(SHIPS_FILE_REGEX);
-
-		if (shipFiles.size() > 0) {
-			var shipFilesList = shipFiles.stream().map(sp -> new RollingFile(sp, calcTickStart(sp))).collect(Collectors.toList());
-			shipFilesList.sort((f1, f2) -> f1.getTickStart() - f2.getTickStart());
-			var distinctCount = shipFilesList.stream().mapToInt(RollingFile::getTickStart).distinct().count();
-			if (distinctCount != shipFilesList.size()) {
-				throw new IOException("Two or more ships files have same start time");
-			}
-			
-			System.out.println("Found " + shipFilesList.size() + " ships files");
-			ShipLoader.creationList = shipFilesList;
-			loadNextFileIfNecessary(context);
-			return;
-		}
-
-		// Single file
-		if (source.hasData("ships.json")) {
-			try (InputStream dataIS = new ByteArrayInputStream(source.getRawData("ships.json"))) {
-				System.out.println("Loading ships from ships.json");
-				loadFromStream(context, dataIS);
-			}
-		} else {
-			throw new IOException("File ships.json does not exist for landscape");
-		}
+	public ShipLoader(CellDataSource source) throws IOException {
+		this.source = source;
+		this.rollingDateFile = new RollingDateFile(SHIPS_FILE_PREFIX, SHIPS_FILE_EXTENSION, source);
+	}
+	
+	public static void initialize(final Context<Agent> context, final CellDataSource source) throws IOException {
+		ShipLoader.INSTANCE = new ShipLoader(source);
+		ShipLoader.loadNextFileIfNecessary(context);
 	}
 
-	public static void loadNextFileIfNecessary(final Context<Agent> context) {
-		if (creationList == null || creationList.size() < 1) {
+	public static void loadNextFileIfNecessary(final Context<Agent> context) throws IOException {
+		if (INSTANCE == null) {
 			return;
 		}
 
-		if ((SimulationTime.getTick() < 0 && creationList.get(0).getTickStart() == 0)
-				|| (SimulationTime.getTick() >= creationList.get(0).getTickStart())) {
-			var rf = creationList.remove(0);
-
-			System.out.println("Loading ships from " + rf.getFileName());
-
+		if (INSTANCE.rollingDateFile.shouldLoad()) {
+			System.out.println("Loading ships from " + INSTANCE.rollingDateFile.getCurrentFile().fileName());
 			var shipsToRemove = new ArrayList<Agent>();
 			context.getObjects(dk.au.bios.porpoise.Ship.class).forEach(shipsToRemove::add);
 			shipsToRemove.forEach(context::remove);
-			
-			try (InputStream dataIS = new ByteArrayInputStream(ShipLoader.source.getRawData(rf.getFileName()))) {
+			try (InputStream dataIS = new ByteArrayInputStream(INSTANCE.source.getRawData(INSTANCE.rollingDateFile.getCurrentFile().fileName()))) {
 				loadFromStream(context, dataIS);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
 	}
-	
-	private int calcTickStart(String fileName) {
-		var matcher = SHIPS_FILE_PATTERN.matcher(fileName);
 
-		if (!matcher.matches()) {
-			throw new RuntimeException("Unexpectedly not matching filename pattern");
-		}
-		
-		String yearStr = matcher.group(1); // year
-		String monthStr = matcher.group(2); // month
-		String dayStr = matcher.group(3); // day
-
-		int year = Integer.parseInt(yearStr);
-		int month;
-		if ("XX".equals(monthStr)) {
-			month = 0;
-		} else {
-			month = Integer.parseInt(monthStr) - 1;
-			if (month < 0 || month > 11) {
-				throw new RuntimeException("Invalid month for file " + fileName);
-			}
-		}
-		int day;
-		if ("XX".equals(dayStr)) {
-			day = 0;
-		} else {
-			day = Integer.parseInt(dayStr) - 1;
-			if (day < 0 || day > 29) {
-				throw new RuntimeException("Invalid day for file " + fileName);
-			}
-		}
-
-		int startTick = (year * 360 * 48) + (month * 30 * 48) + (day * 48);
-		return startTick;
-	}
-	
 	private static void loadFromStream(final Context<Agent> context, final InputStream source)
 			throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper objMapper = new ObjectMapper();
@@ -177,23 +114,4 @@ public class ShipLoader {
 		}
 	}
 
-	private static class RollingFile {
-		private final String fileName;
-		private final int tickStart;
-
-		public RollingFile(String fileName, int tickStart) {
-			super();
-			this.fileName = fileName;
-			this.tickStart = tickStart;
-		}
-
-		public String getFileName() {
-			return fileName;
-		}
-
-		public int getTickStart() {
-			return tickStart;
-		}
-
-	}
 }

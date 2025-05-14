@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2020-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -48,6 +48,12 @@ public class UnitTestCellDataSource implements CellDataSource {
 
 	@Override
 	public List<String> getNamesMatching(String pattern) throws IOException {
+		if (pattern.startsWith("^" + LandscapeLoader.PREY_FILE_PREFIX)) {
+			return List.of("prey0000_XX_XX.asc");
+		} else if (pattern.startsWith("^" + LandscapeLoader.SALINITY_FILE_PREFIX)) {
+			return List.of("salinity0000_XX_XX.asc");
+		}
+
 		return Collections.emptyList();
 	}
 
@@ -82,7 +88,7 @@ public class UnitTestCellDataSource implements CellDataSource {
 
 	@Override
 	public DataFileMetaData getMetaData(String fileName) throws IOException {
-		return new DataFileMetaData(100, 100, -1, -1, 400, null);
+		return new DataFileMetaData(100, 100, -1, -1, 400, -9999.0, null);
 	}
 
 	private static double[][] getDistanceToCoast() {

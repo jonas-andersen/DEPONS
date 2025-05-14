@@ -99,7 +99,7 @@ public abstract class AbstractSimulationBDDTest {
 	}
 
 	private void setupWorld(int worldWidth, int worldHeight, double xllCorner, double yllCorner) throws Exception {
-		Globals.setLandscapeMetadata(new DataFileMetaData(worldWidth, worldHeight, xllCorner, yllCorner, 400, null));
+		Globals.setLandscapeMetadata(new DataFileMetaData(worldWidth, worldHeight, xllCorner, yllCorner, 400, -9999.0, null));
 		SimulationParameters.setModel(4);
 		random = mock(RandomSource.class);
 		Globals.setRandomSource(random);

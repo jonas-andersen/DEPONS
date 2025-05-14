@@ -27,30 +27,33 @@
 
 package dk.au.bios.porpoise.landscape;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static dk.au.bios.porpoise.landscape.LandscapeLoader.FILE_EXT;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+public class RollingDateDataFile extends AbstractDataFile {
 
-public class LandscapesLoadTest {
+	private final CellDataSource source;
+	private final RollingDateFile rollingDateFile;
+	private double[][] data = null;
 
-	@ParameterizedTest
-	@ValueSource(strings = { "Kattegat", "NorthSea", "DanTysk", "Gemini", "Homogeneous", "UserDefined" })
-	void loadLandscape(String landscape) throws Exception {
-		var landscapeDir = Paths.get("data").resolve(landscape);
-		if (Files.isDirectory(landscapeDir)) {
-			var dirSource = new DirectoryCellDataSource(landscapeDir);
-			assertThat(CellDataChecker.check(dirSource)).isTrue();
-		}
+	public RollingDateDataFile(String landscape, final String filePrefix, final CellDataSource source) throws IOException {
+		super(landscape);
 		
-		var zipFile = Paths.get("data").resolve(landscape + LandscapeLoader.FILE_EXT_ZIP);
-		if (Files.isRegularFile(zipFile)) {
-			var zipSource = new ZipFileCellDataSource(zipFile);
-			assertThat(CellDataChecker.check(zipSource)).isTrue();
+		this.source = source;
+		this.rollingDateFile = new RollingDateFile(filePrefix, FILE_EXT, source);
+	}
+	
+	public double[][] getData() throws IOException {
+		if (rollingDateFile.shouldLoad()) {
+			System.out.printf("Loading %s data from file %s%n", rollingDateFile.getFilePrefix(), rollingDateFile.getCurrentFile().fileName());
+			data = source.getData(rollingDateFile.getCurrentFile().fileName());
 		}
+
+		return data;
 	}
 
+	public RollingDateFile getRollingDateFile() {
+		return rollingDateFile;
+	}
 }

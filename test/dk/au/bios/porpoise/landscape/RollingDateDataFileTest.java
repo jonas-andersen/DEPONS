@@ -28,29 +28,52 @@
 package dk.au.bios.porpoise.landscape;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.List;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.Test;
 
-public class LandscapesLoadTest {
+class RollingDateDataFileTest {
 
-	@ParameterizedTest
-	@ValueSource(strings = { "Kattegat", "NorthSea", "DanTysk", "Gemini", "Homogeneous", "UserDefined" })
-	void loadLandscape(String landscape) throws Exception {
-		var landscapeDir = Paths.get("data").resolve(landscape);
-		if (Files.isDirectory(landscapeDir)) {
-			var dirSource = new DirectoryCellDataSource(landscapeDir);
-			assertThat(CellDataChecker.check(dirSource)).isTrue();
-		}
+	@Test
+	void basic() throws Exception {
+		var fileNames = List.of(
+				"prey0000_XX_XX.asc",
+				"prey0001_XX_XX.asc",
+				"prey0011_XX_XX.asc"
+		);
+
+		var cellDataSourceMock = mock(CellDataSource.class);
+		when(cellDataSourceMock.getNamesMatching(any())).thenReturn(fileNames);
 		
-		var zipFile = Paths.get("data").resolve(landscape + LandscapeLoader.FILE_EXT_ZIP);
-		if (Files.isRegularFile(zipFile)) {
-			var zipSource = new ZipFileCellDataSource(zipFile);
-			assertThat(CellDataChecker.check(zipSource)).isTrue();
-		}
+		RollingDateDataFile rddf = new RollingDateDataFile("unittest", "prey", cellDataSourceMock);
+		assertThat(rddf.getRollingDateFile().getYear().getYear()).isEqualTo(0);
+
+		assertThat(rddf.getRollingDateFile().getYear().getYear()).isEqualTo(0);
+		assertThat(rddf.getRollingDateFile().getYear().getStartTick()).isEqualTo(0);
+
+		assertThat(rddf.getRollingDateFile().getYear().getNextYear().getYear()).isEqualTo(1);
+		assertThat(rddf.getRollingDateFile().getYear().getNextYear().getStartTick()).isEqualTo(17280);
+
+		assertThat(rddf.getRollingDateFile().getYear().getNextYear().getNextYear().getYear()).isEqualTo(11);
+		assertThat(rddf.getRollingDateFile().getYear().getNextYear().getNextYear().getStartTick()).isEqualTo(190080);
+	}
+
+	@Test
+	void clashing() throws Exception {
+		var fileNames = List.of(
+				"prey0000_XX_XX.asc",
+				"prey0000_XX_XX.asc"
+		);
+
+		var cellDataSourceMock = mock(CellDataSource.class);
+		when(cellDataSourceMock.getNamesMatching(any())).thenReturn(fileNames);
+
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> new RollingDateDataFile("unittest", "prey", cellDataSourceMock));
 	}
 
 }

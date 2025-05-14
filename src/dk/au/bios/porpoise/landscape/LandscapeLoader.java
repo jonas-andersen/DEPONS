@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2017-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -90,8 +90,7 @@ public class LandscapeLoader {
 	}
 
 	public void loadShips(Context<Agent> context) throws IOException {
-		ShipLoader loader = new ShipLoader();
-		loader.load(context, source);
+		ShipLoader.initialize(context, source);
 	}
 
 	/**

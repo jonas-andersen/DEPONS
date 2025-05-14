@@ -70,7 +70,7 @@ class PorpoiseMoveTest {
 	public void setup() throws Exception {
 		// Repast initialization
 		SimulationParameters.resetToDefaultsForOldUnitTest();
-		Globals.setLandscapeMetadata(new DataFileMetaData(100, 100, 529473, 5972242, 400 , null));
+		Globals.setLandscapeMetadata(new DataFileMetaData(100, 100, 529473, 5972242, 400, -9999.0, null));
 		SimulationParameters.setModel(4);
 		this.schedule = new Schedule();
 		RunEnvironment.init(schedule, null, null, true);

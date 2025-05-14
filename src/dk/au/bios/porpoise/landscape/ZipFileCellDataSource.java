@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Jacob Nabe-Nielsen <jnn@bios.au.dk>
+ * Copyright (C) 2020-2025 Jacob Nabe-Nielsen <jnn@bios.au.dk>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
  * License version 2 and only version 2 as published by the Free Software Foundation.
@@ -37,7 +37,6 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.util.ASCUtil;
 import dk.au.bios.porpoise.util.GeoTiffUtil;
 
@@ -82,9 +81,9 @@ public class ZipFileCellDataSource implements CellDataSource {
 			try (InputStream in = zipFile.getInputStream(entry)) {
 				final double[][] data;
 				if (fileName.endsWith(LandscapeLoader.FILE_EXT_ASC)) {
-					data = ASCUtil.loadDoubleAscFile(Globals.getWorldWidth(), Globals.getWorldHeight(), in, false);
+					data = ASCUtil.loadDoubleAscFile(in);
 				} else {
-					data = GeoTiffUtil.loadGeotif(Globals.getWorldWidth(), Globals.getWorldHeight(), in, false);
+					data = GeoTiffUtil.loadGeotif(in);
 				}
 				return data;
 			}
