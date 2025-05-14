@@ -37,9 +37,9 @@ import dk.au.bios.porpoise.util.test.SystemTest;
 public class ReplayedSimulationKattegatTest extends AbstractReplayedSimulationTest {
 
 	@SystemTest
-	@DisplayName("Kattegat, Dispersal Off, No Turbines, 1 Porpoises")
-	public void dispOffNoTurbines() throws Exception {
-		simulation("test/dk/au/bios/porpoise/testdata_Kattegat_DispOff_NoTurbines_1porp.txt");
+	@DisplayName("Kattegat, Dispersal Off, No Turbines, 20 Porpoises")
+	public void dispOffNoTurbines20Porps() throws Exception {
+		simulation("test/dk/au/bios/porpoise/testdata_Kattegat_DispOff_NoTurbines_20porp.txt");
 	}
 
 	@SystemTest

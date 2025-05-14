@@ -200,10 +200,10 @@ public class ShipTest extends AbstractSimulationBDDTest {
 
 		schedule.schedule(ship);
 
-		var expectedDeterrence = List.of(0.0000d, 0.0000d, 0.0000d, 0.0000d, 1.5884d, 1.5894d, 1.5438d, 1.5822d,
-				1.5263d, 0.0000d, 0.0000d, 0.0000d, 0.0000d);
+		var expectedDeterrence = List.of(0.0000d, 0.0000d, 0.0000d, 0.0000d, 1.5964d, 1.5973d, 1.5515d, 1.5901d,
+				1.5340d, 0.0000d, 0.0000d, 0.0000d, 0.0000d);
 
-		var expectedHeadings = List.of(90.0000d, 90.0000d, 90.0000d, 90.0000d, 15.6264d, 45.1240d, 113.1068d, 156.6327d,
+		var expectedHeadings = List.of(90.0000d, 90.0000d, 90.0000d, 90.0000d, 15.6263d, 45.1240d, 113.1070d, 156.6328d,
 				168.5884d, 168.5884d, 168.5884d, 168.5884d, 168.5884d);
 
 		var expectedPorpPositions = List.of(new NdPoint(22.2500d, 50.0000d), new NdPoint(22.5000d, 50.0000d),
@@ -256,11 +256,11 @@ public class ShipTest extends AbstractSimulationBDDTest {
 
 		schedule.schedule(ship);
 
-		var expectedDeterrence = List.of(0.0000d, 0.0000d, 0.0000d, 0.0000d, 1.5884d, 1.5894d, 0.0000d, 0.0000d,
-				1.5555d, 1.5751d, 1.5306d, 0.0000d, 0.0000d);
+		var expectedDeterrence = List.of(0.0000d, 0.0000d, 0.0000d, 0.0000d, 1.5964d, 1.5973d, 0.0d, 0.0d,
+				1.5633d, 1.5830d, 1.5383d, 0.0000d, 0.0000d);
 
-		var expectedHeadings = List.of(90.0000d, 90.0000d, 90.0000d, 90.0000d, 15.6264d, 45.1240d, 45.1240d, 45.1240d,
-				98.3751d, 148.4884d, 164.9675d, 164.9675d, 164.9675d);
+		var expectedHeadings = List.of(90.0000d, 90.0000d, 90.0000d, 90.0000d, 15.6263d, 45.1240d, 45.1241d, 45.1241d,
+				98.3753d, 148.4885d, 164.9675d, 164.9675d, 164.9675d);
 
 		var expectedPorpPositions = List.of(new NdPoint(22.2500d, 50.0000d), new NdPoint(22.5000d, 50.0000d),
 				new NdPoint(22.7500d, 50.0000d), new NdPoint(23.0000d, 50.0000d), new NdPoint(23.0673d, 50.2408d),

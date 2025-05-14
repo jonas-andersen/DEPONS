@@ -60,12 +60,12 @@ public class SimulationCapturer {
 	}
 
 	public static void captureKattegatDispOff() throws Exception {
-		capture(new File("testdata_Kattegat_DispOff_NoTurbines_1porp.txt"), params -> {
+		capture(new File("testdata_Kattegat_DispOff_NoTurbines_20porp.txt"), params -> {
 			params.setValue("randomSeed", 7540860);
 			params.setValue("landscape", "Kattegat");
 			params.setValue("turbines", "off");
 			params.setValue("dispersal", "off");
-			params.setValue("porpoiseCount", 1);
+			params.setValue("porpoiseCount", 20);
 		});
 	}
 
