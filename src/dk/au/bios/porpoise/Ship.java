@@ -51,7 +51,6 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 	public static double MAX_DETER_DIST = 10.0d * 1000;  // Max deter dist is 10km, regardless of dmax_deter value
 
 	private static final int JOMOPANS_BAND = 12;
-	private static final double WATER_TEMP = 10.0d;
 
 	private JomopansEchoSPL splCalc = new JomopansEchoSPL();
 
@@ -290,7 +289,7 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 	private double calculateReceivedLevelFor(double sourceLevel, NdPoint shipPos, double distToShip) {
 		final double depthAtShip = Globals.getCellData().getDepth(shipPos);
 		final double grainSize = Globals.getCellData().getSediment(shipPos);
-		final double temp = WATER_TEMP;
+		final double temp = Globals.getCellData().getTemperature(shipPos);
 		final double salinity = Globals.getCellData().getSalinity(shipPos);
 
 		// If we are missing data, then set produced sound to 0.0
