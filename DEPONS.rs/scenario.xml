@@ -15,6 +15,7 @@
 <repast.simphony.action.data_set context="PorpoiseSim" file="repast.simphony.action.data_set_12.xml" />
 <repast.simphony.action.data_set context="PorpoiseSim" file="repast.simphony.action.data_set_13.xml" />
 <repast.simphony.action.data_set context="PorpoiseSim" file="repast.simphony.action.data_set_14.xml" />
+<repast.simphony.action.data_set context="PorpoiseSim" file="repast.simphony.action.data_set_15.xml" />
 <repast.simphony.action.file_sink context="PorpoiseSim" file="repast.simphony.action.file_sink_14.xml" />
 <repast.simphony.action.file_sink context="PorpoiseSim" file="repast.simphony.action.file_sink_15.xml" />
 <repast.simphony.action.file_sink context="PorpoiseSim" file="repast.simphony.action.file_sink_16.xml" />
@@ -29,6 +30,7 @@
 <repast.simphony.action.time_series_chart context="PorpoiseSim" file="repast.simphony.action.time_series_chart_24.xml" />
 <repast.simphony.action.time_series_chart context="PorpoiseSim" file="repast.simphony.action.time_series_chart_25.xml" />
 <repast.simphony.action.time_series_chart context="PorpoiseSim" file="repast.simphony.action.time_series_chart_26.xml" />
+<repast.simphony.action.time_series_chart context="PorpoiseSim" file="repast.simphony.action.time_series_chart_27.xml" />
 <repast.simphony.action.display context="PorpoiseSim" file="repast.simphony.action.display_27.xml" />
 <repast.simphony.action.display context="PorpoiseSim" file="repast.simphony.action.display_28.xml" />
 <model.initializer class="dk.au.bios.porpoise.PorpoiseInitializer" />

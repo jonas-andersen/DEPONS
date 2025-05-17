@@ -32,6 +32,6 @@ package dk.au.bios.porpoise;
  */
 public enum CauseOfDeath {
 
-	ByCatch, OldAge, Starvation
+	ByCatch, OldAge, Starvation, StarvationMaintenance, StarvationThermo, LowBodyCondition
 
 }

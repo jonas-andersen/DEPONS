@@ -24,7 +24,7 @@
   <sourceId>EnergyLevel</sourceId>
   <outOfRange>IGNORE</outOfRange>
   <min>0.0</min>
-  <max>20.0</max>
+  <max>1.0</max>
   <barColor>
     <red>255</red>
     <green>0</green>

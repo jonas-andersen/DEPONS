@@ -56,6 +56,14 @@
         <methodName>getLongDistMovType</methodName>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
+    <entry>
+      <string>CauseOfDeath</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>CauseOfDeath</id>
+        <className>dk.au.bios.porpoise.agents.misc.DeadPorpoiseReportProxy</className>
+        <methodName>getCauseOfDeath</methodName>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
   </methodDataSources>
   <countSources class="linked-hash-map"/>
   <customNADataSources class="linked-hash-map"/>

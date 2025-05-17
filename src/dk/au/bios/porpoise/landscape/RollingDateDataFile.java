@@ -31,6 +31,8 @@ import static dk.au.bios.porpoise.landscape.LandscapeLoader.FILE_EXT;
 
 import java.io.IOException;
 
+import dk.au.bios.porpoise.Globals;
+
 public class RollingDateDataFile extends AbstractDataFile {
 
 	private final CellDataSource source;
@@ -48,6 +50,7 @@ public class RollingDateDataFile extends AbstractDataFile {
 		if (rollingDateFile.shouldLoad()) {
 			System.out.printf("Loading %s data from file %s%n", rollingDateFile.getFilePrefix(), rollingDateFile.getCurrentFile().fileName());
 			data = source.getData(rollingDateFile.getCurrentFile().fileName());
+			Globals.dataFileListener.ifPresent(l -> l.loaded(rollingDateFile.getFilePrefix(), rollingDateFile.getCurrentFile().fileName()));
 		}
 
 		return data;

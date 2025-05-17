@@ -24,6 +24,24 @@
         <aggType>SUM</aggType>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
+    <entry>
+      <string>Pregnant</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>Pregnant</id>
+        <className>dk.au.bios.porpoise.Porpoise</className>
+        <methodName>getPregnant</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>ReadyToMate</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>ReadyToMate</id>
+        <className>dk.au.bios.porpoise.Porpoise</className>
+        <methodName>getReadyToMate</methodName>
+        <aggType>SUM</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
   </methodDataSources>
   <countSources class="linked-hash-map">
     <entry>

@@ -69,4 +69,21 @@ public class ShipLoaderTest extends AbstractSimulationBDDTest {
 		assertThat(shipsFilePattern.matcher("ships0000_00_01_another.json").matches()).isTrue();
 	}
 
+	/*
+	@Test
+	void fileMatcher() {
+		var shipsFilePattern = Pattern.compile("ships(\\d\\d\\d\\d)_(XX|\\d\\d)_(XX|\\d\\d)(_.*)?\\.json");
+		assertThat(shipsFilePattern.matcher("ships0000_00_00.json").matches()).isTrue();
+		assertThat(shipsFilePattern.matcher("ships0000_00_01_another.json").matches()).isTrue();
+=======
+		assertThat(context.getObjectsAsStream(Ship.class).count()).isEqualTo(637);
+
+		Ship ship = shipStream().filter(s -> "111219502".equals(s.getName())).findAny().orElseThrow();
+		assertThat(ship.getName()).isEqualTo("111219502");
+		assertThat(ship.getType()).isEqualTo(VesselClass.GOVERNMENT_RESEARCH);
+		assertThat(ship.getRoute().getName()).isEqualTo("Route_111219502");
+		assertThat(ship.getRoute().getRoute()).hasSize(5);
+>>>>>>> 0eedc4d (wip - depons 4)
+	 * 
+	 */
 }

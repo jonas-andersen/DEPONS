@@ -33,6 +33,15 @@
         <aggType>MEAN</aggType>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
+    <entry>
+      <string>AvgFoodEncountered</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>AvgFoodEncountered</id>
+        <className>dk.au.bios.porpoise.Porpoise</className>
+        <methodName>getFoodEncounteredDaily</methodName>
+        <aggType>MEAN</aggType>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
   </methodDataSources>
   <countSources class="linked-hash-map"/>
   <customNADataSources class="linked-hash-map"/>

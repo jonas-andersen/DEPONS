@@ -85,11 +85,11 @@ public class PorpoiseStyle extends DefaultStyleOGL2D {
 		if (p.getDispersalMode() > 0) {
 			return Color.PINK;
 		}
-		if (p.getEnergyLevel() > 15) {
+		if (p.getEnergyLevel() > 0.30d) {
 			return Color.GREEN;
-		} else if (p.getEnergyLevel() > 10) {
+		} else if (p.getEnergyLevel() > 0.20d) {
 			return Color.YELLOW;
-		} else if (p.getEnergyLevel() > 5) {
+		} else if (p.getEnergyLevel() > 0.10d) {
 			return Color.ORANGE;
 		} else {
 			return Color.RED;

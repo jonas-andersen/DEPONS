@@ -42,6 +42,7 @@ import org.junit.jupiter.api.Test;
 import dk.au.bios.porpoise.behavior.DispersalFactory;
 import dk.au.bios.porpoise.behavior.FastRefMemTurn;
 import dk.au.bios.porpoise.behavior.RandomSource;
+import dk.au.bios.porpoise.energetics.PorpoiseEnergetics;
 import repast.simphony.engine.schedule.ScheduleParameters;
 import repast.simphony.space.SpatialException;
 import repast.simphony.space.continuous.NdPoint;
@@ -56,7 +57,7 @@ class PorpoiseTest extends AbstractSimulationBDDTest {
 		aNewWorld(100, 100, 529473, 5972242);
 		var random = mock(RandomSource.class);
 		Globals.setRandomSource(random);
-		var p2 = new Porpoise(null, 1, null);
+		var p2 = new Porpoise(null, 1, (PorpoiseEnergetics) null);
 
 		assertThat(p2.toString()).isNotNull();
 	}

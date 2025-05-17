@@ -11,6 +11,12 @@
     <string>EnergyLevel</string>
     <string>DeterTurbineStrength</string>
     <string>DeterShipStrength</string>
+    <string>FoodEncountered</string>
+    <string>FoodEaten</string>
+    <string>FoodEatenCalf</string>
+    <string>EnergyConsumed</string>
+    <string>IRRecord</string>
+    <string>IRRecordCalf</string>
     <string>LoudestShipSPL</string>
     <string>DispersalMode</string>
     <string>PSMActive</string>

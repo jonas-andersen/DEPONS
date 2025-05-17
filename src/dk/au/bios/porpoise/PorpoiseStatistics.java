@@ -57,6 +57,9 @@ public class PorpoiseStatistics extends Agent {
 			numDeathsByOldAge++;
 			break;
 		case Starvation:
+		case StarvationMaintenance:
+		case StarvationThermo:
+		case LowBodyCondition:
 			numDeathsByStarvation++;
 			break;
 		default:

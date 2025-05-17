@@ -88,4 +88,18 @@ class DebugLogTest {
 		assertThat(output).startsWith("-1 - Tracking random porpoise 1 @[10.0, 10.0] (65010,63010), presLovMov: 0.83243243");
 	}
 
+	@Test
+	public void test() {
+		double weight = 10;
+//		double r = Math.pow((0.093d * weight), 0.57);
+		double r = 0.093d * Math.pow(weight, 0.57);
+		assertThat(r).isEqualTo(0.3455277630603704d);
+
+		double storageLevel = 1.5;
+		double mMortProbConst = Math.pow(10, (2.176e-02 * Globals.xSurvProbConst + -3.875e-04));
+		double yearlySurvProb = (1 - (mMortProbConst * Math.exp(- storageLevel * Globals.xSurvProbConst) ));
+
+		assertThat(mMortProbConst).isEqualTo(1.9650449987660124d);
+		assertThat(yearlySurvProb).isEqualTo(0.9999999968456547d);
+	}
 }

@@ -29,6 +29,7 @@ package dk.au.bios.porpoise.landscape;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Optional;
 
@@ -36,6 +37,7 @@ import dk.au.bios.porpoise.Agent;
 import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.SimulationConstants;
 import dk.au.bios.porpoise.SimulationParameters;
+import dk.au.bios.porpoise.energetics.PatchLookupTables;
 import dk.au.bios.porpoise.util.Pair;
 import repast.simphony.space.continuous.NdPoint;
 import repast.simphony.space.grid.GridPoint;
@@ -175,6 +177,24 @@ public class CellData {
 		return getTemperature(Agent.ndPointToGridPoint(point));
 	}
 
+	public double calcMeanTemperature() {
+		double tempSum = 0.0d;
+		int tempCount = 0;
+		var ww = Globals.getWorldWidth();
+		var wh = Globals.getWorldHeight();
+		for (int x = 0; x < ww; x++) {
+			for (int y = 0; y < wh; y++) {
+				// water-patches
+				if (getTemperature(x, y) > 0 && getSalinity(x, y) > 0 && getDepth(x, y) > 0) {
+					tempSum += getTemperature(x, y);
+					tempCount++;
+				}
+			}
+		}
+		
+		return tempSum / tempCount;
+	}
+	
 	public int getBlock(final GridPoint point) {
 		return block[point.getX()][point.getY()];
 	}
@@ -195,12 +215,21 @@ public class CellData {
 		return this.foodValue[x][y];
 	}
 
-	public synchronized double eatFood(final GridPoint point, final double eatFraction) {
+	public synchronized double eatFoodFraction(final GridPoint point, final double eatFraction) {
 		final double food = getFoodLevel(point.getX(), point.getY());
 
 		if (food > 0.0) {
 			final double eaten = food * eatFraction;
+			return eatFood(point, eaten);
+		} else {
+			return 0.0;
+		}
+	}
 
+	public synchronized double eatFood(final GridPoint point, final double eaten) {
+		final double food = getFoodLevel(point.getX(), point.getY());
+
+		if (food > 0.0) {
 			this.foodValue[point.getX()][point.getY()] -= eaten;
 
 			// The minimum food level has a strong impact on how fast food gets back
@@ -259,6 +288,32 @@ public class CellData {
 	}
 
 	/*
+	 * Patches-own   kin-visc-w                   ; kinematic viscosity of water in m2 s-1
+	 */
+	public double getKinViscW(NdPoint point) {
+		var salinity = getSalinity(point);
+		var temperature = getTemperature(point);
+//		if (salinity > 25) {
+//			System.err.println("Salinity out of range (" + salinity + ") at " + point);
+//		}
+		var dynamicVisW = PatchLookupTables.getInstance().getDynamicVis(salinity, temperature);
+		var densityW = getDensityW(point);
+		
+		return dynamicVisW / densityW;
+	}
+
+	/*
+	 * Patches-own density-w                    ; water density in kg m-3
+	 */
+	public double getDensityW(NdPoint point) {
+		// implementation - load tables into memory and map on the fly (don't store the values directly in the patch)
+		// FIXME also, need to implement a listener for loading data, a composite one to check salinity and temp both loaded.
+		var salinity = getSalinity(point);
+		var temperature = getTemperature(point);
+		return PatchLookupTables.getInstance().getDensity(salinity, temperature);
+	}
+
+	/*
 	 * public double[][] getBlockValues() { switch (Globals.getQuarterOfYear()) { case 0: return this.blockValQuarter1;
 	 * case 1: return this.blockValQuarter2; case 2: return this.blockValQuarter3; case 3: return this.blockValQuarter4;
 	 * }
@@ -275,6 +330,7 @@ public class CellData {
 	public void initializeFoodPatches() {
 		final double[][] maxEnt = this.getMaxEnt();
 
+		long sum = 0;
 		for (int i = 0; i < foodProb.getData().length; i++) {
 			for (int j = 0; j < foodProb.getData()[0].length; j++) {
 				if (foodProb.getData()[i][j] > 0 && maxEnt[i][j] > 0) {
@@ -283,8 +339,11 @@ public class CellData {
 				} else {
 					foodValue[i][j] = 0;
 				}
+				sum += foodValue[i][j];
 			}
 		}
+		System.err.println("FOOD LEVEL: " + sum);
+		
 	}
 
 }

@@ -21,7 +21,7 @@
       <repast.simphony.data2.engine.MethodDataSourceDefinition>
         <id>Age</id>
         <className>dk.au.bios.porpoise.Porpoise</className>
-        <methodName>getAge</methodName>
+        <methodName>getAgeNearestYear</methodName>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
   </methodDataSources>

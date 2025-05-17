@@ -237,6 +237,8 @@ public final class SimulationParameters {
 	 */
 	private static double foodGrowthRate = 0.10;
 
+	public static double irToEA = 113750000d;
+
 	/**
 	 * In parameters.xml: bycatchProb
 	 */
@@ -338,6 +340,7 @@ public final class SimulationParameters {
 
 		tDisp = params.getInteger("tdisp");
 		foodGrowthRate = convertStringToDouble(params, "rU");
+		irToEA = convertStringToDouble(params, "irToEA");
 		bycatchProb = convertStringToDouble(params, "bycatchProb");
 	}
 	
@@ -391,6 +394,7 @@ public final class SimulationParameters {
 		model = 4;
 		tDisp = 3;
 		foodGrowthRate = 0.10;
+		irToEA = 113750000d;
 		bycatchProb = 0.0;
 		psmLog = 0.6;
 		psmLogisticDecreaseFunction = new LogisticDecreaseSSLogis(1.0, 0.0, psmLog);
@@ -462,6 +466,7 @@ public final class SimulationParameters {
 		model = 1;
 		tDisp = 3;
 		foodGrowthRate = 0.10;
+		irToEA = 113750000d;
 		bycatchProb = 0.0;
 		psmLog = null;
 	}
@@ -748,6 +753,10 @@ public final class SimulationParameters {
 
 	public static double getFoodGrowthRate() {
 		return foodGrowthRate;
+	}
+	
+	public static double getIrToEA() {
+		return irToEA;
 	}
 
 	public static double getBycatchProb() {

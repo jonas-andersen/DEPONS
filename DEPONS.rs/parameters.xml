@@ -60,6 +60,9 @@
         <parameter name="rU" displayName="rU - Food replenishment rate" type="string" 
 						defaultValue="0.1" 
 						isReadOnly="false"/>
+        <parameter name="irToEA" displayName="irToEA - Food / Joule conversion" type="string" 
+						defaultValue="113750000.0" 
+						isReadOnly="false"/>
         <parameter name="bycatchProb" displayName="bycatchProb - Annual bycatch probability [unitless]" type="string" 
 						defaultValue="0.0" 
 						isReadOnly="false"/>
@@ -280,4 +283,8 @@
 						defaultValue="N(10.0;1)" 
 						isReadOnly="false" 
 		/>
+  		<parameter name="zzzEnergeticsDebug" displayName="zzz - Enegetics Debug" type="boolean" 
+						defaultValue="false" 
+						isReadOnly="false" 
+						converter="repast.simphony.parameter.StringConverterFactory$BooleanConverter"/>
 </parameters>

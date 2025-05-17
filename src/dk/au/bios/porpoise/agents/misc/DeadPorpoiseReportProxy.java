@@ -28,6 +28,7 @@
 package dk.au.bios.porpoise.agents.misc;
 
 import dk.au.bios.porpoise.Agent;
+import dk.au.bios.porpoise.CauseOfDeath;
 import dk.au.bios.porpoise.Porpoise;
 import dk.au.bios.porpoise.util.SimulationTime;
 
@@ -48,8 +49,9 @@ public class DeadPorpoiseReportProxy extends Agent {
 	private int calvesBorn;
 	private int calvesWeaned;
 	private String longDistMovType;
+	private CauseOfDeath cause;
 
-	public DeadPorpoiseReportProxy(Porpoise porp) {
+	public DeadPorpoiseReportProxy(Porpoise porp, CauseOfDeath cause) {
 		super(porp.getId());
 
 		this.tickAtDeath = SimulationTime.getTick();
@@ -57,6 +59,7 @@ public class DeadPorpoiseReportProxy extends Agent {
 		this.calvesBorn = porp.getCalvesBorn();
 		this.calvesWeaned = porp.getCalvesWeaned();
 		this.longDistMovType = porp.getDispersalBehaviour().getDispersalShortName();
+		this.cause = cause;
 	}
 
 	public double getTickAtDeath() {
@@ -81,6 +84,10 @@ public class DeadPorpoiseReportProxy extends Agent {
 
 	public String getLongDistMovType() {
 		return longDistMovType;
+	}
+
+	public String getCauseOfDeath() {
+		return cause.name();
 	}
 
 }

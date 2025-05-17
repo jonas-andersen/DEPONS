@@ -104,6 +104,54 @@
         <methodName>getEnergyLevel</methodName>
       </repast.simphony.data2.engine.MethodDataSourceDefinition>
     </entry>
+    <entry>
+      <string>FoodEncountered</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>FoodEncountered</id>
+        <className>dk.au.bios.porpoise.RandomPorpoiseReportProxy</className>
+        <methodName>getFoodEncountered</methodName>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>FoodEaten</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>FoodEaten</id>
+        <className>dk.au.bios.porpoise.RandomPorpoiseReportProxy</className>
+        <methodName>getFoodEaten</methodName>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>FoodEatenCalf</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>FoodEatenCalf</id>
+        <className>dk.au.bios.porpoise.RandomPorpoiseReportProxy</className>
+        <methodName>getFoodEatenCalf</methodName>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>EnergyConsumed</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>EnergyConsumed</id>
+        <className>dk.au.bios.porpoise.RandomPorpoiseReportProxy</className>
+        <methodName>getEnergyConsumed</methodName>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>IRRecord</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>IRRecord</id>
+        <className>dk.au.bios.porpoise.RandomPorpoiseReportProxy</className>
+        <methodName>getIRRecord</methodName>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
+    <entry>
+      <string>IRRecordCalf</string>
+      <repast.simphony.data2.engine.MethodDataSourceDefinition>
+        <id>IRRecordCalf</id>
+        <className>dk.au.bios.porpoise.RandomPorpoiseReportProxy</className>
+        <methodName>getIRRecordCalf</methodName>
+      </repast.simphony.data2.engine.MethodDataSourceDefinition>
+    </entry>
   </methodDataSources>
   <countSources class="linked-hash-map"/>
   <customNADataSources class="linked-hash-map"/>

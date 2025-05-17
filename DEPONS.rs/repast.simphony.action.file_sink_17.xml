@@ -10,6 +10,7 @@
     <string>CalvesBorn</string>
     <string>CalvesWeaned</string>
     <string>LongDistMovType</string>
+    <string>CauseOfDeath</string>
   </sourceIds>
   <fileName>Reproduction.csv</fileName>
   <addTimeStamp>true</addTimeStamp>

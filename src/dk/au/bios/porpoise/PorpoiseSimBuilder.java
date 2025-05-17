@@ -28,6 +28,7 @@
 package dk.au.bios.porpoise;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.apache.log4j.Level;
 
@@ -37,6 +38,13 @@ import dk.au.bios.porpoise.behavior.GeneratedRandomSource;
 import dk.au.bios.porpoise.behavior.RefMem;
 import dk.au.bios.porpoise.behavior.RefMemTurnCalculator;
 import dk.au.bios.porpoise.behavior.ReplayedRandomSource;
+import dk.au.bios.porpoise.energetics.CaraEnergeticsDataFileListener;
+import dk.au.bios.porpoise.energetics.EnergeticsDebugCapture;
+import dk.au.bios.porpoise.energetics.ExtendedEnergyDebugCapture;
+import dk.au.bios.porpoise.energetics.PatchLookupTables;
+import dk.au.bios.porpoise.energetics.PorpoiseInitializationBlubber;
+import dk.au.bios.porpoise.energetics.ReimplementationCheck;
+import dk.au.bios.porpoise.energetics.ThermoregulationLookupTable;
 import dk.au.bios.porpoise.landscape.CellData;
 import dk.au.bios.porpoise.landscape.GridSpatialPartitioning;
 import dk.au.bios.porpoise.landscape.HydrophoneLoader;
@@ -48,6 +56,7 @@ import dk.au.bios.porpoise.tasks.DeadPorpoisesReportProxyCleanupTask;
 import dk.au.bios.porpoise.tasks.DeterrenceTask;
 import dk.au.bios.porpoise.tasks.FoodTask;
 import dk.au.bios.porpoise.tasks.MonthlyTasks;
+import dk.au.bios.porpoise.tasks.TickTask;
 import dk.au.bios.porpoise.tasks.YearlyTask;
 import dk.au.bios.porpoise.util.DebugLog;
 import dk.au.bios.porpoise.util.test.PorpoiseTestDataCapturer;
@@ -96,9 +105,29 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		if (Globals.getSimYears() != null) {
 			final int numSimSteps = (Globals.getSimYears() * 360 * 48) - 1;
 			RunEnvironment.getInstance().endAt(numSimSteps);
-		} 
+		}
+		
+		
+		if (Globals.ENERGETICS_USE_NEW) {
+			ReimplementationCheck.reset();
+			Globals.caraSetupGlobalParameters();
+			PorpoiseInitializationBlubber.initialize();
+			ThermoregulationLookupTable.initialize();
+			PatchLookupTables.initialize();
+
+			Globals.dataFileListener = Optional.of(new CaraEnergeticsDataFileListener());
+		}
 
 		PorpoiseTestDataCapturer.capture(params);
+		
+		try {
+			EnergeticsDebugCapture.CAPTURE = params.getBoolean("zzzEnergeticsDebug");
+			EnergeticsDebugCapture.init();
+			ExtendedEnergyDebugCapture.init();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// Currently disabled - PSMVerificationLog.setup();
 		// Disabled, enable to capture replay output
@@ -116,7 +145,7 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		// Reset the counter for the porpoise id generator.
 		Porpoise.PORPOISE_ID.set(0);
 
-		Globals.setCellData(null); // This releases the previous CellData allowing it to be garbage collected
+		Globals.setCellData(null); // This releases the previous CellData allowing it to be garbage collected (potentially before we start loading it again)
 		final String landscape;
 		if (SimulationParameters.isHomogeneous()) {
 			landscape = SimulationParameters.LANDSCAPE_HOMOGENEOUS_NAME;
@@ -362,6 +391,8 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		schedule.schedule(yearlyParams, yearlyTask);
 
 		schedule.schedule(foodParams, new FoodTask());
+
+		schedule.schedule(ScheduleParameters.createRepeating(0, 1, ScheduleParameters.LAST_PRIORITY), new TickTask(context));
 
 		if (PorpoiseTestDataCapturer.capture) {
 			schedule.schedule(ScheduleParameters.createRepeating(0, 1, ScheduleParameters.LAST_PRIORITY),

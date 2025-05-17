@@ -103,4 +103,11 @@ public final class SimulationTime {
 		return (year * 48 * 360) + ((month - 1) * 48 * 30) + (day * 48);
 	}
 
+	public static boolean isBeginningOfDay() {
+		return (getTick() % 48) == 0;
+	}
+
+	public static boolean isBeginningOfWeek() {
+		return (getDayOfSimulation() % 7) == 0;
+	}
 }

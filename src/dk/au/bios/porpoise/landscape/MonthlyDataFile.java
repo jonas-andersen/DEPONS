@@ -41,6 +41,11 @@ public class MonthlyDataFile extends AbstractDataFile {
 	private enum Mode {
 		SINGLE, ANNUALLY, MONTHLY_CYCLE, MONTHLY
 	}
+	
+	@FunctionalInterface
+	public interface Listener {
+		void loaded(String filePrefx, String fileName);
+	}
 
 	private static final String FILE_EXT =  LandscapeLoader.FILE_EXT;
 
@@ -102,6 +107,8 @@ public class MonthlyDataFile extends AbstractDataFile {
 
 			lastLoadedYear = currentYear;
 			lastLoadedMonth = currentMonth;
+			
+			Globals.dataFileListener.ifPresent(l -> l.loaded(filePrefix, fileName));
 		}
 
 		return data;
