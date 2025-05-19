@@ -39,10 +39,10 @@ import dk.au.bios.porpoise.behavior.DispersalFactory;
 import dk.au.bios.porpoise.behavior.PersistentSpatialMemory;
 import dk.au.bios.porpoise.behavior.RefMem;
 import dk.au.bios.porpoise.behavior.RefMemTurnCalculator;
-import dk.au.bios.porpoise.energetics.CaraEnergetics;
-import dk.au.bios.porpoise.energetics.EnergeticsDebugCapture;
 import dk.au.bios.porpoise.energetics.OriginalEnergetics;
 import dk.au.bios.porpoise.energetics.PorpoiseEnergetics;
+import dk.au.bios.porpoise.energetics.processbased.EnergeticsDebugCapture;
+import dk.au.bios.porpoise.energetics.processbased.ProcessBasedEnergetics;
 import dk.au.bios.porpoise.ships.ShipDeterrence;
 import dk.au.bios.porpoise.tasks.YearlyTask;
 import dk.au.bios.porpoise.util.CircularBuffer;
@@ -214,7 +214,7 @@ public class Porpoise extends Agent {
 		} else {
 			this.energetics = energetics;
 		}
-		((CaraEnergetics)this.energetics).setPorp(this); // FIXME to interface
+		((ProcessBasedEnergetics)this.energetics).setPorp(this); // FIXME to interface
 	}
 
 	private PorpoiseEnergetics energetics;
@@ -695,7 +695,7 @@ public class Porpoise extends Agent {
 				prevLogMov,
 				presMov,
 				moveDistance,
-				((CaraEnergetics)this.energetics).swimSpeed,
+				((ProcessBasedEnergetics)this.energetics).swimSpeed,
 				this.dispersalBehaviour.getDispersalType()
 				);
 		
@@ -1102,7 +1102,7 @@ public class Porpoise extends Agent {
 				}
 				
 				// FIXME Move these triggers to the Energetics implementations instead
-				CaraEnergetics ce = (CaraEnergetics) this.energetics;
+				ProcessBasedEnergetics ce = (ProcessBasedEnergetics) this.energetics;
 				boolean increasingIRRecord = true;
 				for (int i = 0; i < SimulationParameters.getTDisp(); i++) {
 					if (ce.irrecordDaily.get(i) <= ce.irrecordDaily.get(i + 1)) {
@@ -1490,8 +1490,8 @@ public class Porpoise extends Agent {
 	}
 
 	public double getVBlub() {
-		if (this.energetics instanceof CaraEnergetics) {
-			return ((CaraEnergetics)this.energetics).getVBlub();
+		if (this.energetics instanceof ProcessBasedEnergetics) {
+			return ((ProcessBasedEnergetics)this.energetics).getVBlub();
 		}
 
 		return 0.0d;

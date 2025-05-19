@@ -1,4 +1,4 @@
-package dk.au.bios.porpoise.energetics;
+package dk.au.bios.porpoise.energetics.processbased;
 
 import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.landscape.LandscapeLoader;

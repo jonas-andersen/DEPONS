@@ -31,7 +31,7 @@ import static dk.au.bios.porpoise.Globals.convertGridDistanceToUtm;
 import static dk.au.bios.porpoise.Globals.convertGridXToUtm;
 import static dk.au.bios.porpoise.Globals.convertGridYToUtm;
 
-import dk.au.bios.porpoise.energetics.CaraEnergetics;
+import dk.au.bios.porpoise.energetics.processbased.ProcessBasedEnergetics;
 import dk.au.bios.porpoise.util.DebugLog;
 import dk.au.bios.porpoise.util.SimulationTime;
 import dk.au.bios.porpoise.util.test.PorpoiseTestDataCapturer;
@@ -93,8 +93,8 @@ public class RandomPorpoiseReportProxy extends Agent {
 
 	public double getFoodEaten() {
 		if (porpoise.isAlive()) {
-			if (porpoise.getEnergetics() instanceof CaraEnergetics) {
-				CaraEnergetics ce = (CaraEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
+			if (porpoise.getEnergetics() instanceof ProcessBasedEnergetics) {
+				ProcessBasedEnergetics ce = (ProcessBasedEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
 				return ce.getFoodEatenTick();
 			} else {
 				return -1;
@@ -106,8 +106,8 @@ public class RandomPorpoiseReportProxy extends Agent {
 
 	public double getFoodEatenCalf() {
 		if (porpoise.isAlive()) {
-			if (porpoise.getEnergetics() instanceof CaraEnergetics) {
-				CaraEnergetics ce = (CaraEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
+			if (porpoise.getEnergetics() instanceof ProcessBasedEnergetics) {
+				ProcessBasedEnergetics ce = (ProcessBasedEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
 				return ce.getFoodEatenCalfTick();
 			} else {
 				return -1;
@@ -119,8 +119,8 @@ public class RandomPorpoiseReportProxy extends Agent {
 
 	public double getIRRecord() {
 		if (porpoise.isAlive()) {
-			if (porpoise.getEnergetics() instanceof CaraEnergetics) {
-				CaraEnergetics ce = (CaraEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
+			if (porpoise.getEnergetics() instanceof ProcessBasedEnergetics) {
+				ProcessBasedEnergetics ce = (ProcessBasedEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
 				return ce.getIRRecord();
 			} else {
 				return -1;
@@ -132,8 +132,8 @@ public class RandomPorpoiseReportProxy extends Agent {
 
 	public double getIRRecordCalf() {
 		if (porpoise.isAlive()) {
-			if (porpoise.getEnergetics() instanceof CaraEnergetics) {
-				CaraEnergetics ce = (CaraEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
+			if (porpoise.getEnergetics() instanceof ProcessBasedEnergetics) {
+				ProcessBasedEnergetics ce = (ProcessBasedEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
 				return ce.getIRRecordCalf();
 			} else {
 				return -1;
@@ -145,8 +145,8 @@ public class RandomPorpoiseReportProxy extends Agent {
 
 	public double getEnergyConsumed() {
 		if (porpoise.isAlive()) {
-			if (porpoise.getEnergetics() instanceof CaraEnergetics) {
-				CaraEnergetics ce = (CaraEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
+			if (porpoise.getEnergetics() instanceof ProcessBasedEnergetics) {
+				ProcessBasedEnergetics ce = (ProcessBasedEnergetics) porpoise.getEnergetics(); // FIXME Make this clearner
 				return ce.getEnergyConsumedTick();
 			} else {
 				return -1;

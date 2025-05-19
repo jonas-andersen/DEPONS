@@ -1,4 +1,4 @@
-package dk.au.bios.porpoise.energetics;
+package dk.au.bios.porpoise.energetics.processbased;
 
 import java.io.BufferedReader;
 import java.io.IOException;

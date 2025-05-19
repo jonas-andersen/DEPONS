@@ -37,7 +37,7 @@ import dk.au.bios.porpoise.Agent;
 import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.SimulationConstants;
 import dk.au.bios.porpoise.SimulationParameters;
-import dk.au.bios.porpoise.energetics.PatchLookupTables;
+import dk.au.bios.porpoise.energetics.processbased.PatchLookupTables;
 import dk.au.bios.porpoise.util.Pair;
 import repast.simphony.space.continuous.NdPoint;
 import repast.simphony.space.grid.GridPoint;

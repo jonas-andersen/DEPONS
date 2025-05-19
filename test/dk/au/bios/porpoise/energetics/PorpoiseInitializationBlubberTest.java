@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import dk.au.bios.porpoise.energetics.processbased.PorpoiseInitializationBlubber;
+
 public class PorpoiseInitializationBlubberTest {
 
 	@Test

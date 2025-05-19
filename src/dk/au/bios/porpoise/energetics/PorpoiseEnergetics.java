@@ -3,6 +3,7 @@ package dk.au.bios.porpoise.energetics;
 import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.Porpoise;
 import dk.au.bios.porpoise.behavior.PersistentSpatialMemory;
+import dk.au.bios.porpoise.energetics.processbased.ProcessBasedEnergetics;
 import dk.au.bios.porpoise.util.CircularBuffer;
 
 public interface PorpoiseEnergetics {
@@ -31,7 +32,7 @@ public interface PorpoiseEnergetics {
 	
 	static PorpoiseEnergetics createEnergetics(Porpoise porp) {
 		if (Globals.ENERGETICS_USE_NEW) {
-			return new CaraEnergetics(porp);
+			return new ProcessBasedEnergetics(porp);
 		} else {
 			return new OriginalEnergetics(porp);
 		}
@@ -39,7 +40,7 @@ public interface PorpoiseEnergetics {
 
 	static PorpoiseEnergetics createEnergeticsInitialPopulation(Porpoise porp) {
 		if (Globals.ENERGETICS_USE_NEW) {
-			return new CaraEnergetics(porp, true);
+			return new ProcessBasedEnergetics(porp, true);
 		} else {
 			return new OriginalEnergetics(porp, true);
 		}

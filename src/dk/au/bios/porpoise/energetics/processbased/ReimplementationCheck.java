@@ -1,4 +1,4 @@
-package dk.au.bios.porpoise.energetics;
+package dk.au.bios.porpoise.energetics.processbased;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -211,12 +211,12 @@ public class ReimplementationCheck {
 	
 	@FunctionalInterface
 	private interface MapToBin {
-		GroupingBin map(Porpoise porp, CaraEnergetics energetics);
+		GroupingBin map(Porpoise porp, ProcessBasedEnergetics energetics);
 	}
 	
 	@FunctionalInterface
 	private interface MapToValue {
-		Double map(Porpoise porp, CaraEnergetics energetics);
+		Double map(Porpoise porp, ProcessBasedEnergetics energetics);
 	}
 	
 	private static class Check {
@@ -245,14 +245,14 @@ public class ReimplementationCheck {
 				var allPorps = context.getRandomObjectsAsStream(Porpoise.class, Long.MAX_VALUE);
 				var grouped = allPorps.map(Porpoise.class::cast).collect(Collectors.groupingBy(p -> {
 					var porp = (Porpoise) p;
-					var energetics = (CaraEnergetics) porp.getEnergetics();
+					var energetics = (ProcessBasedEnergetics) porp.getEnergetics();
 					return binMapping.map(porp, energetics);
 				}));
 				if (bin1.size() < NUM_RECS) {
 					var bin = grouped.get(GroupingBin.BIN_1);
 					if (bin != null) {
 						var porp = (Porpoise) bin.get(0);
-						var energetics = (CaraEnergetics) porp.getEnergetics();
+						var energetics = (ProcessBasedEnergetics) porp.getEnergetics();
 						bin1.add(valueMapping.map(porp, energetics));
 					}
 				}
@@ -260,7 +260,7 @@ public class ReimplementationCheck {
 					var bin = grouped.get(GroupingBin.BIN_2);
 					if (bin != null) {
 						var porp = (Porpoise) bin.get(0);
-						var energetics = (CaraEnergetics) porp.getEnergetics();
+						var energetics = (ProcessBasedEnergetics) porp.getEnergetics();
 						bin2.add(valueMapping.map(porp, energetics));
 					}
 				}
@@ -268,7 +268,7 @@ public class ReimplementationCheck {
 					var bin = grouped.get(GroupingBin.BIN_3);
 					if (bin != null) {
 						var porp = (Porpoise) bin.get(0);
-						var energetics = (CaraEnergetics) porp.getEnergetics();
+						var energetics = (ProcessBasedEnergetics) porp.getEnergetics();
 						bin3.add(valueMapping.map(porp, energetics));
 					}
 				}
@@ -276,7 +276,7 @@ public class ReimplementationCheck {
 					var bin = grouped.get(GroupingBin.BIN_4);
 					if (bin != null) {
 						var porp = (Porpoise) bin.get(0);
-						var energetics = (CaraEnergetics) porp.getEnergetics();
+						var energetics = (ProcessBasedEnergetics) porp.getEnergetics();
 						bin4.add(valueMapping.map(porp, energetics));
 					}
 				}

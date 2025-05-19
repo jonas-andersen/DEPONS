@@ -37,6 +37,7 @@ public class CellDataChecker {
 		
 		var preyFileNames = source.getNamesMatching(RollingDateFile.getPatternForFile(LandscapeLoader.PREY_FILE_PREFIX, LandscapeLoader.FILE_EXT_ASC));
 		var salinityFileNames = source.getNamesMatching(RollingDateFile.getPatternForFile(LandscapeLoader.SALINITY_FILE_PREFIX, LandscapeLoader.FILE_EXT_ASC));
+		var temperatureFileNames = source.getNamesMatching(RollingDateFile.getPatternForFile(LandscapeLoader.TEMPERATURE_FILE_PREFIX, LandscapeLoader.FILE_EXT_ASC));
 
 		var filesToCheck = new ArrayList<String>(4 + preyFileNames.size() + salinityFileNames.size());
 		filesToCheck.add(LandscapeLoader.BLOCKS_FILE);
@@ -45,6 +46,7 @@ public class CellDataChecker {
 		filesToCheck.add(LandscapeLoader.SEDIMENT_FILE);
 		filesToCheck.addAll(preyFileNames);
 		filesToCheck.addAll(salinityFileNames);
+		filesToCheck.addAll(temperatureFileNames);
 
 		boolean allFilesValid = true;
 		for (String sourceFile : filesToCheck) {

@@ -1,4 +1,4 @@
-package dk.au.bios.porpoise.energetics;
+package dk.au.bios.porpoise.energetics.processbased;
 
 import static dk.au.bios.porpoise.Agent.ndPointToGridPoint;
 
@@ -10,6 +10,7 @@ import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.Porpoise;
 import dk.au.bios.porpoise.SimulationParameters;
 import dk.au.bios.porpoise.behavior.PersistentSpatialMemory;
+import dk.au.bios.porpoise.energetics.PorpoiseEnergetics;
 import dk.au.bios.porpoise.util.CircularBuffer;
 import dk.au.bios.porpoise.util.DebugLog;
 import dk.au.bios.porpoise.util.ReplayHelper;
@@ -21,7 +22,7 @@ import repast.simphony.util.collections.IndexedIterable;
 /**
  * TODO CAPTURE storage-level for all porpoises / all ticks in netlogo and repast and compare. Check at tick 0/1 for setup
  */
-public class CaraEnergetics implements PorpoiseEnergetics {
+public class ProcessBasedEnergetics implements PorpoiseEnergetics {
 
 	// Porpoise own
 	Porpoise porp;
@@ -235,11 +236,11 @@ public class CaraEnergetics implements PorpoiseEnergetics {
 		this.irrecordDaily.add(Math.round(irrMean * 1000.0) / 1000.0);
 	}
 
-	public CaraEnergetics(Porpoise porp) {
+	public ProcessBasedEnergetics(Porpoise porp) {
 		this(porp, false);
 	}
 
-	public CaraEnergetics(Porpoise porp, boolean initialPopulation) {
+	public ProcessBasedEnergetics(Porpoise porp, boolean initialPopulation) {
 		this.porp = porp;
 
 		if (initialPopulation) {
@@ -278,7 +279,7 @@ public class CaraEnergetics implements PorpoiseEnergetics {
 	 * 
 	 * STATUS: InDev - nearly done
 	 */
-	public CaraEnergetics(CaraEnergetics me) {
+	public ProcessBasedEnergetics(ProcessBasedEnergetics me) {
 		/*
 		  hatch-porps  n-offspr [                                                   ; Create an independant porpoise agent representing weaned calf
 		    setxy random-xcor random-ycor
@@ -936,7 +937,7 @@ to wean-calf
   ; run upd-blubber-depths to initialize blubber values
     upd-blubber-depths
  ] */
-		CaraEnergetics calfEnergetics = new CaraEnergetics(this);
+		ProcessBasedEnergetics calfEnergetics = new ProcessBasedEnergetics(this);
 		// FIXME Other DEPONS give-birth sets age to 0 (?)
 		final Porpoise calf = new Porpoise(this.porp, ageCalf, calfEnergetics);
 	//calfEnergetics.porpsSetupParams(); // FIXME ADDED BY JONAS, Ok?
@@ -1271,8 +1272,8 @@ to porp-upd-pregnancy-status
 			for (Porpoise p : fems) {
 				if (p.getAge() >= porp.getAgeOfMaturity()) {
 					numT++;
-					if (p.getEnergetics() instanceof CaraEnergetics) {
-						CaraEnergetics ce = (CaraEnergetics) p.getEnergetics();
+					if (p.getEnergetics() instanceof ProcessBasedEnergetics) {
+						ProcessBasedEnergetics ce = (ProcessBasedEnergetics) p.getEnergetics();
 						if (ce.vBlub >= ce.vBlubRepro) {
 							numR++;
 						}

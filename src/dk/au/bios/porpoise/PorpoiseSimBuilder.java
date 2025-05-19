@@ -38,13 +38,13 @@ import dk.au.bios.porpoise.behavior.GeneratedRandomSource;
 import dk.au.bios.porpoise.behavior.RefMem;
 import dk.au.bios.porpoise.behavior.RefMemTurnCalculator;
 import dk.au.bios.porpoise.behavior.ReplayedRandomSource;
-import dk.au.bios.porpoise.energetics.CaraEnergeticsDataFileListener;
-import dk.au.bios.porpoise.energetics.EnergeticsDebugCapture;
-import dk.au.bios.porpoise.energetics.ExtendedEnergyDebugCapture;
-import dk.au.bios.porpoise.energetics.PatchLookupTables;
-import dk.au.bios.porpoise.energetics.PorpoiseInitializationBlubber;
-import dk.au.bios.porpoise.energetics.ReimplementationCheck;
-import dk.au.bios.porpoise.energetics.ThermoregulationLookupTable;
+import dk.au.bios.porpoise.energetics.processbased.CaraEnergeticsDataFileListener;
+import dk.au.bios.porpoise.energetics.processbased.EnergeticsDebugCapture;
+import dk.au.bios.porpoise.energetics.processbased.ExtendedEnergyDebugCapture;
+import dk.au.bios.porpoise.energetics.processbased.PatchLookupTables;
+import dk.au.bios.porpoise.energetics.processbased.PorpoiseInitializationBlubber;
+import dk.au.bios.porpoise.energetics.processbased.ReimplementationCheck;
+import dk.au.bios.porpoise.energetics.processbased.ThermoregulationLookupTable;
 import dk.au.bios.porpoise.landscape.CellData;
 import dk.au.bios.porpoise.landscape.GridSpatialPartitioning;
 import dk.au.bios.porpoise.landscape.HydrophoneLoader;
@@ -56,7 +56,6 @@ import dk.au.bios.porpoise.tasks.DeadPorpoisesReportProxyCleanupTask;
 import dk.au.bios.porpoise.tasks.DeterrenceTask;
 import dk.au.bios.porpoise.tasks.FoodTask;
 import dk.au.bios.porpoise.tasks.MonthlyTasks;
-import dk.au.bios.porpoise.tasks.TickTask;
 import dk.au.bios.porpoise.tasks.YearlyTask;
 import dk.au.bios.porpoise.util.DebugLog;
 import dk.au.bios.porpoise.util.test.PorpoiseTestDataCapturer;
@@ -391,8 +390,6 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		schedule.schedule(yearlyParams, yearlyTask);
 
 		schedule.schedule(foodParams, new FoodTask());
-
-		schedule.schedule(ScheduleParameters.createRepeating(0, 1, ScheduleParameters.LAST_PRIORITY), new TickTask(context));
 
 		if (PorpoiseTestDataCapturer.capture) {
 			schedule.schedule(ScheduleParameters.createRepeating(0, 1, ScheduleParameters.LAST_PRIORITY),

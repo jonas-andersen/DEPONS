@@ -42,12 +42,14 @@ public class LandscapesLoadTest {
 	void loadLandscape(String landscape) throws Exception {
 		var landscapeDir = Paths.get("data").resolve(landscape);
 		if (Files.isDirectory(landscapeDir)) {
+			System.out.println("Checking file: " + landscapeDir.toString());
 			var dirSource = new DirectoryCellDataSource(landscapeDir);
 			assertThat(CellDataChecker.check(dirSource)).isTrue();
 		}
 		
 		var zipFile = Paths.get("data").resolve(landscape + LandscapeLoader.FILE_EXT_ZIP);
 		if (Files.isRegularFile(zipFile)) {
+			System.out.println("Checking file: " + zipFile.toString());
 			var zipSource = new ZipFileCellDataSource(zipFile);
 			assertThat(CellDataChecker.check(zipSource)).isTrue();
 		}
