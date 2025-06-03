@@ -10,6 +10,8 @@ import dk.au.bios.porpoise.util.SimulationTime;
 
 public class ExtendedEnergyDebugCapture {
 
+	public static boolean CAPTURE = false;
+
 	private static ExtendedEnergyDebugCapture I;
 
 	private Writer out;
@@ -27,15 +29,17 @@ public class ExtendedEnergyDebugCapture {
 	}
 
 	public static void init() throws IOException {
-		if (true) {  // FIXME JONAS TEMP
+		if (!CAPTURE) {
 			return;
 		}
+
 		var timestamp = "" + System.currentTimeMillis();
 		var out = new PrintWriter(new BufferedWriter(new FileWriter("energeticsdebug_extended_" + timestamp + ".csv")));
 
 		I = new ExtendedEnergyDebugCapture(out);
 		I.writeHeader();
 	}
+
 	record EnergyIntake(double IRrecord, double foodavailable, double IRreal, double IRrealcalf) {
 		static void writeHeader(Writer out) throws IOException {
 			out.write("IRrecord,foodavailable,IRreal,IRrealcalf");
@@ -47,6 +51,7 @@ public class ExtendedEnergyDebugCapture {
 			out.write(",,,");
 		}
 	}
+
 	record Maintenance(double mBMR) {
 		static void writeHeader(Writer out) throws IOException {
 			out.write("mBMR");
@@ -58,6 +63,7 @@ public class ExtendedEnergyDebugCapture {
 			out.write("");
 		}
 	}
+
 	record Thermoregulation(double mthermo) {
 		static void writeHeader(Writer out) throws IOException {
 			out.write("mthermo");
@@ -69,6 +75,7 @@ public class ExtendedEnergyDebugCapture {
 			out.write("");
 		}
 	}
+
 	record Locomotion(double mloco, double swimspeed) {
 		static void writeHeader(Writer out) throws IOException {
 			out.write("mloco,swimspeed");
@@ -80,6 +87,7 @@ public class ExtendedEnergyDebugCapture {
 			out.write(",");
 		}
 	}
+
 	record Pregnancy(byte pregnancystatus, int dsmating, double massf, double mgrowthg, double eheatgest, double mpreg) {
 		static void writeHeader(Writer out) throws IOException {
 			out.write("pregnancystatus,dsmating,massf,mgrowthg,eheatgest,mpreg");
@@ -91,6 +99,7 @@ public class ExtendedEnergyDebugCapture {
 			out.write(",,,,,");
 		}
 	}
+
 	record Lactation(double dsbirth, double masscalf, double massstructcalf, double IRrecordcalf,
 			double vblubcalf, double mBMRcalf, double lgthcalf, double mthermocalf,
 			double maxgrowthcalf, double mgrowthcalf, double mblubcalf, double ecalf, 
@@ -108,6 +117,7 @@ public class ExtendedEnergyDebugCapture {
 			out.write(",,,,,,,,,,,,,,");
 		}
 	}
+
 	record Growth(double maxgrow, double mgrowth, double growthrate, double massstruct, double lgth) {
 		static void writeHeader(Writer out) throws IOException {
 			out.write("maxgrow,mgrowth,growthrate,massstruct,lgth");
@@ -119,6 +129,7 @@ public class ExtendedEnergyDebugCapture {
 			out.write(",,,,");
 		}
 	}
+
 	record General(long porpId, double mtot, double storagelevel, double SLmean, double vBlub, double vBlubRepro, double weight, double age, int calvesBorn, int calvesWeaned, int abortions) {
 		static void writeHeader(Writer out) throws IOException {
 			out.write("porpId,mtot,storagelevel,SLmean,vBlub,vBlubRepro,weight,age,calvesBorn,calvesWeaned,abortions");
@@ -184,8 +195,7 @@ public class ExtendedEnergyDebugCapture {
 	}
 
 	static boolean shouldCapture() {
-		return false;
-//		return SimulationTime.isBeginningOfWeek();
+		return CAPTURE && SimulationTime.isBeginningOfWeek();
 	}
 	
 	private void writeHeader() throws IOException {

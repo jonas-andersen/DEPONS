@@ -122,6 +122,7 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		try {
 			EnergeticsDebugCapture.CAPTURE = params.getBoolean("zzzEnergeticsDebug");
 			EnergeticsDebugCapture.init();
+			ExtendedEnergyDebugCapture.CAPTURE = params.getBoolean("zzzEnergeticsDebug");
 			ExtendedEnergyDebugCapture.init();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

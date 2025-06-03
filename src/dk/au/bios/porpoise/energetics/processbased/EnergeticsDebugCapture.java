@@ -33,7 +33,7 @@ public class EnergeticsDebugCapture {
 		outWriter.printf(",presLogMovRan,presLogMovIter,prevLogMov,presMov,moveDistance,swimSpeed,dispersalMode");		
 		outWriter.printf("%n");
 	}
-	
+
 	public static void writeSwimspeed(Porpoise porp, double swimSpeed) {
 		if (!CAPTURE) {
 			return;
