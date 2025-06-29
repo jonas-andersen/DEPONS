@@ -1100,7 +1100,7 @@ public class Porpoise extends Agent {
 						break;
 					}
 				}
-				
+
 				// FIXME Move these triggers to the Energetics implementations instead
 				ProcessBasedEnergetics ce = (ProcessBasedEnergetics) this.energetics;
 				boolean increasingIRRecord = true;
@@ -1113,7 +1113,8 @@ public class Porpoise extends Agent {
 				
 
 // FIXME				if (decreasingEncounteredEnergy) {
-				if (decreasingEnergy) {
+//				if (decreasingEnergy) {
+				if (increasingIRRecord) {
 //					System.out.printf("ACTIVATING DISPERSAL at age %f  - %s%n", this.getAge(), this.getEnergyLevelDaily());
 					// decreasing energy for three days
 					this.dispersalBehaviour.activate();
@@ -1122,19 +1123,19 @@ public class Porpoise extends Agent {
 
 			// Energy level higher than any of the previous seven days, stop dispersing;
 			if (this.dispersalBehaviour.isDispersing()) {
-//				CaraEnergetics ce = (CaraEnergetics) this.energetics;
-//				double min = ce.irrecordDaily.get(1);
-//				for (int i = 2; i < 8; i++) {
-//					min = Math.min(min, ce.irrecordDaily.get(i));
-//				}
-//
-//				if (ce.irrecordDaily.get(0) < min) {
-				double min = this.getEnergyLevelDaily().get(1);
+				ProcessBasedEnergetics ce = (ProcessBasedEnergetics) this.energetics;
+				double min = ce.irrecordDaily.get(1);
 				for (int i = 2; i < 8; i++) {
-					min = Math.min(min, this.getEnergyLevelDaily().get(i));
+					min = Math.min(min, ce.irrecordDaily.get(i));
 				}
 
-				if (this.getEnergyLevelDaily().get(0) > min) {
+				if (ce.irrecordDaily.get(0) < min) {
+//				double min = this.getEnergyLevelDaily().get(1);
+//				for (int i = 2; i < 8; i++) {
+//					min = Math.min(min, this.getEnergyLevelDaily().get(i));
+//				}
+
+//				if (this.getEnergyLevelDaily().get(0) > min) {
 					this.dispersalBehaviour.deactivate();
 
 					if (DebugLog.isEnabledFor(7) && (this.getId() == 0 || this.getId() == 1)) {
