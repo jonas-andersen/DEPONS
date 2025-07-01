@@ -77,10 +77,6 @@ public class PatchLookupTables {
 	}
 
 	private double getValue(double salinity, double temperature, double[][] values) {
-		// Homogeneous landscape! FIXME
-		//if (temperature == -9999) temperature = 10;
-		
-		
 		int salinityIndex = (int) Math.round(salinity) - ROW_OFFSET;
 		int temperatureIndex = (int) Math.round(temperature) + 5;
 

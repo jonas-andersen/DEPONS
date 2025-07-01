@@ -37,23 +37,29 @@ public class RollingDateDataFile extends AbstractDataFile {
 
 	private final CellDataSource source;
 	private final RollingDateFile rollingDateFile;
-	private double[][] data = null;
+	private volatile DataFileMetaData metadata;
+	private volatile double[][] data = null;
 
 	public RollingDateDataFile(String landscape, final String filePrefix, final CellDataSource source) throws IOException {
 		super(landscape);
-		
+
 		this.source = source;
 		this.rollingDateFile = new RollingDateFile(filePrefix, FILE_EXT, source);
 	}
-	
+
 	public double[][] getData() throws IOException {
 		if (rollingDateFile.shouldLoad()) {
 			System.out.printf("Loading %s data from file %s%n", rollingDateFile.getFilePrefix(), rollingDateFile.getCurrentFile().fileName());
+			metadata = source.getMetaData(rollingDateFile.getCurrentFile().fileName());
 			data = source.getData(rollingDateFile.getCurrentFile().fileName());
 			Globals.dataFileListener.ifPresent(l -> l.loaded(rollingDateFile.getFilePrefix(), rollingDateFile.getCurrentFile().fileName()));
 		}
 
 		return data;
+	}
+
+	public boolean isNoData(double dataValue) {
+		return dataValue == metadata.getNoDataValue();
 	}
 
 	public RollingDateFile getRollingDateFile() {

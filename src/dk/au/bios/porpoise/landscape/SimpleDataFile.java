@@ -31,6 +31,7 @@ import java.io.IOException;
 
 public class SimpleDataFile extends AbstractDataFile {
 
+	private final DataFileMetaData metadata;
 	private final double[][] data;
 
 	public SimpleDataFile(final String landscape, final String fileName, final CellDataSource source)
@@ -38,10 +39,15 @@ public class SimpleDataFile extends AbstractDataFile {
 		super(landscape);
 
 		if (source.hasData(fileName)) {
+			this.metadata = source.getMetaData(fileName);
 			this.data = source.getData(fileName);
 		} else {
 			throw new IOException("No data loaded for file " + fileName + " in landscape " + landscape);
 		}
+	}
+
+	public boolean isNoData(double dataValue) {
+		return dataValue == metadata.getNoDataValue();
 	}
 
 	public double[][] getData() {

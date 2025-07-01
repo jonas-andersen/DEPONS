@@ -289,8 +289,8 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 	private double calculateReceivedLevelFor(double sourceLevel, NdPoint shipPos, double distToShip) {
 		final double depthAtShip = Globals.getCellData().getDepth(shipPos);
 		final double grainSize = Globals.getCellData().getSediment(shipPos);
-		final double temp = Globals.getCellData().getTemperature(shipPos);
-		final double salinity = Globals.getCellData().getSalinity(shipPos);
+		final double temp = Globals.getCellData().getTemperatureUnsafe(shipPos);
+		final double salinity = Globals.getCellData().getSalinityUnsafe(shipPos);
 
 		// If we are missing data, then set produced sound to 0.0
 		if (valueIsNoData(depthAtShip) ||

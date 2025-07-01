@@ -29,7 +29,6 @@ package dk.au.bios.porpoise.landscape;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Optional;
 
@@ -117,8 +116,7 @@ public class CellData {
 		try {
 			return depth.getData()[x][y];
 		} catch (final ArrayIndexOutOfBoundsException e) {
-			// TODO: Consider handling this better, i.e. propogate the error.
-			return -9999; // 0;
+			throw new NoDataException("bathy", LandscapeLoader.BATHY_FILE, x, y);
 		}
 	}
 
@@ -128,10 +126,14 @@ public class CellData {
 	
 	public double getSediment(final int x, final int y) {
 		try {
-			return sediment.getData()[x][y];
+			double sedimentValue = sediment.getData()[x][y];
+			if (sediment.isNoData(sedimentValue)) {
+				return -9999;
+//				throw new NoDataException("sediment", LandscapeLoader.SEDIMENT_FILE, x, y);
+			}
+			return sedimentValue;
 		} catch (final ArrayIndexOutOfBoundsException e) {
-			// TODO: Consider handling this better, i.e. propogate the error.
-			return -9999; // 0;
+			throw new NoDataException("sediment", LandscapeLoader.SEDIMENT_FILE, x, y);
 		}
 	}
 
@@ -144,6 +146,18 @@ public class CellData {
 	}
 
 	public double getSalinity(final int x, final int y) {
+		try {
+			final double salinityValue = getSalinityUnsafe(x, y);
+			if (salinityMaps.isNoData(salinityValue)) {
+				throw new NoDataException("salinity", salinityMaps.getRollingDateFile().getCurrentFile().fileName(), x, y);
+			}
+			return salinityValue;
+		} catch (final ArrayIndexOutOfBoundsException e) {
+			throw new NoDataException("salinity", salinityMaps.getRollingDateFile().getCurrentFile().fileName(), x, y);
+		}
+	}
+
+	public double getSalinityUnsafe(final int x, final int y) {
 		try {
 			final double salinityValue = salinityMaps.getData()[x][y];
 			return salinityValue;
@@ -160,7 +174,27 @@ public class CellData {
 		return getSalinity(Agent.ndPointToGridPoint(point));
 	}
 
+	public double getSalinityUnsafe(final GridPoint point) {
+		return getSalinityUnsafe(point.getX(), point.getY());
+	}
+
+	public double getSalinityUnsafe(final NdPoint point) {
+		return getSalinityUnsafe(Agent.ndPointToGridPoint(point));
+	}
+
 	public double getTemperature(final int x, final int y) {
+		try {
+			final double temperatureValue = getTemperatureUnsafe(x, y);
+			if (temperatureMaps.isNoData(temperatureValue)) {
+				throw new NoDataException("temperature", temperatureMaps.getRollingDateFile().getCurrentFile().fileName(), x, y);
+			}
+			return temperatureValue;
+		} catch (final ArrayIndexOutOfBoundsException e) {
+			throw new NoDataException("temperature", temperatureMaps.getRollingDateFile().getCurrentFile().fileName(), x, y);
+		}
+	}
+
+	public double getTemperatureUnsafe(final int x, final int y) {
 		try {
 			final double temperatureValue = temperatureMaps.getData()[x][y];
 			return temperatureValue;
@@ -177,6 +211,14 @@ public class CellData {
 		return getTemperature(Agent.ndPointToGridPoint(point));
 	}
 
+	public double getTemperatureUnsafe(final GridPoint point) {
+		return getTemperatureUnsafe(point.getX(), point.getY());
+	}
+
+	public double getTemperatureUnsafe(final NdPoint point) {
+		return getTemperatureUnsafe(Agent.ndPointToGridPoint(point));
+	}
+
 	public double calcMeanTemperature() {
 		double tempSum = 0.0d;
 		int tempCount = 0;
@@ -184,9 +226,9 @@ public class CellData {
 		var wh = Globals.getWorldHeight();
 		for (int x = 0; x < ww; x++) {
 			for (int y = 0; y < wh; y++) {
-				// water-patches
-				if (getTemperature(x, y) > 0 && getSalinity(x, y) > 0 && getDepth(x, y) > 0) {
-					tempSum += getTemperature(x, y);
+				double temperature = getTemperatureUnsafe(x, y);
+				if (temperature > 0 && getSalinityUnsafe(x, y) > 0 && getDepth(x, y) > 0) {
+					tempSum += temperature;
 					tempCount++;
 				}
 			}
@@ -293,9 +335,6 @@ public class CellData {
 	public double getKinViscW(NdPoint point) {
 		var salinity = getSalinity(point);
 		var temperature = getTemperature(point);
-//		if (salinity > 25) {
-//			System.err.println("Salinity out of range (" + salinity + ") at " + point);
-//		}
 		var dynamicVisW = PatchLookupTables.getInstance().getDynamicVis(salinity, temperature);
 		var densityW = getDensityW(point);
 		
