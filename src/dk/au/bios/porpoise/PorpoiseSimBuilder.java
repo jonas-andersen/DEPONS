@@ -105,8 +105,7 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 			final int numSimSteps = (Globals.getSimYears() * 360 * 48) - 1;
 			RunEnvironment.getInstance().endAt(numSimSteps);
 		}
-		
-		
+
 		if (Globals.ENERGETICS_USE_NEW) {
 			ReimplementationCheck.reset();
 			Globals.caraSetupGlobalParameters();

@@ -30,6 +30,7 @@ package dk.au.bios.porpoise;
 import java.util.LinkedList;
 import java.util.List;
 
+import dk.au.bios.porpoise.util.SimulationTime;
 import repast.simphony.query.space.grid.GridCell;
 import repast.simphony.query.space.grid.GridCellNgh;
 import repast.simphony.random.RandomHelper;
@@ -73,6 +74,12 @@ public class Agent {
 
 		final GridPoint p = ndPointToGridPoint(newPos);
 		getGrid().moveTo(this, p.getX(), p.getY());
+		
+		if (this instanceof Porpoise) {
+			if (SimulationTime.getTick() > 0 && Globals.getCellData().getDepth(newPos) < 0) {
+				throw new RuntimeException("Porpoise moved to invalid location " + newPos.getX() + "," + newPos.getY());
+			}
+		}
 	}
 
 	/**

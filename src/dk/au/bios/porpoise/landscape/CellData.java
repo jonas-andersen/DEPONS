@@ -116,7 +116,8 @@ public class CellData {
 		try {
 			return depth.getData()[x][y];
 		} catch (final ArrayIndexOutOfBoundsException e) {
-			throw new NoDataException("bathy", LandscapeLoader.BATHY_FILE, x, y);
+			//throw new NoDataException("bathy", LandscapeLoader.BATHY_FILE, x, y);
+			return -9999;
 		}
 	}
 

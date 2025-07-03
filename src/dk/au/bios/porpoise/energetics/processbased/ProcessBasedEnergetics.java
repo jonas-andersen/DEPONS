@@ -688,7 +688,7 @@ end */
 				if (DebugLog.isEnabledFor(10)) {
 					DebugLog.print(porp.getId() + " died of low body condition-Maintenance");
 				}
-				System.out.println("DIE");
+//				System.out.println("DIE");
 				porp.die(CauseOfDeath.StarvationMaintenance); // FIXME Correct cause?
 			}
 			eAssim = 0.0d;
@@ -760,7 +760,7 @@ end
 				if (DebugLog.isEnabledFor(10)) {
 					DebugLog.print(porp.getId() + " died of low body condition-Frozen");
 				}
-				System.out.println("die thermo");
+//				System.out.println("die thermo");
 				porp.die(CauseOfDeath.StarvationThermo); // FIXME Correct cause?
 			}
 			eAssim = 0.0d;

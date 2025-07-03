@@ -270,6 +270,8 @@ public class Porpoise extends Agent {
 			}
 
 			dispersalBehaviour.disperse();
+			
+			positionCheck();
 		}
 
 		applyShipDeterrence();
@@ -723,8 +725,16 @@ public class Porpoise extends Agent {
 			}
 		}
 
+		positionCheck();
+
 		if (writePsmSteps) {
 			PSMVerificationLog.print("STDMOVE", this, moveDistance);
+		}
+	}
+	
+	public void positionCheck() {
+		if (getDepth() < 0) {
+			throw new RuntimeException("Porpoise " + getId() + " moved to invalid location " + getPosition().getX() + "," + getPosition().getY());
 		}
 	}
 
