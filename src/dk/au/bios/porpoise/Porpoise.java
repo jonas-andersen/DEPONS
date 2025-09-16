@@ -143,6 +143,8 @@ public class Porpoise extends Agent {
 
 	private ShipDeterrence shipDeterrence = new ShipDeterrence();
 	private double loudestShipSPL = 0.0d;
+	
+	private double tickBorn;
 
 	/**
 	 * Constructor for a newborn porpoised.
@@ -181,6 +183,7 @@ public class Porpoise extends Agent {
 	private Porpoise(final Context<Agent> context, final double age, final RefMemTurnCalculator refMemTurnCalculator,
 			final PersistentSpatialMemory psm, PorpoiseEnergetics energetics) {
 		super(Porpoise.PORPOISE_ID.getAndIncrement());
+		this.tickBorn = SimulationTime.getTick();
 		this.posList = new CircularBuffer<NdPoint>(SimulationConstants.MEMORY_MAX);
 		this.posListDaily = new CircularBuffer<NdPoint>(10);
 		for (int i = 0; i < 10; i++) {
@@ -270,8 +273,6 @@ public class Porpoise extends Agent {
 			}
 
 			dispersalBehaviour.disperse();
-			
-			positionCheck();
 		}
 
 		applyShipDeterrence();
@@ -304,16 +305,12 @@ public class Porpoise extends Agent {
 				final NdPoint pos = getPosition();
 				this.posList.add(pos);
 
-				updEnergeticStatus(); // food level increases in 'go' -- affect the landscape and energetic status of
-				// the porpoise
-
+				updEnergeticStatus(); // food level increases in 'go' -- affect the landscape and energetic status of the porpoise
 			} else if (SimulationParameters.getModel() >= 3) {
 				final boolean useExpFoodVal = true;
 
-				// get attracted to places where food was found. Influences direction moved in stdMove() through vector
-				// 'VT'
-				final double[] temp = this.refMemTurnCalculator.refMemTurn(this, Globals.getCellData(), storedUtilList,
-						posList);
+				// get attracted to places where food was found. Influences direction moved in stdMove() through vector 'VT'
+				final double[] temp = this.refMemTurnCalculator.refMemTurn(this, Globals.getCellData(), storedUtilList, posList);
 				if (temp != null) {
 					vt = temp;
 				}
@@ -321,8 +318,7 @@ public class Porpoise extends Agent {
 				getExpFoodVal(); // determines the tendency to move following CRW behaviour based on foraging success in
 				// recent past
 				if (!this.dispersalBehaviour.isDispersing()) {
-					stdMove(useExpFoodVal); // this is where the porp moves forward and responds to noise by turning
-					// away
+					stdMove(useExpFoodVal); // this is where the porp moves forward and responds to noise by turning away
 				}
 				// update position list:
 				final NdPoint pos = getPosition();
@@ -700,7 +696,7 @@ public class Porpoise extends Agent {
 				((ProcessBasedEnergetics)this.energetics).swimSpeed,
 				this.dispersalBehaviour.getDispersalType()
 				);
-		
+
 		// test depth one last time, avoid-beh = 6 - move back on same track:
 		if (!(getDepth() > 0)) {
 			if (posList.size() > 0) {
@@ -725,19 +721,11 @@ public class Porpoise extends Agent {
 			}
 		}
 
-		positionCheck();
-
 		if (writePsmSteps) {
 			PSMVerificationLog.print("STDMOVE", this, moveDistance);
 		}
 	}
 	
-	public void positionCheck() {
-		if (getDepth() < 0) {
-			throw new RuntimeException("Porpoise " + getId() + " moved to invalid location " + getPosition().getX() + "," + getPosition().getY());
-		}
-	}
-
 	private void trackCellVisit() {
 		if (trackVisitedCells && isAlive()) {
 			final TrackingDisplayAgent tda = (TrackingDisplayAgent) context.getObjects(TrackingDisplayAgent.class).get(

@@ -370,7 +370,6 @@ public class InnerDanishWatersDispersal implements Dispersal {
 				owner.forward(-SimulationParameters.getMeanDispDist() / 0.4);
 				this.dispType = 0;
 			}
-			owner.positionCheck();
 
 			double consumed = 0.001 * SimulationConstants.E_USE_PER_KM * SimulationParameters.getMeanDispDist() / 0.4;
 			owner.consumeEnergy(consumed);
@@ -486,7 +485,6 @@ public class InnerDanishWatersDispersal implements Dispersal {
 
 		if (this.dispType == 2) {
 			owner.forward(SimulationParameters.getMeanDispDist() / 0.4);
-			owner.positionCheck();
 
 			double consumed = 0.001 * SimulationConstants.E_USE_PER_KM * SimulationParameters.getMeanDispDist() / 0.4;
 			ReplayHelper.print("energy before consume food disp2 " + owner.getEnergyLevel() + " consumed  " + consumed);

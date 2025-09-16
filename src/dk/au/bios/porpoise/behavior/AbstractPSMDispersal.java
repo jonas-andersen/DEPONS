@@ -209,7 +209,6 @@ public abstract class AbstractPSMDispersal implements Dispersal {
 		if (isDispersing()) {
 			final double distanceToTravel = SimulationParameters.getMeanDispDist() / 0.4;
 			getOwner().forward(distanceToTravel);
-			owner.positionCheck();
 
 			addDistanceTravelled(distanceToTravel);
 
