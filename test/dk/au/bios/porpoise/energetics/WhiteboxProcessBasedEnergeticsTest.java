@@ -5,13 +5,10 @@ import static org.assertj.core.api.Assertions.within;
 
 import org.junit.jupiter.api.Test;
 
-import dk.au.bios.porpoise.CauseOfDeath;
 import dk.au.bios.porpoise.Globals;
 import dk.au.bios.porpoise.SimulationParameters;
-import dk.au.bios.porpoise.util.DebugLog;
-import dk.au.bios.porpoise.util.SimulationTime;
 
-class WhiteboxCaraEnergeticsTest {
+class WhiteboxProcessBasedEnergeticsTest {
 
 	@Test
 	void energyIntakeBasicNotPregnant() {

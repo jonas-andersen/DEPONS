@@ -5,7 +5,7 @@ import dk.au.bios.porpoise.landscape.LandscapeLoader;
 import dk.au.bios.porpoise.landscape.MonthlyDataFile;
 import dk.au.bios.porpoise.util.SimulationTime;
 
-public class CaraEnergeticsDataFileListener implements MonthlyDataFile.Listener {
+public class ProcessBasedEnergeticsDataFileListener implements MonthlyDataFile.Listener {
 
 	@Override
 	public void loaded(String filePrefx, String fileName) {

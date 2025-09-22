@@ -27,8 +27,6 @@
 
 package dk.au.bios.porpoise;
 
-import static dk.au.bios.porpoise.Agent.ndPointToGridPoint;
-
 import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -39,7 +37,6 @@ import dk.au.bios.porpoise.behavior.DispersalFactory;
 import dk.au.bios.porpoise.behavior.PersistentSpatialMemory;
 import dk.au.bios.porpoise.behavior.RefMem;
 import dk.au.bios.porpoise.behavior.RefMemTurnCalculator;
-import dk.au.bios.porpoise.energetics.OriginalEnergetics;
 import dk.au.bios.porpoise.energetics.PorpoiseEnergetics;
 import dk.au.bios.porpoise.energetics.processbased.EnergeticsDebugCapture;
 import dk.au.bios.porpoise.energetics.processbased.ProcessBasedEnergetics;

@@ -38,7 +38,7 @@ import dk.au.bios.porpoise.behavior.GeneratedRandomSource;
 import dk.au.bios.porpoise.behavior.RefMem;
 import dk.au.bios.porpoise.behavior.RefMemTurnCalculator;
 import dk.au.bios.porpoise.behavior.ReplayedRandomSource;
-import dk.au.bios.porpoise.energetics.processbased.CaraEnergeticsDataFileListener;
+import dk.au.bios.porpoise.energetics.processbased.ProcessBasedEnergeticsDataFileListener;
 import dk.au.bios.porpoise.energetics.processbased.EnergeticsDebugCapture;
 import dk.au.bios.porpoise.energetics.processbased.ExtendedEnergyDebugCapture;
 import dk.au.bios.porpoise.energetics.processbased.PatchLookupTables;
@@ -113,7 +113,7 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 			ThermoregulationLookupTable.initialize();
 			PatchLookupTables.initialize();
 
-			Globals.dataFileListener = Optional.of(new CaraEnergeticsDataFileListener());
+			Globals.dataFileListener = Optional.of(new ProcessBasedEnergeticsDataFileListener());
 		}
 
 		PorpoiseTestDataCapturer.capture(params);

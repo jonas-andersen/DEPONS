@@ -311,7 +311,7 @@ public class Ship extends SoundSource implements dk.au.bios.porpoise.ships.Ship 
 	}
 	
 	private boolean valueIsNoData(double value) {
-		return value <= -9999;
+		return value <= -9999;  // FIXME Ask CellData instead of this
 	}
 
 	public double getSpeed() {

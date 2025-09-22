@@ -213,7 +213,7 @@ public class InnerDanishWatersDispersal implements Dispersal {
 		if (currentBlock == 32) {
 			owner.setHeading(0);
 			this.dispType = 2;
-//			owner.forward(1);
+			owner.forward(1);
 			return true;
 		}
 
