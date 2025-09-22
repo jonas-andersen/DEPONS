@@ -638,8 +638,8 @@ public class Porpoise extends Agent {
 
 		// test depth one last time, avoid-beh = 6 - move back on same track:
 		if (!(getDepth() > 0)) {
-			if (posList.size() > 1) {
-				facePoint(this.posList.get(1));
+			if (posList.size() > 0) {
+				facePoint(this.posList.get(0));
 			}
 
 			angleTurnedRight += presAngle; // Is this right?
@@ -651,8 +651,8 @@ public class Porpoise extends Agent {
 			}
 
 			// move 100 m towards deeper patch
-			if (posList.size() > 1) {
-				setTurtlePosition(this.posList.get(1));
+			if (posList.size() > 0) {
+				setTurtlePosition(this.posList.get(0));
 			}
 
 			if (DebugLog.isEnabledFor(1)) {
