@@ -48,7 +48,7 @@ import dk.au.bios.porpoise.PorpoiseInitializer;
  */
 public class CSVFileDataSink implements DataSink {
 
-	private static final String DELIM = ";";
+	private static final String DELIM = ",";
 
 	private final AtomicBoolean enabled = new AtomicBoolean(false);
 
