@@ -6,7 +6,7 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 		/>
 		<parameter name="porpoiseCount" displayName="porpoiseCount - Number of porpoises at start of simulation [unitless]" type="int" 
-						defaultValue="200" 
+						defaultValue="10000" 
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 		/>
@@ -16,7 +16,7 @@
 						converter="repast.simphony.parameter.StringConverterFactory$IntConverter"
 		/>
 		<parameter name="landscape" displayName="landscape - Simulation landscape to be used" type="string" 
-						defaultValue="Kattegat"
+						defaultValue="NorthSea"
 						values="'NorthSea' 'DanTysk' 'Gemini' 'Homogeneous' 'Kattegat' 'UserDefined'" 
 						isReadOnly="false" />
 		<parameter name="debug" displayName="debug - Code testing parameter [values 0-5]" type="int" 
@@ -32,7 +32,7 @@
 						isReadOnly="false" 
 						converter="repast.simphony.parameter.StringConverterFactory$BooleanConverter"/>
         <parameter name="dispersal" displayName="Large-scale movement type" type="string" 
-						defaultValue="InnerDanishWaters" 
+						defaultValue="PSM-Type2" 
 						values="'off' 'PSM-Type2' 'Undirected' 'InnerDanishWaters'" 
 						isReadOnly="false" />
         <parameter name="tdisp" displayName="tDisp - Days of declining energy before activating dispersal [days]" type="int" 
@@ -43,19 +43,19 @@
 						defaultValue="0.6"
 						isReadOnly="false" />
 		<parameter name="PSM_dist" displayName="PSM_dist - Preferred distance to dispersal target [km]" type="string" 
-						defaultValue="N(300;100)" 
+						defaultValue="N(350;100)" 
 						isReadOnly="false" />
         <parameter name="PSM_tol" displayName="PSM_tol - Tolerance band within which the dispersal cell is selected [km]" type="string" 
 						defaultValue="5.0" 
 						isReadOnly="false"/>
         <parameter name="PSM_angle" displayName="PSM_angle - Maximum turning angle after each PSM dispersal step [degrees]" type="string" 
-						defaultValue="20.0" 
+						defaultValue="40" 
 						isReadOnly="false"/>
         <parameter name="rS" displayName="rS - Satiation memory decay rate [unitless]" type="string" 
-						defaultValue="0.25" 
+						defaultValue="0.03" 
 						isReadOnly="false"/>
         <parameter name="rR" displayName="rR - Reference memory decay rate [unitless]" type="string" 
-						defaultValue="0.1" 
+						defaultValue="0.03" 
 						isReadOnly="false"/>
         <parameter name="rU" displayName="rU - Food replenishment rate" type="string" 
 						defaultValue="0.1" 
@@ -101,11 +101,11 @@
 						isReadOnly="false" 
 		/>
 		<parameter name="c" displayName="c - Deterrence coefficient [unitless]" type="string" 
-						defaultValue="0.07" 
+						defaultValue="0.012" 
 						isReadOnly="false" 
 		/>
         <parameter name="RT" displayName="RT - Minimum received sound level for deterrence [dB]" type="string" 
-						defaultValue="152.9" 
+						defaultValue="152" 
 						isReadOnly="false" 
 		/>
         <parameter name="Psi_deter" displayName="Psi_deter - Deterrence decay constant [percent]" type="string" 
@@ -113,7 +113,7 @@
 						isReadOnly="false" 
 		/>
         <parameter name="ddisp" displayName="ddisp - Dispersal distance per time step [km]" type="string" 
-						defaultValue="1.5" 
+						defaultValue="2" 
 						isReadOnly="false" 
 		/>
         <parameter name="dmax_mov" displayName="dmax_mov - max movement distance" type="string" 
