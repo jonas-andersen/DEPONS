@@ -43,19 +43,19 @@
 						defaultValue="0.6"
 						isReadOnly="false" />
 		<parameter name="PSM_dist" displayName="PSM_dist - Preferred distance to dispersal target [km]" type="string" 
-						defaultValue="N(300;100)" 
+						defaultValue="N(350;100)" 
 						isReadOnly="false" />
         <parameter name="PSM_tol" displayName="PSM_tol - Tolerance band within which the dispersal cell is selected [km]" type="string" 
 						defaultValue="5.0" 
 						isReadOnly="false"/>
         <parameter name="PSM_angle" displayName="PSM_angle - Maximum turning angle after each PSM dispersal step [degrees]" type="string" 
-						defaultValue="20.0" 
+						defaultValue="40" 
 						isReadOnly="false"/>
         <parameter name="rS" displayName="rS - Satiation memory decay rate [unitless]" type="string" 
-						defaultValue="0.25" 
+						defaultValue="0.05" 
 						isReadOnly="false"/>
         <parameter name="rR" displayName="rR - Reference memory decay rate [unitless]" type="string" 
-						defaultValue="0.1" 
+						defaultValue="0.04" 
 						isReadOnly="false"/>
         <parameter name="rU" displayName="rU - Food replenishment rate" type="string" 
 						defaultValue="0.1" 
@@ -101,11 +101,11 @@
 						isReadOnly="false" 
 		/>
 		<parameter name="c" displayName="c - Deterrence coefficient [unitless]" type="string" 
-						defaultValue="0.07" 
+						defaultValue="0.012" 
 						isReadOnly="false" 
 		/>
         <parameter name="RT" displayName="RT - Minimum received sound level for deterrence [dB]" type="string" 
-						defaultValue="152.9" 
+						defaultValue="152" 
 						isReadOnly="false" 
 		/>
         <parameter name="Psi_deter" displayName="Psi_deter - Deterrence decay constant [percent]" type="string" 
@@ -113,7 +113,7 @@
 						isReadOnly="false" 
 		/>
         <parameter name="ddisp" displayName="ddisp - Dispersal distance per time step [km]" type="string" 
-						defaultValue="1.5" 
+						defaultValue="2" 
 						isReadOnly="false" 
 		/>
         <parameter name="dmax_mov" displayName="dmax_mov - max movement distance" type="string" 
@@ -121,7 +121,7 @@
 						isReadOnly="false" 
 		/>
         <parameter name="Euse" displayName="Euse - Energy use per half-hour step in May-September" type="string" 
-						defaultValue="4.5" 
+						defaultValue="3.9" 
 						isReadOnly="false" 
 		/>
         <parameter name="Elact" displayName="Elact - Energy use multiplier for lactating mammals" type="string" 
@@ -252,7 +252,7 @@
 						isReadOnly="false" 
 		/>
         <parameter name="beta" displayName="beta - Survival probability constant" type="string" 
-						defaultValue="0.4" 
+						defaultValue="0.7" 
 						isReadOnly="false" 
 		/>
 		<parameter name="Umin" displayName="Umin - Minimum food level in a patch [relative unit]" type="string" 
