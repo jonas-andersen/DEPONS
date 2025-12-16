@@ -56,8 +56,10 @@ public final class DispersalFactory {
 			DispersalFactory.type = DispersalType.InnerDanishWaters;
 		} else if ("Undirected".equals(typeName)) {
 			DispersalFactory.type = DispersalType.Undirected;
-		} else {
+		} else if ("off".equalsIgnoreCase(typeName)) {
 			DispersalFactory.type = DispersalType.Off;
+		} else {
+			throw new RuntimeException("Unsupported dispersal type " + typeName);
 		}
 	}
 

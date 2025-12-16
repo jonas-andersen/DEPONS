@@ -107,7 +107,7 @@ public class PorpoiseSimBuilder implements ContextBuilder<Agent> {
 		}
 
 		if (Globals.ENERGETICS_USE_NEW) {
-			ReimplementationCheck.reset();
+			ReimplementationCheck.init();
 			Globals.caraSetupGlobalParameters();
 			PorpoiseInitializationBlubber.initialize();
 			ThermoregulationLookupTable.initialize();

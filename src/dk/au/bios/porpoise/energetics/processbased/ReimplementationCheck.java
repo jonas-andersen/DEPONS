@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import dk.au.bios.porpoise.Agent;
 import dk.au.bios.porpoise.Porpoise;
+import dk.au.bios.porpoise.SimulationParameters;
 import dk.au.bios.porpoise.util.SimulationTime;
 import repast.simphony.context.Context;
 
@@ -37,8 +38,10 @@ public class ReimplementationCheck {
 	private final List<Check> allChecks;
 
 	private final File checkOutputFile;
+	private final boolean isKattegat;
 
-	public ReimplementationCheck() {
+	private ReimplementationCheck() {
+		isKattegat = SimulationParameters.isLandscapeKattegat();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MMM.dd.HH_mm_ss_SS");
 		checkOutputFile = new File("ReimplementationCheck." + sdf.format(new Date()) + ".csv");
 		
@@ -170,18 +173,15 @@ public class ReimplementationCheck {
 	private static ReimplementationCheck INSTANCE;
 
 	public static ReimplementationCheck getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new ReimplementationCheck();
-		}
 		return INSTANCE;
 	}
 	
-	public static void reset() {
-		INSTANCE = null;
+	public static void init() {
+		INSTANCE = new ReimplementationCheck();
 	}
 
 	public boolean shouldProduce() {
-		if (SimulationTime.getTick() >= 1.0d && SimulationTime.isBeginningOfDay()) {
+		if (isKattegat && SimulationTime.getTick() >= 1.0d && SimulationTime.getYearOfSimulation() == SC_YEAR && SimulationTime.isBeginningOfDay()) {
 			if (allChecks.stream().filter(Predicate.not(Check::hasBeenCollected)).findAny().isPresent()) {
 				return true;
 			}
@@ -242,7 +242,7 @@ public class ReimplementationCheck {
 
 		void run(Context<Agent> context, File outputFile) {
 			if (!hasBeenCollected) {
-				var allPorps = context.getRandomObjectsAsStream(Porpoise.class, Long.MAX_VALUE);
+				var allPorps = context.getObjectsAsStream(Porpoise.class);
 				var grouped = allPorps.map(Porpoise.class::cast).collect(Collectors.groupingBy(p -> {
 					var porp = (Porpoise) p;
 					var energetics = (ProcessBasedEnergetics) porp.getEnergetics();

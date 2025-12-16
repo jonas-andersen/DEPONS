@@ -775,11 +775,6 @@ public class Porpoise extends Agent {
 	private void checkDepth() {
 		// Check that there is enough water at all steplengths ahead, set enough-water-ahead to false if < min-depth
 		this.enoughWaterAhead = true;
-		
-		// FIXME Shortcut added by Jonas, performance issue with this otherwise - CHECK WHY
-		if (SimulationParameters.isHomogeneous()) {
-			return;
-		}
 
 		final double presMov = Math.pow(10, this.presLogMov);
 		final double dd = Math.ceil(presMov / 0.1);
@@ -1119,12 +1114,12 @@ public class Porpoise extends Agent {
 			// Energy level higher than any of the previous seven days, stop dispersing;
 			if (this.dispersalBehaviour.isDispersing()) {
 				ProcessBasedEnergetics ce = (ProcessBasedEnergetics) this.energetics;
-				double min = ce.irrecordDaily.get(1);
+				double max = ce.irrecordDaily.get(1);
 				for (int i = 2; i < 8; i++) {
-					min = Math.min(min, ce.irrecordDaily.get(i));
+					max = Math.max(max, ce.irrecordDaily.get(i));
 				}
 
-				if (ce.irrecordDaily.get(0) < min) {
+				if (ce.irrecordDaily.get(0) < max) {
 //				double min = this.getEnergyLevelDaily().get(1);
 //				for (int i = 2; i < 8; i++) {
 //					min = Math.min(min, this.getEnergyLevelDaily().get(i));

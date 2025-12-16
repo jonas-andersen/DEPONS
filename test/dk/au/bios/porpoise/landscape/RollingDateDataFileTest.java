@@ -64,6 +64,84 @@ class RollingDateDataFileTest {
 	}
 
 	@Test
+	void mixed() throws Exception {
+		var fileNames = List.of(
+				"prey0000_XX_XX.asc",
+				"prey0002_01_XX.asc",
+				"prey0002_02_XX.asc",
+				"prey0002_03_XX.asc",
+				"prey0002_04_XX.asc",
+				"prey0002_05_XX.asc",
+				"prey0002_06_XX.asc",
+				"prey0002_07_XX.asc",
+				"prey0002_08_XX.asc",
+				"prey0002_09_01.asc",
+				"prey0002_09_02.asc",
+				"prey0002_09_03.asc",
+				"prey0002_09_04.asc",
+				"prey0002_09_05.asc",
+				"prey0002_09_06.asc",
+				"prey0002_09_07.asc",
+				"prey0002_09_08.asc",
+				"prey0002_09_09.asc",
+				"prey0002_09_10.asc",
+				"prey0002_09_11.asc",
+				"prey0002_09_12.asc",
+				"prey0002_09_13.asc",
+				"prey0002_09_14.asc",
+				"prey0002_09_15.asc",
+				"prey0002_09_16.asc",
+				"prey0002_09_17.asc",
+				"prey0002_09_18.asc",
+				"prey0002_09_19.asc",
+				"prey0002_09_20.asc",
+				"prey0002_09_21.asc",
+				"prey0002_09_22.asc",
+				"prey0002_09_23.asc",
+				"prey0002_09_24.asc",
+				"prey0002_09_25.asc",
+				"prey0002_09_26.asc",
+				"prey0002_09_27.asc",
+				"prey0002_09_28.asc",
+				"prey0002_09_29.asc",
+				"prey0002_09_30.asc",
+				"prey0002_10_XX.asc",
+				"prey0002_11_XX.asc",
+				"prey0002_12_XX.asc",
+				"prey0011_XX_XX.asc"
+		);
+
+		var cellDataSourceMock = mock(CellDataSource.class);
+		when(cellDataSourceMock.getNamesMatching(any())).thenReturn(fileNames);
+		
+		RollingDateDataFile rddf = new RollingDateDataFile("unittest", "prey", cellDataSourceMock);
+		assertThat(rddf.getRollingDateFile().getYear().getYear()).isEqualTo(0);
+
+		var year0 = rddf.getRollingDateFile().getYear(); 
+		assertThat(year0.getYear()).isEqualTo(0);
+		assertThat(year0.getStartTick()).isEqualTo(0);
+		assertThat(year0.getMonths()).hasSize(1);
+
+		var year2 = year0.getNextYear();
+		assertThat(year2.getYear()).isEqualTo(2);
+		assertThat(year2.getStartTick()).isEqualTo(34560);
+		assertThat(year2.getMonths()).hasSize(12);
+		assertThat(year2.getMonths().get(0).getMonth()).isEqualTo(1);
+		assertThat(year2.getMonths().get(0).getFiles()).hasSize(1);
+		assertThat(year2.getMonths().get(8).getMonth()).isEqualTo(9);
+		assertThat(year2.getMonths().get(8).getFiles()).hasSize(30);
+		for (int i = 0; i < 30; i++) {
+			assertThat(year2.getMonths().get(8).getFiles().get(i).day()).isEqualTo(i + 1);
+			assertThat(year2.getMonths().get(8).getFiles().get(i).fileName()).isEqualTo("prey0002_09_%02d.asc".formatted(i + 1));
+		}
+
+		var year11 = year2.getNextYear();
+		assertThat(year11.getYear()).isEqualTo(11);
+		assertThat(year11.getStartTick()).isEqualTo(190080);
+		assertThat(year11.getMonths()).hasSize(1);
+	}
+
+	@Test
 	void clashing() throws Exception {
 		var fileNames = List.of(
 				"prey0000_XX_XX.asc",
