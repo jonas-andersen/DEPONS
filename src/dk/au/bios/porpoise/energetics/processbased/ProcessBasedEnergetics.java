@@ -1115,6 +1115,7 @@ end
 		// FIXME This should probably be moved to DailyTasks
 		if (SimulationTime.isBeginningOfDay()) {
 			storageLevelSum = 0.0d;
+			IRRecordSum = 0.0d;
 			updBlubberDepths();
 		}
 	}
